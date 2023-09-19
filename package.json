@@ -1,5 +1,5 @@
 {
-  "name": "@aori/order-sdk",
+  "name": "@aori/sdk",
   "main": "src/index.ts",
   "scripts": {
     "types": "typechain --target=ethers-v6 abi/*.json --out-dir src/types",
