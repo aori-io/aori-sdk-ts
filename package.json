@@ -3,6 +3,7 @@
   "main": "src/index.ts",
   "scripts": {
     "types": "typechain --target=ethers-v6 abi/*.json --out-dir src/types",
+    "test": "",
     "build": "tsc",
     "clean": "rm -rf out"
   },
