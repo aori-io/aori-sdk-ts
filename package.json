@@ -1,6 +1,6 @@
 {
   "name": "@aori/sdk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "src/index.ts",
   "scripts": {
     "types": "typechain --target=ethers-v6 abi/*.json --out-dir src/types",
