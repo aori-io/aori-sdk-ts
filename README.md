@@ -1,1 +1,1 @@
-# Aori SDK
+# Aori TypeScript SDK
