@@ -56,6 +56,7 @@ export class XYK extends LimitOrderManager {
         });
 
         // Make new orders
+        console.log("Making new orders...");
         const aBalance: bigint = await this.aToken.balanceOf(this.wallet.address);
         const bBalance: bigint = await this.bToken.balanceOf(this.wallet.address);
         const k = aBalance * bBalance;
