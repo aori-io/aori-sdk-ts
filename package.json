@@ -7,7 +7,8 @@
     "types": "typechain --target=ethers-v6 abi/*.json --out-dir src/types",
     "test": "",
     "build": "tsc",
-    "clean": "rm -rf out"
+    "clean": "rm -rf out",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "@opensea/seaport-js": "^2.0.7",
