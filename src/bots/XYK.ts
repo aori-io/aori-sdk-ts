@@ -11,7 +11,7 @@ export class XYK extends LimitOrderManager {
     aToken: ERC20 = null as any;
     bToken: ERC20 = null as any;
     chainId: number = 5;
-    counter: number = 0;
+
     async initialise({ chainId, aTokenAddress, bTokenAddress }: { chainId: number, aTokenAddress: string, bTokenAddress: string }): Promise<void> {
         super.initialise();
 
