@@ -1,6 +1,7 @@
 import { OrderToExecute, OrderView } from "./interfaces";
 
 export enum AoriMethods {
+    Ping = "aori_ping",
     AuthWallet = "aori_authWallet",
     ViewOrderbook = "aori_viewOrderbook",
     MakeOrder = "aori_makeOrder",

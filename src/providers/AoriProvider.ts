@@ -40,6 +40,9 @@ export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitt
             }
 
             switch (this.messages[id]) {
+                case AoriMethods.Ping:
+                    console.log(`Received ${result} back`);
+                    break;
                 case AoriMethods.AuthWallet:
                     this.jwt = result.auth;
                     break;
@@ -100,6 +103,18 @@ export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitt
     /*//////////////////////////////////////////////////////////////
                                 ACTIONS
     //////////////////////////////////////////////////////////////*/
+
+    async ping() {
+        const id = this.counter;
+        this.messages[id] = AoriMethods.Ping;
+        this.actionsWebsocket.send(JSON.stringify({
+            id,
+            jsonrpc: "2.0",
+            method: AoriMethods.Ping,
+            params: []
+        }));
+        this.counter++;
+    }
 
     async authWallet() {
         const { address } = this.wallet;
