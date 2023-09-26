@@ -5,7 +5,7 @@ import { OrderWithCounter } from "../utils/helpers";
 import { ViewOrderbookQuery } from "./interfaces";
 import { AoriEvents, AoriMethods, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
 
-export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitter<AoriEvents>) {
+export class AoriProvider extends (EventEmitter as new () => TypedEmitter<AoriEvents>) {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket
     wallet: Wallet;
