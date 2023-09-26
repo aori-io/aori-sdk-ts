@@ -1,11 +1,22 @@
 import { JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
-import TypedEmitter from "typed-emitter";
-import { EventEmitter, WebSocket } from "ws";
+import { WebSocket } from "ws";
 import { OrderWithCounter } from "../utils/helpers";
-import { ViewOrderbookQuery } from "./interfaces";
-import { AoriEvents, AoriMethods, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
+import { TypedEventEmitter } from "../utils/TypedEventEmitter";
+import { OrderToExecute, OrderView, ViewOrderbookQuery } from "./interfaces";
+import { AoriMethods, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
 
-export class AoriProvider extends (EventEmitter as new () => TypedEmitter<AoriEvents>) {
+type AoriMethodsEvents = {
+    [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
+    [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],
+    [ResponseEvents.AoriMethods.AccountOrders]: [orders: OrderView[]],
+    [ResponseEvents.AoriMethods.OrderStatus]: [order: OrderView],
+    [ResponseEvents.SubscriptionEvents.OrderCreated]: [order: OrderView],
+    [ResponseEvents.SubscriptionEvents.OrderCancelled]: [orderHash: string],
+    [ResponseEvents.SubscriptionEvents.OrderTaken]: [orderHash: string],
+    [ResponseEvents.SubscriptionEvents.OrderFulfilled]: [orderHash: string],
+};
+
+export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket
     wallet: Wallet;

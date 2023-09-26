@@ -22,7 +22,6 @@
     "@types/ws": "^8.5.5",
     "ts-node": "^10.9.1",
     "typechain": "^8.3.1",
-    "typed-emitter": "^2.1.0",
     "typescript": "^5.2.2"
   }
 }
