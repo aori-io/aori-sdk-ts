@@ -94,10 +94,8 @@ class OrderExecutor extends AoriSDK.LimitOrderManager {
         this.chainId = chainId;
     }
 ```
-```typescript
-executorWallet
-```
-will be the wallet that creates signatures and interacts with the chain.
+
+```executorWallet``` will be the wallet that creates signatures and interacts with the chain.
 Note that ```chainId``` is set to 5 as we're using the Goerli testnet.
 
 Now we can write a function that takes the relevant inputs, formats them into a limit order and sends it to the API.
