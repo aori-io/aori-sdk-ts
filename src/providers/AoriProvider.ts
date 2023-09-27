@@ -1,21 +1,10 @@
-import { JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
+import { ItemType } from "@opensea/seaport-js/lib/constants";
+import { BigNumberish, JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { OrderWithCounter } from "../utils/helpers";
+import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { OrderToExecute, OrderView, ViewOrderbookQuery } from "./interfaces";
-import { AoriMethods, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
-
-type AoriMethodsEvents = {
-    [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
-    [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],
-    [ResponseEvents.AoriMethods.AccountOrders]: [orders: OrderView[]],
-    [ResponseEvents.AoriMethods.OrderStatus]: [order: OrderView],
-    [ResponseEvents.SubscriptionEvents.OrderCreated]: [order: OrderView],
-    [ResponseEvents.SubscriptionEvents.OrderCancelled]: [orderHash: string],
-    [ResponseEvents.SubscriptionEvents.OrderTaken]: [orderHash: string],
-    [ResponseEvents.SubscriptionEvents.OrderFulfilled]: [orderHash: string],
-};
-
+import { ViewOrderbookQuery } from "./interfaces";
+import { AoriMethods, AoriMethodsEvents, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket
@@ -110,6 +99,40 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     //////////////////////////////////////////////////////////////*/
 
     async initialise(...any: any[]): Promise<void> { }
+
+    async createLimitOrder({
+        offerer = this.wallet.address,
+        inputToken,
+        inputTokenType = ItemType.ERC20,
+        inputAmount,
+        outputToken,
+        outputTokenType = ItemType.ERC20,
+        outputAmount,
+        chainId = 5
+    }: {
+        offerer: string;
+        inputToken: string;
+        inputTokenType?: ItemType;
+        inputAmount: BigNumberish;
+        outputToken: string;
+        outputTokenType?: ItemType;
+        outputAmount: BigNumberish;
+        chainId?: string | number;
+    }) {
+        const limitOrder = await formatIntoLimitOrder({
+            offerer,
+            inputToken,
+            inputTokenType,
+            inputAmount,
+            outputToken,
+            outputTokenType,
+            outputAmount,
+            provider: this.provider,
+            chainId
+        });
+        limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
+        return limitOrder;
+    }
 
     /*//////////////////////////////////////////////////////////////
                                 ACTIONS
