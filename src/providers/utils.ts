@@ -27,6 +27,9 @@ export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEve
 export type AoriMethodsEvents = {
     [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
     [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],
+    [ResponseEvents.AoriMethods.MakeOrder]: [orderHash: string],
+    [ResponseEvents.AoriMethods.CancelOrder]: [orderHash: string],
+    [ResponseEvents.AoriMethods.TakeOrder]: [orderHash: string],
     [ResponseEvents.AoriMethods.AccountOrders]: [orders: OrderView[]],
     [ResponseEvents.AoriMethods.OrderStatus]: [order: OrderView],
     [ResponseEvents.SubscriptionEvents.OrderCreated]: [order: OrderView],

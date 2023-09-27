@@ -39,7 +39,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 throw error;
             }
 
-            switch (this.messages[id]) {
+            switch (this.messages[id] || null) {
                 case AoriMethods.Ping:
                     console.log(`Received ${result} back`);
                     break;
@@ -48,6 +48,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
                 case AoriMethods.ViewOrderbook:
                     this.emit(ResponseEvents.AoriMethods.ViewOrderbook, result.orders);
+                    break;
+                case AoriMethods.MakeOrder:
+                    this.emit(ResponseEvents.AoriMethods.MakeOrder, result.orderHash);
+                    break;
+                case AoriMethods.CancelOrder:
+                    this.emit(ResponseEvents.AoriMethods.CancelOrder, result.orderHash);
+                    break;
+                case AoriMethods.TakeOrder:
+                    this.emit(ResponseEvents.AoriMethods.TakeOrder, result.orderHash);
                     break;
                 case AoriMethods.AccountOrders:
                     this.emit(ResponseEvents.AoriMethods.AccountOrders, result.orders);
@@ -64,6 +73,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                             this.emit(ResponseEvents.NotificationEvents.OrderToExecute, data);
                             break;
                         default:
+                            console.error(`Unexpected notification event: ${type}`);
                             break;
                     }
                     break;
