@@ -16,7 +16,7 @@ This SDK is released under the [MIT License](LICENSE).
 - [Installation](#Installation)
   - [Initialization](#Initialization)
   - [Websockets](#Websockets)
-- [Useful Functions](#Useful Functions)
+- [Useful Functions](#UsefulFunctions)
   - [CreateLimitOrder](#CreateLimitOrder)
 
 # Installation
