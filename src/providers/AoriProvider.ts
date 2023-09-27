@@ -110,7 +110,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         outputAmount,
         chainId = 5
     }: {
-        offerer: string;
+        offerer?: string;
         inputToken: string;
         inputTokenType?: ItemType;
         inputAmount: BigNumberish;
