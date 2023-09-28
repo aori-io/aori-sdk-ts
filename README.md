@@ -18,6 +18,10 @@ This SDK is released under the [MIT License](LICENSE).
   - [Websockets](#Websockets)
 - [Useful Functions](#UsefulFunctions)
   - [CreateLimitOrder](#CreateLimitOrder)
+  - [ViewOrderbook](#ViewOrderbook)
+  - [SubscribeOrderbook](#subscribeOrderbook)
+  - [TakeOrder](#TakeOrder)
+
 
 # Installation
 
@@ -65,7 +69,7 @@ const subscriptionsWebsocket = new WebSocket('wss://api.beta.order.aori.io');
 ```
 Note that you'll need two variables to interact with the limitOrderManager class.
 
-# Useful Functions
+## Useful Functions
 
 Here we'll go over a few quick examples of how to interact with the main functions of the SDK.
 
@@ -94,8 +98,10 @@ class OrderExecutor extends AoriSDK.LimitOrderManager {
         this.chainId = chainId;
     }
 ```
-
-```executorWallet``` will be the wallet that creates signatures and interacts with the chain.
+```typescript
+executorWallet
+```
+will be the wallet that creates signatures and interacts with the chain.
 Note that ```chainId``` is set to 5 as we're using the Goerli testnet.
 
 Now we can write a function that takes the relevant inputs, formats them into a limit order and sends it to the API.
@@ -124,4 +130,154 @@ async createOrder(sellToken: string, buyToken: string) {
         order.signature = await AoriSDK.signOrder(executorWallet as any, order, chainId); // adding a signature to the order
         await this.makeOrder({ order: order, chainId: chainId }); // sending the order to the API
     }
+```
+
+## View Orderbook
+
+Used to pull all orders for a given Base/Quote pair. Returns an list of objects.
+
+First we create a payload JSON object
+
+```typescript
+    const payload = JSON.stringify({
+        "id": i,
+        "jsonrpc": "2.0",
+        "method": "aori_viewOrderbook",
+        "params": [{
+          "chainId": 5,
+          "query": {
+            "base": wethAddress,
+            "quote": usdcAddress
+          }
+        }]
+      });
+```
+Then send our payload to the API endpoint. 
+
+```typescript
+this.actionsWebsocket.send(payload);
+```
+This will return a list of order objects in the format:
+
+```typescript
+{
+  "id": <unique_request_id>,
+  "result": {
+    "orders": [
+      {
+        // Order details
+      },
+      // ... more orders
+    ]
+  }
+}
+```
+
+## SubscribeOrderbook
+
+Alternatively, we can subscribe to the orderbook to be notified whenever a new order is posted. 
+Because our ```OrderExecutor``` class inherits from ```AoriProvider``` the class object will already
+be listening out for orderbook events, therefore we can access new events as soon as they
+are detected by employing ```this.on()``` like so:
+
+```typescript
+this.on(SubscriptionEvents.OrderCreated, async (orderDetails) => {
+        console.log(orderDetails);
+    });
+```
+Or for cancelled orders:
+
+```typescript
+this.on(SubscriptionEvents.OrderCancelled, async (orderDetails) => {
+        console.log(orderDetails);
+    });
+```
+and so forth.
+
+## TakeOrder
+
+To take a specific order, the API expects an object in the following format:
+
+```typescript
+const takeOrderPayload = {
+  "id": i,
+  "jsonrpc": "2.0",
+  "method": "aori_takeOrder",
+  "params": [{
+    "orderId": "<order_id>",
+     "order": {
+      // Order details
+      "parameters": {
+        "offerer": "0x...", // Address of wallet who made the order
+        "zone": "0x...",
+        "zoneHash": "",
+        "startTime": "0",
+        "endTime": "10000...",
+        "orderType": 3, // PARTIAL_RESTRICTED
+        "offer": [{
+          "itemType": 1, // ERC20
+          "token": "0x...",
+          "identifierOrCriteria": "0",
+          "startAmount": "10000..",
+          "endAmount": "10000.."
+        }, ...],
+        "consideration": [{
+          "itemType": 1, // ERC20
+          "token": "0x...",
+          "identifierOrCriteria": "0",
+          "startAmount": "10000..",
+          "endAmount": "10000.."
+          "recipient": "0x..."
+        }, ...],
+        "totalOriginalConsiderationItems": "100...",
+        "salt": "0",
+        "conduitKey": "0x...",
+        "counter": "0"
+      },
+      "signature": <signed typed signature of order> // Using signOrder function from before
+    },
+    "seatId": <seat_id>, // Optional
+    "apiKey": <api_key_or_jwt>
+  }]
+}
+```
+And can be called in much the same way as other functions:
+
+```typescript
+await this.actionsWebsocket.send(takeOrderPayload);
+```
+
+## CancelOrder
+
+Orders can be cancelled via sending a signed cancelOrder object to the endpoint. 
+The order must be signed by the same wallet that originally created the order.
+
+To sign an order, we can use
+
+```typescript
+async signCancelOrder(orderId) {
+        const signature = this.wallet.signMessageSync(orderId);
+        return signature
+    }
+```
+
+in order to create the object:
+
+```typescript
+const cancelOrderObject = JSON.stringify({
+  "id": i,
+  "jsonrpc": "2.0",
+  "method": "aori_cancelOrder",
+  "params": [{
+    "orderId": orderId,
+    "signature": signature,
+    "apiKey": "<api_key_or_jwt>"
+  }]
+});
+```
+
+Which we send to the endpoint as we have done previously:
+
+```typescript
+await this.actionsWebsocket.send(cancelOrderObject);
 ```
