@@ -1,26 +1,28 @@
 # Aori TypeScript SDK
 
-This repository contains all the code required to locally install and run the Aori SDK. 
-This repo was designed such that integrations for our partners can be as smooth and seamless as possible, providing all the necessary abstractions to allow anyone to easily start building on top of the Aori Protocol.
-If you have any further questions, refer to [the technical documentation](https://www.aori.io/developers).
-Alternatively, please reach out to us [on Discord](https://discord.gg/K37wkh2ZfR) or [on Twitter](https://twitter.com/aori_io).
-
-Contained within this SDK are the following utilities:
-- Types: All custom types used within the Protocol
-- Provider: AoriProvider class allows for connection to the protocol and includes class extensions OrderbookListener and LimitOrderManager
-- Dynamic Order Hashing: Utilizes EIP-712 standard for generating typed data hashes for orders + OrderHasher class for deriving unique order hashes
+Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for the Aori Protocol to help developers integrate and build on top of the protocol as easily as possible.
 
 This SDK is released under the [MIT License](LICENSE).
+
+---
+
+If you have any further questions, refer to [the technical documentation](https://www.aori.io/developers). Alternatively, please reach out to us [on Discord](https://discord.gg/K37wkh2ZfR) or [on Twitter](https://twitter.com/aori_io).
 
 ## Table of Contents
 - [Installation](#Installation)
   - [Initialization](#Initialization)
   - [Websockets](#Websockets)
-- [Useful Functions](#UsefulFunctions)
-  - [CreateLimitOrder](#CreateLimitOrder)
-  - [ViewOrderbook](#ViewOrderbook)
-  - [SubscribeOrderbook](#subscribeOrderbook)
-  - [TakeOrder](#TakeOrder)
+- [Key Functionalities](#UsefulFunctions)
+  - [Order Creation and Management]()
+    - [Creating a Limit Order](#CreateLimitOrder)
+    - [Publishing the Limit Order](#ViewOrderbook)
+    - [Cancelling a Limit Order](#CancelLimitOrder)
+  - [Orderbook Queries](#OrderbookQueries)
+    - [Query the Orderbook](#view-orderbook)
+    - [Subscribe to the orderbook](#subscribeOrderbook)
+  - [Order Taking, Execution and Settlement]()
+    - [Taking an order](#Take)
+    - [Executing an order](#Execute)
 
 
 # Installation
@@ -42,11 +44,13 @@ yarn add @aori-io/sdk
 After installation, use the following import command interact with the SDK:
 
 ```typescript
-import * as AoriSDK from '@aori-io/sdk';
+import { AoriProvider } from '@aori-io/sdk';
 ```
 Then access specific functions like so:
 ```typescript
-const formattedLimitOrder = AoriSDK.formatIntoLimitOrder();
+const provider = new AoriProvider(...);
+...
+await provider.makeOrder(...);
 ```
 
 ## Websockets
@@ -69,11 +73,11 @@ const subscriptionsWebsocket = new WebSocket('wss://api.beta.order.aori.io');
 ```
 Note that you'll need two variables to interact with the limitOrderManager class.
 
-## Useful Functions
+## Key Functionalities
 
 Here we'll go over a few quick examples of how to interact with the main functions of the SDK.
 
-## CreateLimitOrder
+### Creating a Limit Order
 
 Standard function to programmatically create and send orders to the protocol. First, we'll create a class
 object that we can control our transactions from.
@@ -132,7 +136,7 @@ async createOrder(sellToken: string, buyToken: string) {
     }
 ```
 
-## View Orderbook
+### View Orderbook
 
 Used to pull all orders for a given Base/Quote pair. Returns an list of objects.
 
@@ -173,7 +177,7 @@ This will return a list of order objects in the format:
 }
 ```
 
-## SubscribeOrderbook
+### SubscribeOrderbook
 
 Alternatively, we can subscribe to the orderbook to be notified whenever a new order is posted. 
 Because our ```OrderExecutor``` class inherits from ```AoriProvider``` the class object will already
@@ -194,7 +198,7 @@ this.on(SubscriptionEvents.OrderCancelled, async (orderDetails) => {
 ```
 and so forth.
 
-## TakeOrder
+### TakeOrder
 
 To take a specific order, the API expects an object in the following format:
 
@@ -247,7 +251,7 @@ And can be called in much the same way as other functions:
 await this.actionsWebsocket.send(takeOrderPayload);
 ```
 
-## CancelOrder
+### CancelOrder
 
 Orders can be cancelled via sending a signed cancelOrder object to the endpoint. 
 The order must be signed by the same wallet that originally created the order.
