@@ -11,7 +11,7 @@ export class XYK extends LimitOrderManager {
     aToken: ERC20 = null as any;
     bToken: ERC20 = null as any;
     chainId: number = 5;
-    counter: number = 0;
+
     async initialise({ chainId, aTokenAddress, bTokenAddress }: { chainId: number, aTokenAddress: string, bTokenAddress: string }): Promise<void> {
         super.initialise();
 
@@ -56,6 +56,7 @@ export class XYK extends LimitOrderManager {
         });
 
         // Make new orders
+        console.log("Making new orders...");
         const aBalance: bigint = await this.aToken.balanceOf(this.wallet.address);
         const bBalance: bigint = await this.bToken.balanceOf(this.wallet.address);
         const k = aBalance * bBalance;

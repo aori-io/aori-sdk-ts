@@ -1,11 +1,11 @@
-import { JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
-import TypedEmitter from "typed-emitter";
-import { EventEmitter, WebSocket } from "ws";
-import { OrderWithCounter } from "../utils/helpers";
+import { ItemType } from "@opensea/seaport-js/lib/constants";
+import { BigNumberish, JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
+import { WebSocket } from "ws";
+import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
+import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
-import { AoriEvents, AoriMethods, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
-
-export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitter<AoriEvents>) {
+import { AoriMethods, AoriMethodsEvents, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
+export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket
     wallet: Wallet;
@@ -39,12 +39,24 @@ export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitt
                 throw error;
             }
 
-            switch (this.messages[id]) {
+            switch (this.messages[id] || null) {
+                case AoriMethods.Ping:
+                    console.log(`Received ${result} back`);
+                    break;
                 case AoriMethods.AuthWallet:
                     this.jwt = result.auth;
                     break;
                 case AoriMethods.ViewOrderbook:
                     this.emit(ResponseEvents.AoriMethods.ViewOrderbook, result.orders);
+                    break;
+                case AoriMethods.MakeOrder:
+                    this.emit(ResponseEvents.AoriMethods.MakeOrder, result.orderHash);
+                    break;
+                case AoriMethods.CancelOrder:
+                    this.emit(ResponseEvents.AoriMethods.CancelOrder, result.orderHash);
+                    break;
+                case AoriMethods.TakeOrder:
+                    this.emit(ResponseEvents.AoriMethods.TakeOrder, result.orderHash);
                     break;
                 case AoriMethods.AccountOrders:
                     this.emit(ResponseEvents.AoriMethods.AccountOrders, result.orders);
@@ -61,6 +73,7 @@ export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitt
                             this.emit(ResponseEvents.NotificationEvents.OrderToExecute, data);
                             break;
                         default:
+                            console.error(`Unexpected notification event: ${type}`);
                             break;
                     }
                     break;
@@ -97,9 +110,55 @@ export abstract class AoriProvider extends (EventEmitter as new () => TypedEmitt
 
     async initialise(...any: any[]): Promise<void> { }
 
+    async createLimitOrder({
+        offerer = this.wallet.address,
+        inputToken,
+        inputTokenType = ItemType.ERC20,
+        inputAmount,
+        outputToken,
+        outputTokenType = ItemType.ERC20,
+        outputAmount,
+        chainId = 5
+    }: {
+        offerer?: string;
+        inputToken: string;
+        inputTokenType?: ItemType;
+        inputAmount: BigNumberish;
+        outputToken: string;
+        outputTokenType?: ItemType;
+        outputAmount: BigNumberish;
+        chainId?: string | number;
+    }) {
+        const limitOrder = await formatIntoLimitOrder({
+            offerer,
+            inputToken,
+            inputTokenType,
+            inputAmount,
+            outputToken,
+            outputTokenType,
+            outputAmount,
+            provider: this.provider,
+            chainId
+        });
+        limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
+        return limitOrder;
+    }
+
     /*//////////////////////////////////////////////////////////////
                                 ACTIONS
     //////////////////////////////////////////////////////////////*/
+
+    async ping() {
+        const id = this.counter;
+        this.messages[id] = AoriMethods.Ping;
+        this.actionsWebsocket.send(JSON.stringify({
+            id,
+            jsonrpc: "2.0",
+            method: AoriMethods.Ping,
+            params: []
+        }));
+        this.counter++;
+    }
 
     async authWallet() {
         const { address } = this.wallet;

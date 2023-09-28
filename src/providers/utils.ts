@@ -1,6 +1,7 @@
 import { OrderToExecute, OrderView } from "./interfaces";
 
 export enum AoriMethods {
+    Ping = "aori_ping",
     AuthWallet = "aori_authWallet",
     ViewOrderbook = "aori_viewOrderbook",
     MakeOrder = "aori_makeOrder",
@@ -23,13 +24,16 @@ export enum SubscriptionEvents {
 
 export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEvents };
 
-export type AoriEvents = {
-    [ResponseEvents.NotificationEvents.OrderToExecute]: (orderToExecute: OrderToExecute) => void,
-    [ResponseEvents.AoriMethods.ViewOrderbook]: (orders: OrderView[]) => void,
-    [ResponseEvents.AoriMethods.AccountOrders]: (orders: OrderView[]) => void,
-    [ResponseEvents.AoriMethods.OrderStatus]: (order: OrderView) => void,
-    [ResponseEvents.SubscriptionEvents.OrderCreated]: (order: OrderView) => void,
-    [ResponseEvents.SubscriptionEvents.OrderCancelled]: (orderHash: string) => void,
-    [ResponseEvents.SubscriptionEvents.OrderTaken]: (orderHash: string) => void,
-    [ResponseEvents.SubscriptionEvents.OrderFulfilled]: (orderHash: string) => void,
-}
+export type AoriMethodsEvents = {
+    [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
+    [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],
+    [ResponseEvents.AoriMethods.MakeOrder]: [orderHash: string],
+    [ResponseEvents.AoriMethods.CancelOrder]: [orderHash: string],
+    [ResponseEvents.AoriMethods.TakeOrder]: [orderHash: string],
+    [ResponseEvents.AoriMethods.AccountOrders]: [orders: OrderView[]],
+    [ResponseEvents.AoriMethods.OrderStatus]: [order: OrderView],
+    [ResponseEvents.SubscriptionEvents.OrderCreated]: [order: OrderView],
+    [ResponseEvents.SubscriptionEvents.OrderCancelled]: [orderHash: string],
+    [ResponseEvents.SubscriptionEvents.OrderTaken]: [orderHash: string],
+    [ResponseEvents.SubscriptionEvents.OrderFulfilled]: [orderHash: string],
+};
