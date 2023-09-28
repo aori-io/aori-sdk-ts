@@ -1,6 +1,6 @@
 # Aori TypeScript SDK
 
-Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for the Aori Protocol to help developers integrate and build on top of the protocol as easily as possible.
+Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for interacting with the Aori Websocket-based API to help developers integrate and build on top of the protocol as easily as possible.
 
 This SDK is released under the [MIT License](LICENSE).
 
@@ -41,7 +41,7 @@ yarn add @aori-io/sdk
 
 ## Initialization
 
-After installation, use the following import command interact with the SDK:
+After installation, use the following import command interact with the SDK to import the base class `AoriProvider` that will allow you to do many of the base functionalities:
 
 ```typescript
 import { AoriProvider } from '@aori-io/sdk';
@@ -53,27 +53,31 @@ const provider = new AoriProvider(...);
 await provider.makeOrder(...);
 ```
 
-## Websockets
+## Sidenote: Websockets
 
-Firstly if the ws package is not installed, do so by running
+As the Aori API is a Websocket-based API, requests and responses may come back in an asynchronous manner. The `AoriProvider` class is an event-based class that is built to handle this, managing requests through the use of a `counter`.
 
-```bash
-npm install ws
 ```
-then importing it into the script using the following
+Request:
+aori_makeOrder(id = 63, ...)
 
+Corresponding response:
+{
+  id: 63,
+  result: ...
+}
+```
+
+`AoriProvider` also inherits the `EventEmitter` class, meaning that it will emit events when the responses of requests and notifications (where no request was made to receive) are made.
 ```typescript
-import { WebSocket } from 'ws';
+const provider = new AoriProvider(...);
+...
+provider.on(ResponseEvents.NotificationEvents.OrderToExecute, (...) => {
+  ...
+});
 ```
-After this is done, you can connect to the Aori API via the endpoints:
 
-```typescript
-const actionsWebsocket = new WebSocket('wss://api.beta.order.aori.io');
-const subscriptionsWebsocket = new WebSocket('wss://api.beta.order.aori.io');
-```
-Note that you'll need two variables to interact with the limitOrderManager class.
-
-## Key Functionalities
+# Key Functionalities
 
 Here we'll go over a few quick examples of how to interact with the main functions of the SDK.
 

@@ -1,13 +1,14 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import { BigNumberish, JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
+import { actionsURL, subscriptionsURL } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
-    subscriptionsWebsocket: WebSocket
+    subscriptionsWebsocket: WebSocket;
     wallet: Wallet;
     provider: JsonRpcProvider;
     apiKey: string = "";
@@ -20,14 +21,23 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(actionsWebsocket: WebSocket, subscriptionsWebsocket: WebSocket, wallet: Wallet, provider: JsonRpcProvider, apiKey?: string) {
+    constructor({
+        wallet,
+        provider,
+        apiKey
+    }: {
+        wallet: Wallet,
+        provider: JsonRpcProvider,
+        apiKey?: string
+    }) {
         super();
 
-        this.actionsWebsocket = actionsWebsocket;
-        this.subscriptionsWebsocket = subscriptionsWebsocket;
+        this.actionsWebsocket = new WebSocket(actionsURL);
+        this.subscriptionsWebsocket = new WebSocket(subscriptionsURL);
         this.wallet = wallet;
-        this.messages = {};
         this.provider = provider;
+
+        this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
         this.actionsWebsocket.on("message", (msg) => {
