@@ -199,7 +199,7 @@ and so forth.
 To take a specific order, the API expects an object in the following format:
 
 ```typescript
-const takeOrderPayload = {
+const takeOrderPayload = JSON.stringify({
   "id": i,
   "jsonrpc": "2.0",
   "method": "aori_takeOrder",
@@ -239,7 +239,7 @@ const takeOrderPayload = {
     "seatId": <seat_id>, // Optional
     "apiKey": <api_key_or_jwt>
   }]
-}
+});
 ```
 And can be called in much the same way as other functions:
 
