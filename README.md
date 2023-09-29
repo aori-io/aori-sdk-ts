@@ -14,15 +14,15 @@ If you have any further questions, refer to [the technical documentation](https:
   - [Websockets](#Websockets)
 - [Key Functionalities](#UsefulFunctions)
   - [Order Creation and Management]()
-    - [Creating a Limit Order](#CreateLimitOrder)
-    - [Publishing the Limit Order](#ViewOrderbook)
-    - [Cancelling a Limit Order](#CancelLimitOrder)
-  - [Orderbook Queries](#OrderbookQueries)
-    - [Query the Orderbook](#view-orderbook)
-    - [Subscribe to the orderbook](#subscribeOrderbook)
-  - [Order Taking, Execution and Settlement]()
-    - [Taking an order](#Take)
-    - [Executing an order](#Execute)
+    - [Creating a Limit Order](#creating-a-limit-order)
+    - [Publishing a Limit Order](#publishing-a-limit-order)
+    - [Cancelling a Limit Order](#cancelling-a-limit-order)
+  - [Orderbook Queries](#orderbook-queries)
+    - [Querying the Orderbook](#querying-the-orderbook)
+    - [Subscribing to the orderbook](#subscribing-to-the-orderbook)
+  - [Order Taking, Execution and Settlement](#order-taking-execution-and-settlement)
+    - [Taking an Order](#taking-an-order)
+    - [Executing an order](#executing-an-order)
 
 
 # Installation
@@ -79,213 +79,154 @@ provider.on(ResponseEvents.NotificationEvents.OrderToExecute, (...) => {
 
 # Key Functionalities
 
-Here we'll go over a few quick examples of how to interact with the main functions of the SDK.
+There are a number of key functionalities that can be performed using the SDK. Examples are accompanied by code snippets below.
 
 ### Creating a Limit Order
 
-Standard function to programmatically create and send orders to the protocol. First, we'll create a class
-object that we can control our transactions from.
+Limit orders are the first class citzen of the Aori protocol, based off the traditional limit order. A limit order object can be created via the helper function `createLimitOrder` provided.
 
 ```typescript
-class OrderExecutor extends AoriSDK.LimitOrderManager {
-    private executorWallet: Wallet;
-    private chainId: number;
+const offerer = "0x...";
+const inputToken = "0x...";
+const inputAmount = '1000000000000000000'; // Selling 1 unit of token A
+const outputToken = "0x...";
+const outputAmount = '1000000000000000000'; // Buying 1 unit of token B
+const chainId = 5;
 
-    constructor(
-        executorWallet: Wallet,
-        chainId: number = 5,
-    ){
-        super(
-            actionsWebsocket,
-            subscriptionsWebsocket,
-            executorWallet as any,
-            provider,
-            apiKey);
-        
-        this.executorWallet = executorWallet;    
-        this.chainId = chainId;
-    }
-```
-```typescript
-executorWallet
-```
-will be the wallet that creates signatures and interacts with the chain.
-Note that ```chainId``` is set to 5 as we're using the Goerli testnet.
-
-Now we can write a function that takes the relevant inputs, formats them into a limit order and sends it to the API.
-
-```typescript
-async createOrder(sellToken: string, buyToken: string) {
-        const offerer = executorWallet.address;
-        const inputToken = sellToken;
-        const inputAmount = '1000000000000000000'; // Selling 1 unit of token A
-        const outputToken = buyToken;
-        const outputAmount = '1000000000000000000'; // Buying 1 unit of token B
-        const chainId = this.chainId
-
-        const order = await AoriSDK.formatIntoLimitOrder({
-                offerer,
-                inputToken,
-                inputAmount,
-                outputToken,
-                outputAmount,
-                chainId,
-                provider
-                }
-            )
-        // taking all our arguments and calling the format function to create an order that's ready to send
-
-        order.signature = await AoriSDK.signOrder(executorWallet as any, order, chainId); // adding a signature to the order
-        await this.makeOrder({ order: order, chainId: chainId }); // sending the order to the API
-    }
-```
-
-### View Orderbook
-
-Used to pull all orders for a given Base/Quote pair. Returns an list of objects.
-
-First we create a payload JSON object
-
-```typescript
-    const payload = JSON.stringify({
-        "id": i,
-        "jsonrpc": "2.0",
-        "method": "aori_viewOrderbook",
-        "params": [{
-          "chainId": 5,
-          "query": {
-            "base": wethAddress,
-            "quote": usdcAddress
-          }
-        }]
-      });
-```
-Then send our payload to the API endpoint. 
-
-```typescript
-this.actionsWebsocket.send(payload);
-```
-This will return a list of order objects in the format:
-
-```typescript
-{
-  "id": <unique_request_id>,
-  "result": {
-    "orders": [
-      {
-        // Order details
-      },
-      // ... more orders
-    ]
-  }
-}
-```
-
-### SubscribeOrderbook
-
-Alternatively, we can subscribe to the orderbook to be notified whenever a new order is posted. 
-Because our ```OrderExecutor``` class inherits from ```AoriProvider``` the class object will already
-be listening out for orderbook events, therefore we can access new events as soon as they
-are detected by employing ```this.on()``` like so:
-
-```typescript
-this.on(SubscriptionEvents.OrderCreated, async (orderDetails) => {
-        console.log(orderDetails);
-    });
-```
-Or for cancelled orders:
-
-```typescript
-this.on(SubscriptionEvents.OrderCancelled, async (orderDetails) => {
-        console.log(orderDetails);
-    });
-```
-and so forth.
-
-### TakeOrder
-
-To take a specific order, the API expects an object in the following format:
-
-```typescript
-const takeOrderPayload = JSON.stringify({
-  "id": i,
-  "jsonrpc": "2.0",
-  "method": "aori_takeOrder",
-  "params": [{
-    "orderId": "<order_id>",
-     "order": {
-      // Order details
-      "parameters": {
-        "offerer": "0x...", // Address of wallet who made the order
-        "zone": "0x...",
-        "zoneHash": "",
-        "startTime": "0",
-        "endTime": "10000...",
-        "orderType": 3, // PARTIAL_RESTRICTED
-        "offer": [{
-          "itemType": 1, // ERC20
-          "token": "0x...",
-          "identifierOrCriteria": "0",
-          "startAmount": "10000..",
-          "endAmount": "10000.."
-        }, ...],
-        "consideration": [{
-          "itemType": 1, // ERC20
-          "token": "0x...",
-          "identifierOrCriteria": "0",
-          "startAmount": "10000..",
-          "endAmount": "10000.."
-          "recipient": "0x..."
-        }, ...],
-        "totalOriginalConsiderationItems": "100...",
-        "salt": "0",
-        "conduitKey": "0x...",
-        "counter": "0"
-      },
-      "signature": <signed typed signature of order> // Using signOrder function from before
-    },
-    "seatId": <seat_id>, // Optional
-    "apiKey": <api_key_or_jwt>
-  }]
-});
-```
-And can be called in much the same way as other functions:
-
-```typescript
-await this.actionsWebsocket.send(takeOrderPayload);
-```
-
-### CancelOrder
-
-Orders can be cancelled via sending a signed cancelOrder object to the endpoint. 
-The order must be signed by the same wallet that originally created the order.
-
-To sign an order, we can use
-
-```typescript
-async signCancelOrder(orderId) {
-        const signature = this.wallet.signMessageSync(orderId);
-        return signature
-    }
-```
-
-in order to create the object:
-
-```typescript
-const cancelOrderObject = JSON.stringify({
-  "id": i,
-  "jsonrpc": "2.0",
-  "method": "aori_cancelOrder",
-  "params": [{
-    "orderId": orderId,
-    "signature": signature,
-    "apiKey": "<api_key_or_jwt>"
-  }]
+const provider = new AoriProvider(...);
+...
+...
+...
+const order = await provider.createLimitOrder({
+    offerer,
+    inputToken,
+    outputToken,
+    inputAmount,
+    outputAmount,
+    chainId,
 });
 ```
 
-Which we send to the endpoint as we have done previously:
+It should be noted that this does not actually publish the limit order into the Aori orderbook - it only creates the order object locally to format it correctly before it is sent off. 
+
+### Publishing a Limit Order
+
+To publish a limit order, the method `makeOrder` can be used. Upon success, the limit order will be published live onto the orderbook for another user or trader to take.
+```typescript
+const chainId = 5; // Goerli
+const provider = new AoriProvider(...);
+...
+...
+...
+const order = await provider.createLimitOrder(...);
+...
+...
+...
+await provider.makeOrder({ order: order, chainId: chainId });
+```
+
+### Cancelling a Limit Order
+
+To cancel a limit order, the method `cancelOrder` can be used. Upon success, the limit order will be cancelled from the orderbook for another user or trader to take.
+```typescript
+const chainId = 5; // Goerli
+const orderId = "...";
+const provider = new AoriProvider(...);
+...
+...
+...
+await provider.cancelOrder({ orderId: orderId, chainId: chainId });
+```
+
+## Orderbook Queries
+
+### Querying the Orderbook
+To view any public orders available to take on the orderbook, the method `viewOrderbook` can be used. This will provide a snapshot of the orderbook with the provided filter. If no filter is given, the entire orderbook will be returned (within pagination limits).
+```typescript
+const chainId = 5; // Goerli
+const provider = new AoriProvider(...);
+...
+...
+...
+provider.on(ResponseEvents.AoriMethods.ViewOrderbook, (orders) => {
+    ...
+});
+...
+await provider.viewOrderbook({});
+```
+
+### Subscribing to the Orderbook
+
+
+Alternatively, one can utilise the subscription to global orderbook events. By default, this is provided. Relevant events for the updating of the state of public orders will be emitted to allow clients to manage a local view of the orderbook for their own purposes.
+
+All relevant orderbook events are under the enum `ResponseEvents.SubscriptionEvents`.
+```typescript
+const chainId = 5; // Goerli
+const provider = new AoriProvider(...);
+...
+...
+...
+provider.on(ResponseEvents.SubscriptionEvents.OrderCreated, (order) => {
+    ...
+});
+...
+...
+...
+provider.on(ResponseEvents.SubscriptionEvents.OrderCancelled, (orderHash) => {
+    ...
+});
+...
+...
+...
+provider.on(ResponseEvents.SubscriptionEvents.OrderTaken, (orderHash) => {
+    ...
+});
+...
+...
+...
+provider.on(ResponseEvents.SubscriptionEvents.OrderFulfilled, (orderHash) => {
+    ...
+});
+...
+```
+
+## Order Taking, Execution and Settlement
+
+### Taking an Order
+
+A market taker can take an order by calling the `takeOrder` method.
 
 ```typescript
-await this.actionsWebsocket.send(cancelOrderObject);
+const chainId = 5; // Goerli
+const makerOrderId = "...";
+const provider = new AoriProvider(...);
+...
+...
+...
+const takerOrder = await provider.createLimitOrder(...); // Make a matching limit order
+...
+...
+await provider.takeOrder({ orderId: makerOrderId, order: takerOrder, chainId: chainId });
+```
+
+### Executing an Order
+
+As a market maker (or a market taker if the market maker has chosen not to make the settlement transaction), you will need to execute to settle the orders on-chain and process the non-custodial exchange of assets.
+
+This requires interaction with the on-chain smart settlement contract at `defaultOrderAddress`.
+
+```typescript
+import { Order__factory, OrderToexecute, ResponseEvents, defaultOrderAddress } from "@aori-io/sdk";
+import { Signature } from "ethers";
+
+const chainId = 5; // Goerli
+const provider = new AoriProvider(...);
+...
+...
+...
+provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ parameters, signature }: OrderToExecute) => {
+    const order = Order__factory.connect(defaultOrderAddress, this.provider);
+    await order.settleOrders(parameters, Signature.from(signature));
+})
 ```
