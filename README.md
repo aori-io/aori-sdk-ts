@@ -217,7 +217,7 @@ As a market maker (or a market taker if the market maker has chosen not to make 
 This requires interaction with the on-chain smart settlement contract at `defaultOrderAddress`.
 
 ```typescript
-import { Order__factory, OrderToexecute, ResponseEvents, defaultOrderAddress } from "@aori-io/sdk";
+import { OrderToExecute, ResponseEvents } from "@aori-io/sdk";
 import { Signature } from "ethers";
 
 const chainId = 5; // Goerli
@@ -225,8 +225,7 @@ const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ parameters, signature }: OrderToExecute) => {
-    const order = Order__factory.connect(defaultOrderAddress, this.provider);
-    await order.settleOrders(parameters, Signature.from(signature));
-})
+provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data } }: OrderToExecute) => {
+    await provider.wallet.sendTransaction({ to, value, data });
+});
 ```

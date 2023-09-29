@@ -7,6 +7,11 @@ export interface OrderToExecute {
         chainId: number;
     },
     signature: string;
+    contractCall: {
+        to: string;
+        value: number;
+        data: string;
+    }
 }
 
 export interface OrderView {

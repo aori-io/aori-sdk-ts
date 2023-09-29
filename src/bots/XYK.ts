@@ -1,7 +1,6 @@
-import { Signature } from "ethers";
 import { OrderToExecute, ResponseEvents } from "../providers";
-import { ERC20, ERC20__factory, Order__factory } from "../types";
-import { defaultOrderAddress, formatIntoLimitOrder, signOrder } from "../utils";
+import { ERC20, ERC20__factory } from "../types";
+import { formatIntoLimitOrder, signOrder } from "../utils";
 import { LimitOrderManager } from "../utils/LimitOrderManager";
 
 export class XYK extends LimitOrderManager {
@@ -32,10 +31,9 @@ export class XYK extends LimitOrderManager {
             await this.refreshOrders();
         });
 
-        this.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ parameters, signature }: OrderToExecute) => {
-            const order = Order__factory.connect(defaultOrderAddress, this.provider);
-            await order.settleOrders(parameters, Signature.from(signature));
-        })
+        this.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data } }: OrderToExecute) => {
+            await this.wallet.sendTransaction({ to, value, data });
+        });
 
         // Remove prior orders
         console.log("Removing prior orders...");
