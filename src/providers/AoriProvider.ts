@@ -250,7 +250,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.counter++;
     }
 
-    async takeOrder({ orderId, order }: { orderId: string, order: OrderWithCounter }) {
+    async takeOrder({ orderId, order, chainId }: { orderId: string, order: OrderWithCounter, chainId: number }) {
         const id = this.counter;
         this.messages[id] = AoriMethods.TakeOrder;
         this.actionsWebsocket.send(JSON.stringify({
@@ -258,8 +258,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             jsonrpc: "2.0",
             method: AoriMethods.TakeOrder,
             params: [{
-                orderId,
-                order
+                order,
+                chainId,
+                orderId
             }]
         }));
         this.counter++;
