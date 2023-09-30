@@ -82,6 +82,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                         case NotificationEvents.OrderToExecute:
                             this.emit(ResponseEvents.NotificationEvents.OrderToExecute, data);
                             break;
+                        case NotificationEvents.QuoteRequested:
+                            this.emit(ResponseEvents.NotificationEvents.QuoteRequested, data);
                         default:
                             console.error(`Unexpected notification event: ${type}`);
                             break;
@@ -297,6 +299,24 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 orderId: orderHash,
                 signature
+            }]
+        }));
+        this.counter++;
+    }
+
+    async requestQuote({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: BigNumberish, outputToken: string, chainId: number }) {
+        const id = this.counter;
+        this.messages[id] = AoriMethods.RequestQuote;
+        this.actionsWebsocket.send(JSON.stringify({
+            jsonrpc: "2.0",
+            id,
+            method: AoriMethods.RequestQuote,
+            params: [{
+                apiKey: (this.jwt != undefined) ? this.jwt : this.apiKey,
+                inputToken,
+                inputAmount,
+                outputToken,
+                chainId
             }]
         }));
         this.counter++;

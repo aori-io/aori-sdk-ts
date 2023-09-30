@@ -14,6 +14,14 @@ export interface OrderToExecute {
     }
 }
 
+export interface QuoteRequested {
+    inputToken: string;
+    outputToken: string;
+    inputAmount?: number;
+    outputAmount?: number;
+    chainId: number;
+}
+
 export interface OrderView {
     order: {
         parameters: any;

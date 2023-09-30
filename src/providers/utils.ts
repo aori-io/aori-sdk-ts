@@ -1,4 +1,4 @@
-import { OrderToExecute, OrderView } from "./interfaces";
+import { OrderToExecute, OrderView, QuoteRequested } from "./interfaces";
 
 export enum AoriMethods {
     Ping = "aori_ping",
@@ -8,11 +8,13 @@ export enum AoriMethods {
     CancelOrder = "aori_cancelOrder",
     TakeOrder = "aori_takeOrder",
     AccountOrders = "aori_accountOrders",
-    OrderStatus = "aori_orderStatus"
+    OrderStatus = "aori_orderStatus",
+    RequestQuote = "aori_requestQuote"
 }
 
 export enum NotificationEvents {
-    OrderToExecute = "OrderToExecute"
+    OrderToExecute = "OrderToExecute",
+    QuoteRequested = "QuoteRequested",
 }
 
 export enum SubscriptionEvents {
@@ -26,6 +28,7 @@ export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEve
 
 export type AoriMethodsEvents = {
     [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
+    [ResponseEvents.NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],
     [ResponseEvents.AoriMethods.MakeOrder]: [orderHash: string],
     [ResponseEvents.AoriMethods.CancelOrder]: [orderHash: string],
