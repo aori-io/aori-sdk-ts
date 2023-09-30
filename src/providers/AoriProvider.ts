@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { actionsURL, subscriptionsURL } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { ViewOrderbookQuery } from "./interfaces";
+import { OrderView, ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
@@ -152,6 +152,27 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
         limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
         return limitOrder;
+    }
+
+    async createMatchingOrder({
+        inputToken,
+        inputAmount,
+        outputToken,
+        outputAmount,
+        chainId = 5
+    }: OrderView) {
+        const matchingOrder = await formatIntoLimitOrder({
+            offerer: this.wallet.address,
+            inputToken: outputToken,
+            inputAmount: outputAmount,
+            outputToken: inputToken,
+            outputAmount: inputAmount,
+            provider: this.provider,
+            chainId
+        });
+
+        matchingOrder.signature = await signOrder(this.wallet, matchingOrder, chainId);
+        return matchingOrder;
     }
 
     /*//////////////////////////////////////////////////////////////
