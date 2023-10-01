@@ -27,6 +27,7 @@ export enum SubscriptionEvents {
 export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEvents };
 
 export type AoriMethodsEvents = {
+    ["ready"]: [],
     [ResponseEvents.NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
     [ResponseEvents.NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [ResponseEvents.AoriMethods.ViewOrderbook]: [orders: OrderView[]],

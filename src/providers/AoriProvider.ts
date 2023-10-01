@@ -40,6 +40,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
+        this.actionsWebsocket.on("open", () => {
+            this.emit("ready");
+        });
+
         this.actionsWebsocket.on("message", (msg) => {
             const { id, result, error } = JSON.parse(msg.toString());
 
