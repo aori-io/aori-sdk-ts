@@ -1,4 +1,4 @@
-import { AoriProvider, OrderView, ResponseEvents } from "../providers";
+import { AoriProvider, OrderView, SubscriptionEvents } from "../providers";
 
 export class OrderbookListener extends AoriProvider {
     currentLimitOrders: {
@@ -13,7 +13,7 @@ export class OrderbookListener extends AoriProvider {
         super.initialise();
 
         // Order Created
-        this.on(ResponseEvents.SubscriptionEvents.OrderCreated, async (orderDetails) => {
+        this.on(SubscriptionEvents.OrderCreated, async (orderDetails) => {
             const { inputToken, outputToken } = orderDetails;
 
             if (!this.currentLimitOrders[inputToken]) this.currentLimitOrders[inputToken] = {};
@@ -25,12 +25,12 @@ export class OrderbookListener extends AoriProvider {
         });
 
         // Order Cancelled
-        this.on(ResponseEvents.SubscriptionEvents.OrderCancelled, async (orderHash) => {
+        this.on(SubscriptionEvents.OrderCancelled, async (orderHash) => {
             delete this.limitOrders[orderHash];
         });
 
         // Order Taken
-        this.on(ResponseEvents.SubscriptionEvents.OrderTaken, async (orderHash) => {
+        this.on(SubscriptionEvents.OrderTaken, async (orderHash) => {
             delete this.limitOrders[orderHash];
         });
     }

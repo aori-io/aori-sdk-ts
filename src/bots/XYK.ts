@@ -1,4 +1,4 @@
-import { OrderToExecute, ResponseEvents } from "../providers";
+import { AoriMethods, NotificationEvents, OrderToExecute, SubscriptionEvents } from "../providers";
 import { ERC20, ERC20__factory } from "../types";
 import { formatIntoLimitOrder, signOrder } from "../utils";
 import { LimitOrderManager } from "./LimitOrderManager";
@@ -20,18 +20,18 @@ export class XYK extends LimitOrderManager {
         this.aToken = ERC20__factory.connect(aTokenAddress, this.provider);
         this.bToken = ERC20__factory.connect(bTokenAddress, this.provider);
 
-        this.on(ResponseEvents.AoriMethods.ViewOrderbook, async (orders) => {
+        this.on(AoriMethods.ViewOrderbook, async (orders) => {
             orders.forEach((order) => {
                 this.cancelOrder(order.orderHash, this.wallet.signMessageSync(order.orderHash));
             });
         });
 
-        this.on(ResponseEvents.SubscriptionEvents.OrderTaken, async (orderHash) => {
+        this.on(SubscriptionEvents.OrderTaken, async (orderHash) => {
             if (!(orderHash in this.currentLimitOrders)) return;
             await this.refreshOrders();
         });
 
-        this.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data } }: OrderToExecute) => {
+        this.on(NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data } }: OrderToExecute) => {
             await this.wallet.sendTransaction({ to, value, data });
         });
 

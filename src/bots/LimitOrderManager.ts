@@ -1,4 +1,4 @@
-import { AoriProvider, OrderView, ResponseEvents } from "../providers";
+import { AoriMethods, AoriProvider, OrderView, SubscriptionEvents } from "../providers";
 import { OrderWithCounter } from "../utils/helpers";
 import { getOrderHash } from "../utils/OrderHasher";
 
@@ -13,24 +13,24 @@ export class LimitOrderManager extends AoriProvider {
     async initialise(...any: any[]): Promise<void> {
         super.initialise();
 
-        this.on(ResponseEvents.AoriMethods.AccountOrders, (orders) => {
+        this.on(AoriMethods.AccountOrders, (orders) => {
             orders.forEach(order => {
                 this.currentLimitOrders[order.orderHash] = order;
             });
         });
 
-        this.on(ResponseEvents.SubscriptionEvents.OrderCreated, (order) => {
+        this.on(SubscriptionEvents.OrderCreated, (order) => {
             if (!this.awaitingOrderCreation.has(order.orderHash)) return;
 
             this.awaitingOrderCreation.delete(order.orderHash);
             this.currentLimitOrders[order.orderHash] = order;
         });
 
-        this.on(ResponseEvents.SubscriptionEvents.OrderCancelled, (orderHash) => {
+        this.on(SubscriptionEvents.OrderCancelled, (orderHash) => {
             delete this.currentLimitOrders[orderHash];
         });
 
-        this.on(ResponseEvents.SubscriptionEvents.OrderTaken, (orderHash) => {
+        this.on(SubscriptionEvents.OrderTaken, (orderHash) => {
             delete this.currentLimitOrders[orderHash];
         });
 

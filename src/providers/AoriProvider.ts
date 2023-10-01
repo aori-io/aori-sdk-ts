@@ -5,7 +5,7 @@ import { actionsURL, subscriptionsURL } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
-import { AoriMethods, AoriMethodsEvents, NotificationEvents, ResponseEvents, SubscriptionEvents } from "./utils";
+import { AoriMethods, AoriMethodsEvents, NotificationEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket;
@@ -61,22 +61,22 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.jwt = result.auth;
                     break;
                 case AoriMethods.ViewOrderbook:
-                    this.emit(ResponseEvents.AoriMethods.ViewOrderbook, result.orders);
+                    this.emit(AoriMethods.ViewOrderbook, result.orders);
                     break;
                 case AoriMethods.MakeOrder:
-                    this.emit(ResponseEvents.AoriMethods.MakeOrder, result.orderHash);
+                    this.emit(AoriMethods.MakeOrder, result.orderHash);
                     break;
                 case AoriMethods.CancelOrder:
-                    this.emit(ResponseEvents.AoriMethods.CancelOrder, result.orderHash);
+                    this.emit(AoriMethods.CancelOrder, result.orderHash);
                     break;
                 case AoriMethods.TakeOrder:
-                    this.emit(ResponseEvents.AoriMethods.TakeOrder, result.orderHash);
+                    this.emit(AoriMethods.TakeOrder, result.orderHash);
                     break;
                 case AoriMethods.AccountOrders:
-                    this.emit(ResponseEvents.AoriMethods.AccountOrders, result.orders);
+                    this.emit(AoriMethods.AccountOrders, result.orders);
                     break;
                 case AoriMethods.OrderStatus:
-                    this.emit(ResponseEvents.AoriMethods.OrderStatus, result.order);
+                    this.emit(AoriMethods.OrderStatus, result.order);
                     break;
                 case null:
                     // This is a notification
@@ -84,10 +84,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
                     switch (type) {
                         case NotificationEvents.OrderToExecute:
-                            this.emit(ResponseEvents.NotificationEvents.OrderToExecute, data);
+                            this.emit(NotificationEvents.OrderToExecute, data);
                             break;
                         case NotificationEvents.QuoteRequested:
-                            this.emit(ResponseEvents.NotificationEvents.QuoteRequested, data);
+                            this.emit(NotificationEvents.QuoteRequested, data);
                         default:
                             console.error(`Unexpected notification event: ${type}`);
                             break;
@@ -105,16 +105,16 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
             switch (type) {
                 case SubscriptionEvents.OrderCreated:
-                    this.emit(ResponseEvents.SubscriptionEvents.OrderCreated, data);
+                    this.emit(SubscriptionEvents.OrderCreated, data);
                     break;
                 case SubscriptionEvents.OrderCancelled:
-                    this.emit(ResponseEvents.SubscriptionEvents.OrderCancelled, data);
+                    this.emit(SubscriptionEvents.OrderCancelled, data);
                     break;
                 case SubscriptionEvents.OrderTaken:
-                    this.emit(ResponseEvents.SubscriptionEvents.OrderTaken, data);
+                    this.emit(SubscriptionEvents.OrderTaken, data);
                     break;
                 case SubscriptionEvents.OrderFulfilled:
-                    this.emit(ResponseEvents.SubscriptionEvents.OrderFulfilled, data);
+                    this.emit(SubscriptionEvents.OrderFulfilled, data);
                     break;
             }
         });

@@ -23,6 +23,9 @@ If you have any further questions, refer to [the technical documentation](https:
   - [Order Taking, Execution and Settlement](#order-taking-execution-and-settlement)
     - [Taking an Order](#taking-an-order)
     - [Executing an order](#executing-an-order)
+  - [Template Bots](#template-bots)
+    - [LimitOrderManager](#limitordermanager)
+    - [FromInventoryExecutor](#frominventoryexecutor)
 
 
 # Installation
@@ -72,7 +75,7 @@ Corresponding response:
 ```typescript
 const provider = new AoriProvider(...);
 ...
-provider.on(ResponseEvents.NotificationEvents.OrderToExecute, (...) => {
+provider.on(NotificationEvents.OrderToExecute, (...) => {
   ...
 });
 ```
@@ -148,7 +151,7 @@ const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(ResponseEvents.AoriMethods.ViewOrderbook, (orders) => {
+provider.on(AoriMethods.ViewOrderbook, (orders) => {
     ...
 });
 ...
@@ -159,32 +162,32 @@ await provider.viewOrderbook({});
 
 Alternatively, one can utilise the subscription to global orderbook events. By default, this is provided. Relevant events for the updating of the state of public orders will be emitted to allow clients to manage a local view of the orderbook for their own purposes.
 
-All relevant orderbook events are under the enum `ResponseEvents.SubscriptionEvents`.
+All relevant orderbook events are under the enum `SubscriptionEvents`.
 ```typescript
 const chainId = 5; // Goerli
 const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(ResponseEvents.SubscriptionEvents.OrderCreated, (order) => {
+provider.on(SubscriptionEvents.OrderCreated, (order) => {
     ...
 });
 ...
 ...
 ...
-provider.on(ResponseEvents.SubscriptionEvents.OrderCancelled, (orderHash) => {
+provider.on(SubscriptionEvents.OrderCancelled, (orderHash) => {
     ...
 });
 ...
 ...
 ...
-provider.on(ResponseEvents.SubscriptionEvents.OrderTaken, (orderHash) => {
+provider.on(SubscriptionEvents.OrderTaken, (orderHash) => {
     ...
 });
 ...
 ...
 ...
-provider.on(ResponseEvents.SubscriptionEvents.OrderFulfilled, (orderHash) => {
+provider.on(SubscriptionEvents.OrderFulfilled, (orderHash) => {
     ...
 });
 ...
@@ -224,7 +227,58 @@ const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data }}: OrderToExecute) => {
+provider.on(NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data }}: OrderToExecute) => {
     await provider.wallet.sendTransaction({ to, value, data });
 });
 ```
+
+## Template Bots
+
+This SDK also provides a number of standardised bot templates to use for making development quicker. New boilerplates will be added here as more use cases come up and require standardisation - do feel free to contribute!
+
+### LimitOrderManager
+
+```typescript
+import { LimitOrderManager } from '@aori-io/sdk';
+
+const wallet = new Wallet(...);
+const provider = new JsonRpcProvider(...);
+
+const bot = new LimitOrderManager({ wallet, provider });
+
+bot.on("ready", () => {
+  // ...
+  await bot.initialise();
+  // ...
+});
+```
+
+The behaviours are:
+- When making an order via `this.makeOrder`, the bot will create a limit order and save its hash under `this.awaitingOrderCreation`.
+- On `AoriMethods.AccountOrders`, own orders will be saved under `this.currentLimitOrders`
+- On `SubscriptionEvents.OrderCreated`, any expected orders to have been confirmed to be created get removed from `this.awaitingOrderCreation` and get added to `this.currentLimitOrders`.
+- On `SubscriptionEvents.OrderCancelled`, if the cancelled order is our own, it gets removed from `this.currentLimitOrders`.
+- On `SubscriptionEvents.OrderTaken`, if the taken order is our own, it gets removed from `this.currentLimitOrders`.
+
+### FromInventoryExecutor
+
+The `FromInventoryExecutor` is a standard class that does what a `LimitOrderManager` does, but will additionally handle the on-chain execution of orders.
+
+```typescript
+import { FromInventoryExecutor } from '@aori-io/sdk';
+
+const wallet = new Wallet(...);
+const provider = new JsonRpcProvider(...);
+
+const bot = new FromInventoryExecutor({ wallet, provider });
+
+bot.on("ready", () => {
+  // ...
+  await bot.initialise();
+  // ...
+});
+```
+
+The behaviours are:
+- Inherited from `LimtiOrderManager` (see [above](#limitordermanager))
+- On `NotificationEvents.OrderToExecute`, the bot will execute the order.
