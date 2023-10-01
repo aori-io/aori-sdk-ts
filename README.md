@@ -157,7 +157,6 @@ await provider.viewOrderbook({});
 
 ### Subscribing to the Orderbook
 
-
 Alternatively, one can utilise the subscription to global orderbook events. By default, this is provided. Relevant events for the updating of the state of public orders will be emitted to allow clients to manage a local view of the orderbook for their own purposes.
 
 All relevant orderbook events are under the enum `ResponseEvents.SubscriptionEvents`.
@@ -225,7 +224,7 @@ const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data } }: OrderToExecute) => {
+provider.on(ResponseEvents.NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data }}: OrderToExecute) => {
     await provider.wallet.sendTransaction({ to, value, data });
 });
 ```

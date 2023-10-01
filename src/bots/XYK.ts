@@ -1,7 +1,7 @@
 import { OrderToExecute, ResponseEvents } from "../providers";
 import { ERC20, ERC20__factory } from "../types";
 import { formatIntoLimitOrder, signOrder } from "../utils";
-import { LimitOrderManager } from "../utils/LimitOrderManager";
+import { LimitOrderManager } from "./LimitOrderManager";
 
 export class XYK extends LimitOrderManager {
 

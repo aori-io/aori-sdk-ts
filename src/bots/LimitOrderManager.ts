@@ -1,6 +1,6 @@
 import { AoriProvider, OrderView, ResponseEvents } from "../providers";
-import { OrderWithCounter } from "./helpers";
-import { getOrderHash } from "./OrderHasher";
+import { OrderWithCounter } from "../utils/helpers";
+import { getOrderHash } from "../utils/OrderHasher";
 
 export class LimitOrderManager extends AoriProvider {
     currentLimitOrders: { [orderHash: string]: OrderView } = {};
