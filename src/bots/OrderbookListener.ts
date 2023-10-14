@@ -25,12 +25,12 @@ export class OrderbookListener extends AoriProvider {
         });
 
         // Order Cancelled
-        this.on(SubscriptionEvents.OrderCancelled, async (orderHash) => {
+        this.on(SubscriptionEvents.OrderCancelled, async ({ orderHash }) => {
             delete this.limitOrders[orderHash];
         });
 
         // Order Taken
-        this.on(SubscriptionEvents.OrderTaken, async (orderHash) => {
+        this.on(SubscriptionEvents.OrderTaken, async ({ orderHash }) => {
             delete this.limitOrders[orderHash];
         });
     }

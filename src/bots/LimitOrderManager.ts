@@ -26,11 +26,11 @@ export class LimitOrderManager extends AoriProvider {
             this.currentLimitOrders[order.orderHash] = order;
         });
 
-        this.on(SubscriptionEvents.OrderCancelled, (orderHash) => {
+        this.on(SubscriptionEvents.OrderCancelled, ({ orderHash }) => {
             delete this.currentLimitOrders[orderHash];
         });
 
-        this.on(SubscriptionEvents.OrderTaken, (orderHash) => {
+        this.on(SubscriptionEvents.OrderTaken, ({ orderHash }) => {
             delete this.currentLimitOrders[orderHash];
         });
 
