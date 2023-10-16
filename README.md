@@ -1,5 +1,7 @@
 # Aori TypeScript SDK
 
+![H](assets/aori.svg)
+
 Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for interacting with the Aori Websocket-based API to help developers integrate and build on top of the protocol as easily as possible.
 
 This SDK is released under the [MIT License](LICENSE).
