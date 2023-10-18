@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ERC20__factory } from "./ERC20__factory";
+export { FlashExecutor__factory } from "./FlashExecutor__factory";
 export { Order__factory } from "./Order__factory";
