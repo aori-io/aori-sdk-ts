@@ -2,8 +2,7 @@ import { defaultAbiCoder } from "@ethersproject/abi";
 import { hexZeroPad } from "@ethersproject/bytes";
 import { keccak256 } from "@ethersproject/keccak256";
 import { ConsiderationItem, OfferItem, OrderComponents, OrderParameters } from "@opensea/seaport-js/lib/types";
-import { JsonRpcProvider, solidityPacked, solidityPackedKeccak256 } from "ethers";
-import { getSeaportCounter } from "./helpers";
+import { solidityPacked, solidityPackedKeccak256 } from "ethers";
 
 class OrderHasher {
     _OFFER_ITEM_TYPEHASH: string;
@@ -68,7 +67,7 @@ class OrderHasher {
         ));
     }
 
-    public _getOrderHash = async (provider: JsonRpcProvider, order: OrderComponents) => {
+    public _getOrderHash = async (order: OrderComponents, counter: number) => {
         const orderParameters = {
             offerer: order.offerer,
             zone: order.zone,
@@ -83,10 +82,10 @@ class OrderHasher {
             totalOriginalConsiderationItems: order.consideration.length
         };
 
-        return await this._deriveOrderHash(provider, orderParameters);
+        return await this._deriveOrderHash(orderParameters, counter);
     }
 
-    private async _deriveOrderHash(provider: JsonRpcProvider, orderParameters: OrderParameters,): Promise<string> {
+    private async _deriveOrderHash(orderParameters: OrderParameters, counter: number): Promise<string> {
         const offerHashes = orderParameters.offer.map(offerItem =>
             this._hashOfferItem(offerItem)
         );
@@ -94,8 +93,6 @@ class OrderHasher {
         const considerationHashes = orderParameters.consideration.map(considerationItem =>
             this._hashConsiderationItem(considerationItem)
         );
-
-        const counter = await getSeaportCounter(provider, orderParameters.offerer);
 
         const orderHash = keccak256(defaultAbiCoder.encode(
             ['bytes32', 'address', 'address', 'bytes32', 'bytes32', 'uint8', 'uint256', 'uint256', 'bytes32', 'uint256', 'bytes32', 'uint256'],

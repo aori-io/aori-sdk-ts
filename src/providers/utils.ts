@@ -9,7 +9,9 @@ export enum AoriMethods {
     TakeOrder = "aori_takeOrder",
     AccountOrders = "aori_accountOrders",
     OrderStatus = "aori_orderStatus",
-    RequestQuote = "aori_requestQuote"
+    RequestQuote = "aori_requestQuote",
+    GetCounter = "aori_getCounter",
+    SendTransaction = "aori_sendTransaction",
 }
 
 export enum NotificationEvents {
@@ -36,6 +38,7 @@ export type AoriMethodsEvents = {
     [AoriMethods.TakeOrder]: [orderHash: string],
     [AoriMethods.AccountOrders]: [orders: OrderView[]],
     [AoriMethods.OrderStatus]: [order: OrderView],
+    [AoriMethods.GetCounter]: [{ counter: number, address: string, chainId: number }],
     [SubscriptionEvents.OrderCreated]: [order: OrderView],
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],

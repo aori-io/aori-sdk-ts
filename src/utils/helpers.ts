@@ -1,7 +1,6 @@
-import { Seaport } from "@opensea/seaport-js";
 import { EIP_712_ORDER_TYPE, ItemType, OrderType } from "@opensea/seaport-js/lib/constants";
 import { Order } from "@opensea/seaport-js/lib/types";
-import { BigNumberish, JsonRpcProvider, Signer } from "ethers";
+import { BigNumberish, Signer } from "ethers";
 import { currentSeaportAddress, currentSeaportVersion, defaultConduitKey, defaultDuration, defaultOrderAddress, defaultZoneHash } from "./constants";
 
 export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } };
@@ -14,7 +13,7 @@ export async function formatIntoLimitOrder({
     outputToken,
     outputTokenType = ItemType.ERC20,
     outputAmount,
-    provider
+    counter
 }: {
     offerer: string;
     inputToken: string;
@@ -23,8 +22,8 @@ export async function formatIntoLimitOrder({
     outputToken: string;
     outputTokenType?: ItemType;
     outputAmount: BigNumberish;
+    counter: BigNumberish,
     chainId?: string | number;
-    provider: JsonRpcProvider;
 }): Promise<OrderWithCounter> {
 
     const startTime = Date.now();
@@ -54,7 +53,7 @@ export async function formatIntoLimitOrder({
             totalOriginalConsiderationItems: 1,
             salt: "0",
             conduitKey: defaultConduitKey,
-            counter: `${await getSeaportCounter(provider, offerer)}`
+            counter
         },
         signature: ""
     }
@@ -68,8 +67,4 @@ export async function signOrder(wallet: Signer, order: Order & { parameters: { c
         verifyingContract: currentSeaportAddress
     }, EIP_712_ORDER_TYPE, order.parameters);
     return order.signature;
-}
-
-export async function getSeaportCounter(provider: JsonRpcProvider, address: string): Promise<number> {
-    return await (await new Seaport(provider as any).getCounter(address)).toNumber();
 }

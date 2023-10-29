@@ -1,5 +1,5 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
-import { BigNumberish, JsonRpcProvider, Wallet, ZeroAddress } from "ethers";
+import { BigNumberish, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
 import { actionsURL, subscriptionsURL } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
@@ -10,7 +10,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     actionsWebsocket: WebSocket;
     subscriptionsWebsocket: WebSocket;
     wallet: Wallet;
-    provider: JsonRpcProvider;
     apiKey: string = "";
     counter: number = 0;
 
@@ -23,19 +22,20 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     constructor({
         wallet,
-        provider,
+        requestsFeed,
+        subscriptionFeed,
         apiKey
     }: {
         wallet: Wallet,
-        provider: JsonRpcProvider,
+        requestsFeed: WebSocket,
+        subscriptionFeed: WebSocket,
         apiKey?: string
     }) {
         super();
 
-        this.actionsWebsocket = new WebSocket(actionsURL);
-        this.subscriptionsWebsocket = new WebSocket(subscriptionsURL);
         this.wallet = wallet;
-        this.provider = provider;
+        this.actionsWebsocket = requestsFeed;
+        this.subscriptionsWebsocket = subscriptionFeed;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
@@ -59,6 +59,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
                 case AoriMethods.AuthWallet:
                     this.jwt = result.auth;
+                    break;
+                case AoriMethods.GetCounter:
+                    this.counter = result.counter;
                     break;
                 case AoriMethods.ViewOrderbook:
                     this.emit(AoriMethods.ViewOrderbook, result.orders);
@@ -120,6 +123,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
+    static default({ wallet }: { wallet: Wallet }): AoriProvider {
+        return new AoriProvider({
+            wallet,
+            requestsFeed: new WebSocket(actionsURL),
+            subscriptionFeed: new WebSocket(subscriptionsURL)
+        })
+    }
+
     /*//////////////////////////////////////////////////////////////
                                 METHODS
     //////////////////////////////////////////////////////////////*/
@@ -153,8 +164,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputToken,
             outputTokenType,
             outputAmount,
-            provider: this.provider,
-            chainId
+            chainId,
+            counter: this.counter
         });
         limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
         return limitOrder;
@@ -173,8 +184,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             inputAmount: outputAmount,
             outputToken: inputToken,
             outputAmount: inputAmount,
-            provider: this.provider,
-            chainId
+            chainId,
+            counter: this.counter
         });
 
         matchingOrder.signature = await signOrder(this.wallet, matchingOrder, chainId);
@@ -321,6 +332,41 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 inputAmount,
                 outputToken,
                 chainId
+            }]
+        }));
+        this.counter++;
+    }
+
+    async getCounter({ address, chainId }: { address: string, chainId: number }) {
+        const id = this.counter;
+        this.messages[id] = AoriMethods.GetCounter;
+        this.actionsWebsocket.send(JSON.stringify({
+            jsonrpc: "2.0",
+            id,
+            method: AoriMethods.GetCounter,
+            params: [{
+                address,
+                chainId
+            }]
+        }));
+        this.counter++;
+    }
+
+    async sendTransaction({ to, value, data }: { to: string, value: BigNumberish, data: string }) {
+        const signedTx = this.wallet.signTransaction({
+            to,
+            value,
+            data
+        });
+
+        const id = this.counter;
+        this.messages[id] = AoriMethods.SendTransaction;
+        this.actionsWebsocket.send(JSON.stringify({
+            jsonrpc: "2.0",
+            id,
+            method: AoriMethods.SendTransaction,
+            params: [{
+                signedTx
             }]
         }));
         this.counter++;
