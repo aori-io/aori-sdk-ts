@@ -51,10 +51,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.actionsWebsocket.on("message", (msg) => {
             const { id, result, error } = JSON.parse(msg.toString());
 
-            // TODO: handle errors more gracefully
             if (error) {
                 console.log(error);
-                throw error;
+                this.emit("error", error.toString());
             }
 
             switch (this.messages[id] || null) {
