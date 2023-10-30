@@ -24,12 +24,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         wallet,
         requestsFeed,
         subscriptionFeed,
-        apiKey
+        apiKey,
+        useVirtualOrders = false
     }: {
         wallet: Wallet,
         requestsFeed: WebSocket,
         subscriptionFeed: WebSocket,
-        apiKey?: string
+        apiKey?: string,
+        useVirtualOrders?: boolean
     }) {
         super();
 
@@ -41,6 +43,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         if (apiKey) this.apiKey = apiKey;
 
         this.actionsWebsocket.on("open", () => {
+            if (useVirtualOrders) this.authWallet();
             this.emit("ready");
         });
 
