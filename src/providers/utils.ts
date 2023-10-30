@@ -32,6 +32,8 @@ export type AoriMethodsEvents = {
     ["ready"]: [],
     [NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
     [NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
+    [AoriMethods.Ping]: ["aori_pong"],
+    [AoriMethods.AuthWallet]: [jwt: string],
     [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
     [AoriMethods.MakeOrder]: [orderHash: string],
     [AoriMethods.CancelOrder]: [orderHash: string],

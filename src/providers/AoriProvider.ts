@@ -59,9 +59,11 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             switch (this.messages[id] || null) {
                 case AoriMethods.Ping:
                     console.log(`Received ${result} back`);
+                    this.emit(AoriMethods.Ping, "aori_pong");
                     break;
                 case AoriMethods.AuthWallet:
                     this.jwt = result.auth;
+                    this.emit(AoriMethods.AuthWallet, result.auth);
                     break;
                 case AoriMethods.GetCounter:
                     this.counter = result.counter;
