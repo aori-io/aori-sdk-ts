@@ -3,6 +3,7 @@ import { OrderToExecute, OrderView, QuoteRequested } from "./interfaces";
 export enum AoriMethods {
     Ping = "aori_ping",
     AuthWallet = "aori_authWallet",
+    SupportedChains = "aori_supportedChains",
     ViewOrderbook = "aori_viewOrderbook",
     MakeOrder = "aori_makeOrder",
     CancelOrder = "aori_cancelOrder",
@@ -33,6 +34,7 @@ export type AoriMethodsEvents = {
     [NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
     [NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [AoriMethods.Ping]: ["aori_pong"],
+    [AoriMethods.SupportedChains]: [chainIds: number[]],
     [AoriMethods.AuthWallet]: [jwt: string],
     [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
     [AoriMethods.MakeOrder]: [orderHash: string],
