@@ -25,7 +25,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         requestsFeed,
         subscriptionFeed,
         apiKey,
-        useVirtualOrders = false
+        useVirtualOrders = true
     }: {
         wallet: Wallet,
         requestsFeed: WebSocket,
