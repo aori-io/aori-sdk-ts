@@ -26,7 +26,7 @@ export async function formatIntoLimitOrder({
     chainId?: string | number;
 }): Promise<OrderWithCounter> {
 
-    const startTime = Date.now() / 1000; // seconds
+    const startTime = Math.floor(Date.now() / 1000); // seconds
     return {
         parameters: {
             offerer,
