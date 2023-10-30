@@ -67,6 +67,11 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
                 case AoriMethods.GetCounter:
                     this.counter = result.counter;
+                    this.emit(AoriMethods.GetCounter, {
+                        counter: result.counter,
+                        address: result.address,
+                        chainId: result.chainId
+                    });
                     break;
                 case AoriMethods.ViewOrderbook:
                     this.emit(AoriMethods.ViewOrderbook, result.orders);
