@@ -54,6 +54,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             if (error) {
                 console.log(error);
                 this.emit("error", error.toString());
+                return;
             }
 
             switch (this.messages[id] || null) {
