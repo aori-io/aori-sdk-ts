@@ -22,7 +22,7 @@ export async function formatIntoLimitOrder({
     outputToken: string;
     outputTokenType?: ItemType;
     outputAmount: BigNumberish;
-    counter: BigNumberish,
+    counter: string,
     chainId?: string | number;
 }): Promise<OrderWithCounter> {
 

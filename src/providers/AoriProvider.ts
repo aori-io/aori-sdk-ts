@@ -168,7 +168,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputTokenType,
             outputAmount,
             chainId,
-            counter: this.counter
+            counter: `${this.counter}`
         });
         limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
         return limitOrder;
@@ -188,7 +188,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputToken: inputToken,
             outputAmount: inputAmount,
             chainId,
-            counter: this.counter
+            counter: `${this.counter}`
         });
 
         matchingOrder.signature = await signOrder(this.wallet, matchingOrder, chainId);
