@@ -42,7 +42,7 @@ export type AoriMethodsEvents = {
     [AoriMethods.TakeOrder]: [orderHash: string],
     [AoriMethods.AccountOrders]: [orders: OrderView[]],
     [AoriMethods.OrderStatus]: [order: OrderView],
-    [AoriMethods.GetCounter]: [{ counter: number, address: string, chainId: number }],
+    [AoriMethods.GetCounter]: [{ cancelIndex: number, address: string, chainId: number }],
     [SubscriptionEvents.OrderCreated]: [order: OrderView],
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],

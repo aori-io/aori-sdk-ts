@@ -12,6 +12,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     wallet: Wallet;
     apiKey: string = "";
     counter: number = 0;
+    cancelIndex: number = 0;
 
     jwt: string = ""; // Not needed at the moment
     messages: { [counter: number]: AoriMethods }
@@ -69,9 +70,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(AoriMethods.SupportedChains, result);
                     break;
                 case AoriMethods.GetCounter:
-                    this.counter = result.counter;
+                    this.cancelIndex = result.counter;
                     this.emit(AoriMethods.GetCounter, {
-                        counter: result.counter,
+                        cancelIndex: result.counter,
                         address: result.address,
                         chainId: result.chainId
                     });
@@ -178,7 +179,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputTokenType,
             outputAmount,
             chainId,
-            counter: `${this.counter}`
+            counter: `${this.cancelIndex}`
         });
         limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
         return limitOrder;
@@ -198,7 +199,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputToken: inputToken,
             outputAmount: inputAmount,
             chainId,
-            counter: `${this.counter}`
+            counter: `${this.cancelIndex}`
         });
 
         matchingOrder.signature = await signOrder(this.wallet, matchingOrder, chainId);
