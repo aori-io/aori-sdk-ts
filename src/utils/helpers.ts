@@ -1,7 +1,7 @@
 import { EIP_712_ORDER_TYPE, ItemType, OrderType } from "@opensea/seaport-js/lib/constants";
 import { Order } from "@opensea/seaport-js/lib/types";
 import { BigNumberish, Signer } from "ethers";
-import { currentSeaportAddress, currentSeaportVersion, defaultConduitKey, defaultDuration, defaultOrderAddress, defaultZoneHash } from "./constants";
+import { currentSeaportAddress, currentSeaportVersion, defaultConduitKey, defaultDuration, defaultOrderAddress, defaultZoneHash, maxSalt } from "./constants";
 
 export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } };
 
@@ -51,7 +51,7 @@ export async function formatIntoLimitOrder({
                 recipient: offerer
             }],
             totalOriginalConsiderationItems: 1,
-            salt: "0",
+            salt: `${Math.floor(Math.random() * maxSalt)}`,
             conduitKey: defaultConduitKey,
             counter
         },

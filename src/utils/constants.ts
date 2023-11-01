@@ -15,3 +15,4 @@ export const defaultDuration = 24 * 60 * 60;
 export const currentSeaportAddress = "0x00000000000000adc04c56bf30ac9d3c0aaf14dc";
 export const currentSeaportVersion = "1.5";
 export const defaultConduitKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const maxSalt = 10_000_000;
