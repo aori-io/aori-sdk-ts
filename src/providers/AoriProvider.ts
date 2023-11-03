@@ -15,7 +15,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     cancelIndex: number = 0;
 
     jwt: string = ""; // Not needed at the moment
-    messages: { [counter: number]: AoriMethods }
+    messages: { [counter: number]: AoriMethods | string }
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -211,85 +211,73 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     //////////////////////////////////////////////////////////////*/
 
     async ping() {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.Ping;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.Ping,
             params: []
-        }));
-        this.counter++;
+        });
     }
 
     async authWallet() {
         const { address } = this.wallet;
-        const signature = this.wallet.signMessageSync(address);
-        const id = this.counter;
 
-        this.messages[id] = AoriMethods.AuthWallet;
-        this.actionsWebsocket.send(JSON.stringify({
-            jsonrpc: "2.0",
-            id,
+        await this.rawCall({
             method: AoriMethods.AuthWallet,
             params: [{
                 address,
-                signature
+                signature: this.wallet.signMessageSync(address)
             }]
-        }));
-        this.counter++;
+        })
+    }
+
+    async checkAuth({ auth }: { auth: string }) {
+        await this.rawCall({
+            method: AoriMethods.CheckAuth,
+            params: [{
+                auth
+            }]
+        })
     }
 
     async viewOrderbook(query?: ViewOrderbookQuery): Promise<void> {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.ViewOrderbook;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.ViewOrderbook,
             params: query != undefined ? [query] : []
-        }));
-        this.counter++;
+        });
     }
 
     async accountOrders() {
         const offerer = this.wallet.address;
-        const signature = this.wallet.signMessageSync(offerer);
-        const id = this.counter;
-
-        this.messages[id] = AoriMethods.AccountOrders;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.AccountOrders,
             params: [{
                 offerer,
-                signature
+                signature: this.wallet.signMessageSync(offerer)
             }]
-        }));
-        this.counter++;
+        });
+    }
+
+    async accountCredit() {
+        const { address } = this.wallet;
+        await this.rawCall({
+            method: AoriMethods.AccountCredit,
+            params: [{
+                address,
+                signature: this.wallet.signMessageSync(address)
+            }]
+        })
     }
 
     async orderStatus(orderHash: string) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.OrderStatus;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.OrderStatus,
             params: [{
                 orderHash
             }]
-        }));
-        this.counter++;
+        });
     }
 
     async makeOrder({ order, chainId }: { order: OrderWithCounter, chainId: number }) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.MakeOrder;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
                 order,
@@ -298,47 +286,32 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 isPublic: true,
                 chainId,
             }]
-        }));
-        this.counter++;
+        });
     }
 
     async takeOrder({ orderId, order, chainId }: { orderId: string, order: OrderWithCounter, chainId: number }) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.TakeOrder;
-        this.actionsWebsocket.send(JSON.stringify({
-            id,
-            jsonrpc: "2.0",
+        await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
                 order,
                 chainId,
                 orderId
             }]
-        }));
-        this.counter++;
+        })
     }
 
     async cancelOrder(orderHash: string, signature: string) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.CancelOrder;
-        this.actionsWebsocket.send(JSON.stringify({
-            jsonrpc: "2.0",
-            id,
+        await this.rawCall({
             method: AoriMethods.CancelOrder,
             params: [{
                 orderId: orderHash,
                 signature
             }]
-        }));
-        this.counter++;
+        });
     }
 
     async requestQuote({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: BigNumberish, outputToken: string, chainId: number }) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.RequestQuote;
-        this.actionsWebsocket.send(JSON.stringify({
-            jsonrpc: "2.0",
-            id,
+        await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
                 apiKey: (this.jwt != undefined) ? this.jwt : this.apiKey,
@@ -347,41 +320,36 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 outputToken,
                 chainId
             }]
-        }));
-        this.counter++;
+        })
     }
 
     async getCounter({ address, chainId }: { address: string, chainId: number }) {
-        const id = this.counter;
-        this.messages[id] = AoriMethods.GetCounter;
-        this.actionsWebsocket.send(JSON.stringify({
-            jsonrpc: "2.0",
-            id,
+        await this.rawCall({
             method: AoriMethods.GetCounter,
             params: [{
                 address,
                 chainId
             }]
-        }));
-        this.counter++;
+        })
     }
 
     async sendTransaction({ to, value, data }: { to: string, value: BigNumberish, data: string }) {
-        const signedTx = this.wallet.signTransaction({
-            to,
-            value,
-            data
-        });
+        const signedTx = await this.wallet.signTransaction({ to, value, data });
 
-        const id = this.counter;
-        this.messages[id] = AoriMethods.SendTransaction;
-        this.actionsWebsocket.send(JSON.stringify({
-            jsonrpc: "2.0",
-            id,
+        await this.rawCall({
             method: AoriMethods.SendTransaction,
-            params: [{
-                signedTx
-            }]
+            params: [{ signedTx }]
+        });
+    }
+
+    async rawCall<T>({ method, params }: { method: AoriMethods | string, params: [T] | [] }) {
+        const id = this.counter;
+        this.messages[id] = method;
+        this.actionsWebsocket.send(JSON.stringify({
+            id,
+            jsonrpc: "2.0",
+            method,
+            params
         }));
         this.counter++;
     }
