@@ -257,6 +257,19 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
+    async accountBalance(token: string, chainId: number) {
+        const { address } = this.wallet;
+        await this.rawCall({
+            method: AoriMethods.AccountBalance,
+            params: [{
+                address,
+                token,
+                chainId,
+                signature: this.wallet.signMessageSync(address)
+            }]
+        })
+    }
+
     async accountCredit() {
         const { address } = this.wallet;
         await this.rawCall({
