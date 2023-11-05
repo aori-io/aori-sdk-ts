@@ -34,7 +34,7 @@ export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEve
 
 export type AoriMethodsEvents = {
     ["ready"]: [],
-    ["error"]: [error: string],
+    ["error"]: [error: any],
     [NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
     [NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [AoriMethods.Ping]: ["aori_pong"],
