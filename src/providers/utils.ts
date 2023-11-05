@@ -54,4 +54,7 @@ export type AoriMethodsEvents = {
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [orderHash: string],
+
+    // 
+    [_: string]: any
 };

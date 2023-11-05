@@ -112,6 +112,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
 
                 default:
+                    this.emit(this.messages[id], result);
                     break;
             }
         });
