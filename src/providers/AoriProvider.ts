@@ -66,6 +66,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.jwt = result.auth;
                     this.emit(AoriMethods.AuthWallet, result.auth);
                     break;
+                case AoriMethods.CheckAuth:
+                    this.emit(AoriMethods.CheckAuth, result);
+                    break;
                 case AoriMethods.SupportedChains:
                     this.emit(AoriMethods.SupportedChains, result);
                     break;
