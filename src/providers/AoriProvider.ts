@@ -53,7 +53,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
             if (error) {
                 console.log(error);
-                this.emit("error", error.toString());
+                this.emit("error", error);
                 return;
             }
 
