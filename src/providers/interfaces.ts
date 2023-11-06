@@ -1,17 +1,10 @@
 export interface OrderToExecute {
-    parameters: {
-        makerOrders: any[];
-        takerOrder: any;
-        fulfillments: any[];
-        blockDeadline: number;
-        chainId: number;
-    },
-    signature: string;
-    contractCall: {
-        to: string;
-        value: number;
-        data: string;
-    }
+    orderHash: string;
+    chainId: number;
+    to: string;
+    value: number;
+    data: string;
+    blockDeadline: number;
 }
 
 export interface QuoteRequested {
