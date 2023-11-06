@@ -5,8 +5,8 @@ export class FromInventoryExecutor extends LimitOrderManager {
     async initialise(...any: any[]): Promise<void> {
         super.initialise();
 
-        this.on(NotificationEvents.OrderToExecute, async ({ contractCall }) => {
-            await this.sendTransaction(contractCall);
+        this.on(NotificationEvents.OrderToExecute, async ({ to, value, data }) => {
+            await this.sendTransaction({ to, value, data });
         });
     }
 }
