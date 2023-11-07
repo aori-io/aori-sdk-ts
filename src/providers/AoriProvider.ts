@@ -17,6 +17,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     jwt: string = ""; // Not needed at the moment
     messages: { [counter: number]: AoriMethods | string }
     keepAliveTimer: NodeJS.Timeout;
+    defaultChainId: number = 5;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -166,10 +167,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async initialise(...any: any[]): Promise<void> { }
 
-    async terminate() {
+    terminate() {
         if (this.keepAliveTimer) { clearInterval(this.keepAliveTimer); }
         this.api.close();
         this.feed.close();
+    }
+
+    setDefaultChainId(chainId: number) {
+        this.defaultChainId = chainId;
     }
 
     async createLimitOrder({
@@ -180,7 +185,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         outputToken,
         outputTokenType = ItemType.ERC20,
         outputAmount,
-        chainId = 5
+        chainId = this.defaultChainId
     }: {
         offerer?: string;
         inputToken: string;
@@ -211,7 +216,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputAmount,
         outputToken,
         outputAmount,
-        chainId = 5
+        chainId = this.defaultChainId
     }: OrderView) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: this.wallet.address,
@@ -277,7 +282,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async accountBalance(token: string, chainId: number) {
+    async accountBalance(token: string, chainId: number = this.defaultChainId) {
         const { address } = this.wallet;
         await this.rawCall({
             method: AoriMethods.AccountBalance,
@@ -310,7 +315,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async makeOrder({ order, chainId }: { order: OrderWithCounter, chainId: number }) {
+    async makeOrder({ order, chainId = this.defaultChainId }: { order: OrderWithCounter, chainId?: number }) {
         await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
@@ -323,7 +328,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async takeOrder({ orderId, order, chainId }: { orderId: string, order: OrderWithCounter, chainId: number }) {
+    async takeOrder({ orderId, order, chainId = this.defaultChainId }: { orderId: string, order: OrderWithCounter, chainId?: number }) {
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
@@ -344,7 +349,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async requestQuote({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: BigNumberish, outputToken: string, chainId: number }) {
+    async requestQuote({ inputToken, inputAmount, outputToken, chainId = this.defaultChainId }: { inputToken: string, inputAmount: BigNumberish, outputToken: string, chainId?: number }) {
         await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
@@ -357,7 +362,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async getCounter({ address, chainId }: { address: string, chainId: number }) {
+    async getCounter({ address, chainId = this.defaultChainId }: { address: string, chainId?: number }) {
         await this.rawCall({
             method: AoriMethods.GetCounter,
             params: [{
