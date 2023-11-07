@@ -246,7 +246,7 @@ import { LimitOrderManager } from '@aori-io/sdk';
 const wallet = new Wallet(...);
 const provider = new JsonRpcProvider(...);
 
-const bot = new LimitOrderManager({ wallet, provider });
+const bot = new LimitOrderManager(...);
 
 bot.on("ready", () => {
   // ...
@@ -272,7 +272,7 @@ import { FromInventoryExecutor } from '@aori-io/sdk';
 const wallet = new Wallet(...);
 const provider = new JsonRpcProvider(...);
 
-const bot = new FromInventoryExecutor({ wallet, provider });
+const bot = new FromInventoryExecutor(...);
 
 bot.on("ready", () => {
   // ...
