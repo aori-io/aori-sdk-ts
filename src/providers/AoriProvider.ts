@@ -1,14 +1,14 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import { BigNumberish, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { actionsURL, subscriptionsURL } from "../utils";
+import { AORI_API, AORI_FEED, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, NotificationEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
-    actionsWebsocket: WebSocket;
-    subscriptionsWebsocket: WebSocket;
+    api: WebSocket;
+    feed: WebSocket;
     wallet: Wallet;
     apiKey: string = "";
     counter: number = 0;
@@ -23,32 +23,32 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     constructor({
         wallet,
-        requestsFeed,
-        subscriptionFeed,
+        api,
+        feed,
         apiKey,
         useVirtualOrders = true
     }: {
         wallet: Wallet,
-        requestsFeed: WebSocket,
-        subscriptionFeed: WebSocket,
+        api: WebSocket,
+        feed: WebSocket,
         apiKey?: string,
         useVirtualOrders?: boolean
     }) {
         super();
 
         this.wallet = wallet;
-        this.actionsWebsocket = requestsFeed;
-        this.subscriptionsWebsocket = subscriptionFeed;
+        this.api = api;
+        this.feed = feed;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
-        this.actionsWebsocket.on("open", () => {
+        this.api.on("open", () => {
             if (useVirtualOrders) this.authWallet();
             this.emit("ready");
         });
 
-        this.actionsWebsocket.on("message", (msg) => {
+        this.api.on("message", (msg) => {
             const { id, result, error } = JSON.parse(msg.toString());
 
             if (error) {
@@ -120,7 +120,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             }
         });
 
-        this.subscriptionsWebsocket.on("message", (msg) => {
+        this.feed.on("message", (msg) => {
             const { id, result } = JSON.parse(msg.toString());
             const { type, data } = result;
 
@@ -144,8 +144,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     static default({ wallet }: { wallet: Wallet }): AoriProvider {
         return new AoriProvider({
             wallet,
-            requestsFeed: new WebSocket(actionsURL),
-            subscriptionFeed: new WebSocket(subscriptionsURL)
+            api: connectTo(AORI_API),
+            feed: connectTo(AORI_FEED),
         })
     }
 
@@ -362,7 +362,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async rawCall<T>({ method, params }: { method: AoriMethods | string, params: [T] | [] }) {
         const id = this.counter;
         this.messages[id] = method;
-        this.actionsWebsocket.send(JSON.stringify({
+        this.api.send(JSON.stringify({
             id,
             jsonrpc: "2.0",
             method,

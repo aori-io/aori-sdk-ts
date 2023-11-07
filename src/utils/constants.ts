@@ -2,8 +2,14 @@
                             URLS
 //////////////////////////////////////////////////////////////*/
 
-export const actionsURL: string = "wss://api.beta.order.aori.io";
-export const subscriptionsURL: string = "wss://api.beta.order.aori.io";
+export const AORI_API: string = "wss://api.aori.io";
+export const AORI_FEED: string = "wss://feed.aori.io";
+export const AORI_PRODUCTION_API: string = "wss://api.aori.io";
+export const AORI_PRODUCTION_FEED: string = "wss://feed.aori.io";
+export const AORI_STAGING_API: string = "wss://staging.api.aori.io";
+export const AORI_STAGING_FEED: string = "wss://staging.feed.aori.io";
+export const AORI_DEVELOPMENT_API: string = "wss://dev.api.aori.io";
+export const AORI_DEVELOPMENT_FEED: string = "wss://dev.feed.aori.io";
 
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
