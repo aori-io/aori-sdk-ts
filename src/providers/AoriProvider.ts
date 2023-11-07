@@ -339,12 +339,12 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async cancelOrder(orderHash: string, signature: string) {
+    async cancelOrder(orderHash: string) {
         await this.rawCall({
             method: AoriMethods.CancelOrder,
             params: [{
                 orderId: orderHash,
-                signature
+                signature: this.wallet.signMessageSync(orderHash)
             }]
         });
     }
