@@ -16,6 +16,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     jwt: string = ""; // Not needed at the moment
     messages: { [counter: number]: AoriMethods | string }
+    keepAliveTimer: NodeJS.Timeout;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -26,13 +27,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         api,
         feed,
         apiKey,
-        useVirtualOrders = true
+        useVirtualOrders = true,
+        keepAlive = true,
     }: {
         wallet: Wallet,
         api: WebSocket,
         feed: WebSocket,
         apiKey?: string,
-        useVirtualOrders?: boolean
+        useVirtualOrders?: boolean,
+        keepAlive?: boolean
     }) {
         super();
 
@@ -43,8 +46,16 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
+        this.keepAliveTimer = null as any;
+
         this.api.on("open", () => {
             if (useVirtualOrders) this.authWallet();
+            if (keepAlive) {
+                this.keepAliveTimer = setInterval(() => {
+                    this.api.ping();
+                    this.feed.ping();
+                }, 15_000);
+            }
             this.emit("ready");
         });
 
@@ -154,6 +165,12 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     //////////////////////////////////////////////////////////////*/
 
     async initialise(...any: any[]): Promise<void> { }
+
+    async terminate() {
+        if (this.keepAliveTimer) { clearInterval(this.keepAliveTimer); }
+        this.api.close();
+        this.feed.close();
+    }
 
     async createLimitOrder({
         offerer = this.wallet.address,
