@@ -67,7 +67,7 @@ class OrderHasher {
         ));
     }
 
-    public _getOrderHash = async (order: OrderComponents, counter: number) => {
+    public _getOrderHash = (order: OrderComponents, counter: number) => {
         const orderParameters = {
             offerer: order.offerer,
             zone: order.zone,
@@ -82,10 +82,10 @@ class OrderHasher {
             totalOriginalConsiderationItems: order.consideration.length
         };
 
-        return await this._deriveOrderHash(orderParameters, counter);
+        return this._deriveOrderHash(orderParameters, counter);
     }
 
-    private async _deriveOrderHash(orderParameters: OrderParameters, counter: number): Promise<string> {
+    private _deriveOrderHash(orderParameters: OrderParameters, counter: number): string {
         const offerHashes = orderParameters.offer.map(offerItem =>
             this._hashOfferItem(offerItem)
         );

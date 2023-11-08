@@ -40,7 +40,7 @@ export class LimitOrderManager extends AoriProvider {
     async makeOrder({ order, chainId }: { order: OrderWithCounter; chainId: number; }): Promise<void> {
         await super.makeOrder({ order, chainId });
 
-        const orderHash = await getOrderHash(order.parameters, this.counter);
+        const orderHash = getOrderHash(order.parameters, this.counter);
         this.awaitingOrderCreation.add(orderHash);
     }
 }
