@@ -110,6 +110,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case AoriMethods.OrderStatus:
                     this.emit(AoriMethods.OrderStatus, result.order);
                     break;
+                case AoriMethods.CancelAllOrders:
+                    this.emit(AoriMethods.CancelAllOrders);
+                    break;
                 case null:
                     // This is a notification
                     const { type, data } = result;
@@ -345,6 +348,16 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 orderId: orderHash,
                 signature: this.wallet.signMessageSync(orderHash)
+            }]
+        });
+    }
+
+    async cancelAllOrders() {
+        await this.rawCall({
+            method: AoriMethods.CancelAllOrders,
+            params: [{
+                offerer: this.wallet.address,
+                signature: this.wallet.signMessageSync(this.wallet.address)
             }]
         });
     }

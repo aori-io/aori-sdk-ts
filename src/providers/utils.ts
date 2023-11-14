@@ -16,6 +16,7 @@ export enum AoriMethods {
     RequestQuote = "aori_requestQuote",
     GetCounter = "aori_getCounter",
     SendTransaction = "aori_sendTransaction",
+    CancelAllOrders = "aori_cancelAllOrders",
 }
 
 export enum NotificationEvents {
@@ -44,6 +45,7 @@ export type AoriMethodsEvents = {
     [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
     [AoriMethods.MakeOrder]: [orderHash: string],
     [AoriMethods.CancelOrder]: [orderHash: string],
+    [AoriMethods.CancelAllOrders]: [],
     [AoriMethods.TakeOrder]: [orderHash: string],
     [AoriMethods.AccountOrders]: [orders: OrderView[]],
     [AoriMethods.AccountCredit]: [{ address: string, credit: string }],
