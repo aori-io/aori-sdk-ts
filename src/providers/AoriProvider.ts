@@ -55,7 +55,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 this.keepAliveTimer = setInterval(() => {
                     this.api.ping();
                     this.feed.ping();
-                }, 15_000);
+                }, 10_000);
             }
             this.emit("ready");
         });
