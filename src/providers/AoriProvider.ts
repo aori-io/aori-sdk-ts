@@ -1,7 +1,7 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import { BigNumberish, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_FEED, connectTo } from "../utils";
+import { AORI_API, AORI_FEED, connectTo, defaultOrderAddress } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
@@ -182,6 +182,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async createLimitOrder({
         offerer = this.wallet.address,
+        zone = defaultOrderAddress,
         inputToken,
         inputTokenType = ItemType.ERC20,
         inputAmount,
@@ -191,6 +192,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         chainId = this.defaultChainId
     }: {
         offerer?: string;
+        zone?: string;
         inputToken: string;
         inputTokenType?: ItemType;
         inputAmount: BigNumberish;
@@ -201,6 +203,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }) {
         const limitOrder = await formatIntoLimitOrder({
             offerer,
+            zone,
             inputToken,
             inputTokenType,
             inputAmount,
@@ -215,6 +218,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async createMatchingOrder({
+        order,
         inputToken,
         inputAmount,
         outputToken,
@@ -223,6 +227,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }: OrderView) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: this.wallet.address,
+            zone: order.parameters.zone,
             inputToken: outputToken,
             inputAmount: outputAmount,
             outputToken: inputToken,

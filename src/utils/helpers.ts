@@ -7,6 +7,7 @@ export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } }
 
 export async function formatIntoLimitOrder({
     offerer,
+    zone = defaultOrderAddress,
     inputToken,
     inputTokenType = ItemType.ERC20,
     inputAmount,
@@ -16,6 +17,7 @@ export async function formatIntoLimitOrder({
     counter
 }: {
     offerer: string;
+    zone?: string;
     inputToken: string;
     inputTokenType?: ItemType;
     inputAmount: BigNumberish;
@@ -30,7 +32,7 @@ export async function formatIntoLimitOrder({
     return {
         parameters: {
             offerer,
-            zone: defaultOrderAddress,
+            zone,
             zoneHash: defaultZoneHash,
             startTime: `${startTime}`,
             endTime: `${startTime + defaultDuration}`,
