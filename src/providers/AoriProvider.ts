@@ -69,10 +69,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async connect() {
+        if (this.api) this.api.close();
+        if (this.feed) this.feed.close();
+
         this.api = connectTo(this.apiUrl);
         this.feed = connectTo(this.feedUrl);
 
         this.api.on("open", () => {
+            console.log(`Connected to ${this.apiUrl}`);
             if (this.useVirtualOrders) this.authWallet();
             if (this.keepAlive) {
                 this.keepAliveTimer = setInterval(() => {
@@ -159,10 +163,16 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
 
         this.api.on("close", () => {
+            console.log(`Got disconnected...`);
             setTimeout(() => {
+                console.log(`Reconnecting...`);
                 this.connect();
             }, 5_000);
         });
+
+        this.feed.on("open", () => {
+            console.log(`Connected to ${this.feedUrl}`);
+        })
 
         this.feed.on("message", (msg) => {
             const { id, result } = JSON.parse(msg.toString());
