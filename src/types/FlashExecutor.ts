@@ -47,12 +47,7 @@ export type InstructionStructOutput = [
 
 export interface FlashExecutorInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "execute"
-      | "isPermissioned"
-      | "permiss"
-      | "permissioned"
-      | "receiveFlashLoan"
+    nameOrSignature: "execute" | "receiveFlashLoan" | "withdrawAll"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "Call"): EventFragment;
@@ -62,34 +57,21 @@ export interface FlashExecutorInterface extends Interface {
     values: [FlashLoanStruct, InstructionStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "isPermissioned",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "permiss",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "permissioned",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "receiveFlashLoan",
     values: [AddressLike[], BigNumberish[], BigNumberish[], BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawAll",
+    values: [AddressLike, AddressLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "isPermissioned",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "permiss", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "permissioned",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "receiveFlashLoan",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawAll",
     data: BytesLike
   ): Result;
 }
@@ -161,20 +143,6 @@ export interface FlashExecutor extends BaseContract {
     "payable"
   >;
 
-  isPermissioned: TypedContractMethod<
-    [_address: AddressLike],
-    [boolean],
-    "view"
-  >;
-
-  permiss: TypedContractMethod<
-    [_address: AddressLike, _permission: boolean],
-    [void],
-    "payable"
-  >;
-
-  permissioned: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-
   receiveFlashLoan: TypedContractMethod<
     [
       tokens: AddressLike[],
@@ -182,6 +150,12 @@ export interface FlashExecutor extends BaseContract {
       arg2: BigNumberish[],
       data: BytesLike
     ],
+    [void],
+    "nonpayable"
+  >;
+
+  withdrawAll: TypedContractMethod<
+    [token: AddressLike, recipient: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -198,19 +172,6 @@ export interface FlashExecutor extends BaseContract {
     "payable"
   >;
   getFunction(
-    nameOrSignature: "isPermissioned"
-  ): TypedContractMethod<[_address: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "permiss"
-  ): TypedContractMethod<
-    [_address: AddressLike, _permission: boolean],
-    [void],
-    "payable"
-  >;
-  getFunction(
-    nameOrSignature: "permissioned"
-  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-  getFunction(
     nameOrSignature: "receiveFlashLoan"
   ): TypedContractMethod<
     [
@@ -219,6 +180,13 @@ export interface FlashExecutor extends BaseContract {
       arg2: BigNumberish[],
       data: BytesLike
     ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "withdrawAll"
+  ): TypedContractMethod<
+    [token: AddressLike, recipient: AddressLike],
     [void],
     "nonpayable"
   >;
