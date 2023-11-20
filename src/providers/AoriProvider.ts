@@ -7,8 +7,12 @@ import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, NotificationEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
-    api: WebSocket;
-    feed: WebSocket;
+
+    apiUrl: string;
+    api: WebSocket = null as any;
+
+    feedUrl: string;
+    feed: WebSocket = null as any;
     wallet: Wallet;
     apiKey: string = "";
     counter: number = 0;
@@ -16,6 +20,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     jwt: string = ""; // Not needed at the moment
     messages: { [counter: number]: AoriMethods | string }
+    useVirtualOrders: boolean;
+    keepAlive: boolean;
     keepAliveTimer: NodeJS.Timeout;
     defaultChainId: number = 5;
 
@@ -25,15 +31,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     constructor({
         wallet,
-        api,
-        feed,
+        apiUrl,
+        feedUrl,
         apiKey,
         useVirtualOrders = true,
         keepAlive = true,
     }: {
         wallet: Wallet,
-        api: WebSocket,
-        feed: WebSocket,
+        apiUrl: string,
+        feedUrl: string,
         apiKey?: string,
         useVirtualOrders?: boolean,
         keepAlive?: boolean
@@ -41,17 +47,34 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         super();
 
         this.wallet = wallet;
-        this.api = api;
-        this.feed = feed;
+        this.apiUrl = apiUrl;
+        this.feedUrl = feedUrl;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
+        this.useVirtualOrders = useVirtualOrders;
+        this.keepAlive = keepAlive;
         this.keepAliveTimer = null as any;
 
+        this.connect();
+    }
+
+    static default({ wallet }: { wallet: Wallet }): AoriProvider {
+        return new AoriProvider({
+            wallet,
+            apiUrl: AORI_API,
+            feedUrl: AORI_FEED,
+        })
+    }
+
+    async connect() {
+        this.api = connectTo(this.apiUrl);
+        this.feed = connectTo(this.feedUrl);
+
         this.api.on("open", () => {
-            if (useVirtualOrders) this.authWallet();
-            if (keepAlive) {
+            if (this.useVirtualOrders) this.authWallet();
+            if (this.keepAlive) {
                 this.keepAliveTimer = setInterval(() => {
                     this.api.ping();
                     this.feed.ping();
@@ -135,6 +158,12 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             }
         });
 
+        this.api.on("close", () => {
+            setTimeout(() => {
+                this.connect();
+            }, 5_000);
+        });
+
         this.feed.on("message", (msg) => {
             const { id, result } = JSON.parse(msg.toString());
             const { type, data } = result;
@@ -154,14 +183,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
             }
         });
-    }
-
-    static default({ wallet }: { wallet: Wallet }): AoriProvider {
-        return new AoriProvider({
-            wallet,
-            api: connectTo(AORI_API),
-            feed: connectTo(AORI_FEED),
-        })
     }
 
     /*//////////////////////////////////////////////////////////////
