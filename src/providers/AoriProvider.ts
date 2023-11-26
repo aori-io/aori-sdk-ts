@@ -352,14 +352,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async makeOrder({ order, chainId = this.defaultChainId }: { order: OrderWithCounter, chainId?: number }) {
+    async makeOrder({ order, chainId = this.defaultChainId, isPrivate = false }: { order: OrderWithCounter, chainId?: number, isPrivate?: boolean }) {
         await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
                 order,
                 apiKey: this.apiKey,
                 signer: ZeroAddress,
-                isPublic: true,
+                isPublic: !isPrivate,
                 chainId,
             }]
         });
