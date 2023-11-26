@@ -241,7 +241,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputToken,
             outputTokenType,
             outputAmount,
-            chainId,
             counter: `${this.cancelIndex}`
         });
         limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
@@ -263,7 +262,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             inputAmount: outputAmount,
             outputToken: inputToken,
             outputAmount: inputAmount,
-            chainId,
             counter: `${this.cancelIndex}`
         });
 

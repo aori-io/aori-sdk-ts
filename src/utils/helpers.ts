@@ -24,8 +24,7 @@ export async function formatIntoLimitOrder({
     outputToken: string;
     outputTokenType?: ItemType;
     outputAmount: BigNumberish;
-    counter: string,
-    chainId?: string | number;
+    counter: string
 }): Promise<OrderWithCounter> {
 
     const startTime = Math.floor(Date.now() / 1000); // seconds
