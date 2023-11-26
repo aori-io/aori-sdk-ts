@@ -1,7 +1,7 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import { BigNumberish, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_FEED, connectTo, defaultOrderAddress } from "../utils";
+import { AORI_API, AORI_FEED, AORI_ZONE_ADDRESS, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
@@ -213,7 +213,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async createLimitOrder({
         offerer = this.wallet.address,
-        zone = defaultOrderAddress,
+        zone = AORI_ZONE_ADDRESS,
         inputToken,
         inputTokenType = ItemType.ERC20,
         inputAmount,

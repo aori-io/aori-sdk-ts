@@ -1,13 +1,13 @@
 import { EIP_712_ORDER_TYPE, ItemType, OrderType } from "@opensea/seaport-js/lib/constants";
 import { Order } from "@opensea/seaport-js/lib/types";
 import { BigNumberish, Signer } from "ethers";
-import { currentSeaportAddress, currentSeaportVersion, defaultConduitKey, defaultDuration, defaultOrderAddress, defaultZoneHash, maxSalt } from "./constants";
+import { AORI_ZONE_ADDRESS, currentSeaportAddress, currentSeaportVersion, defaultConduitKey, defaultDuration, defaultZoneHash, maxSalt } from "./constants";
 
 export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } };
 
 export async function formatIntoLimitOrder({
     offerer,
-    zone = defaultOrderAddress,
+    zone = AORI_ZONE_ADDRESS,
     inputToken,
     inputTokenType = ItemType.ERC20,
     inputAmount,
