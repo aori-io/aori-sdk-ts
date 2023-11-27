@@ -439,4 +439,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         }));
         this.counter++;
     }
+
+    async subscribe() {
+        await this.feed.send(JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            method: "aori_subscribeOrderbook",
+            params: []
+        }));
+    }
 }
