@@ -20,10 +20,10 @@ export async function formatIntoLimitOrder({
     zone?: string;
     inputToken: string;
     inputTokenType?: ItemType;
-    inputAmount: BigNumberish;
+    inputAmount: bigint;
     outputToken: string;
     outputTokenType?: ItemType;
-    outputAmount: BigNumberish;
+    outputAmount: bigint;
     counter: string
 }): Promise<OrderWithCounter> {
 

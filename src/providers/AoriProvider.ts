@@ -23,7 +23,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     useVirtualOrders: boolean;
     keepAlive: boolean;
     keepAliveTimer: NodeJS.Timeout;
-    defaultChainId: number = 5;
+    defaultChainId: number;
     readyLatch: boolean = false;
 
     /*//////////////////////////////////////////////////////////////
@@ -37,13 +37,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         apiKey,
         useVirtualOrders = true,
         keepAlive = true,
+        defaultChainId = 5,
     }: {
         wallet: Wallet,
         apiUrl: string,
         feedUrl: string,
         apiKey?: string,
         useVirtualOrders?: boolean,
-        keepAlive?: boolean
+        keepAlive?: boolean,
+        defaultChainId?: number
     }) {
         super();
 
@@ -57,6 +59,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.useVirtualOrders = useVirtualOrders;
         this.keepAlive = keepAlive;
         this.keepAliveTimer = null as any;
+
+        this.defaultChainId = defaultChainId;
 
         this.connect();
     }
@@ -249,10 +253,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         zone?: string;
         inputToken: string;
         inputTokenType?: ItemType;
-        inputAmount: BigNumberish;
+        inputAmount: bigint | string;
         outputToken: string;
         outputTokenType?: ItemType;
-        outputAmount: BigNumberish;
+        outputAmount: bigint | string;
         chainId?: string | number;
     }) {
         const limitOrder = await formatIntoLimitOrder({
@@ -260,13 +264,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             zone,
             inputToken,
             inputTokenType,
-            inputAmount,
+            inputAmount: BigInt(inputAmount),
             outputToken,
             outputTokenType,
-            outputAmount,
+            outputAmount: BigInt(outputAmount),
             counter: `${this.cancelIndex}`
         });
-        limitOrder.signature = await signOrder(this.wallet, limitOrder, chainId);
+        limitOrder.signature = await this.signOrder(limitOrder, chainId);
         return limitOrder;
     }
 
@@ -276,20 +280,24 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputAmount,
         outputToken,
         outputAmount,
-        chainId = this.defaultChainId
-    }: OrderView) {
+        chainId = this.defaultChainId,
+    }: OrderView, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: this.wallet.address,
             zone: order.parameters.zone,
             inputToken: outputToken,
-            inputAmount: outputAmount,
+            inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
             outputToken: inputToken,
-            outputAmount: inputAmount,
+            outputAmount: BigInt(inputAmount),
             counter: `${this.cancelIndex}`
         });
 
-        matchingOrder.signature = await signOrder(this.wallet, matchingOrder, chainId);
+        matchingOrder.signature = await this.signOrder(matchingOrder, chainId);
         return matchingOrder;
+    }
+
+    async signOrder(order: OrderWithCounter, chainId: string | number = this.defaultChainId) {
+        return await signOrder(this.wallet, order, chainId);
     }
 
     /*//////////////////////////////////////////////////////////////
