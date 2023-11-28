@@ -24,6 +24,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     keepAlive: boolean;
     keepAliveTimer: NodeJS.Timeout;
     defaultChainId: number = 5;
+    readyLatch: boolean = false;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -75,6 +76,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.api = connectTo(this.apiUrl);
         this.feed = connectTo(this.feedUrl);
 
+        this.readyLatch = false;
+
         this.api.on("open", () => {
             console.log(`Connected to ${this.apiUrl}`);
             if (this.useVirtualOrders) this.authWallet();
@@ -84,7 +87,11 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.feed.ping();
                 }, 10_000);
             }
-            this.emit("ready");
+            if (!this.readyLatch) {
+                this.readyLatch = true;
+            } else {
+                this.emit("ready");
+            }
         });
 
         this.api.on("message", (msg) => {
@@ -168,11 +175,18 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 console.log(`Reconnecting...`);
                 this.connect();
             }, 5_000);
+            this.readyLatch = false;
         });
 
         this.feed.on("open", () => {
             console.log(`Connected to ${this.feedUrl}`);
-        })
+
+            if (!this.readyLatch) {
+                this.readyLatch = true;
+            } else {
+                this.emit("ready");
+            }
+        });
 
         this.feed.on("message", (msg) => {
             const { id, result } = JSON.parse(msg.toString());
@@ -192,6 +206,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(SubscriptionEvents.OrderFulfilled, data);
                     break;
             }
+        });
+
+        this.feed.on("close", () => {
+            console.log(`Got disconnected...`);
+            setTimeout(() => {
+                console.log(`Reconnecting...`);
+                this.connect();
+            }, 5_000);
+            this.readyLatch = false;
         });
     }
 
