@@ -450,8 +450,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async sendTransaction({ to, value, data, chainId = this.defaultChainId }: { to: string, value: BigNumberish, data: string, chainId?: number }) {
-        const signedTx = await this.wallet.signTransaction({ to, value, data });
+    async sendTransaction({
+        to,
+        value,
+        data,
+        gasLimit = 800_000,
+        chainId = this.defaultChainId
+    }: { to: string, value: BigNumberish, data: string, gasLimit?: number, chainId?: number }) {
+        const signedTx = await this.wallet.signTransaction({ to, value, data, gasLimit });
 
         await this.rawCall({
             method: AoriMethods.SendTransaction,
