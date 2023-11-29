@@ -311,14 +311,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async authWallet() {
+    async authWallet(deferExecution: boolean = false) {
         const { address } = this.wallet;
 
         await this.rawCall({
             method: AoriMethods.AuthWallet,
             params: [{
                 address,
-                signature: this.wallet.signMessageSync(address)
+                signature: this.wallet.signMessageSync(address),
+                deferExecution
             }]
         })
     }
@@ -461,7 +462,9 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         await this.rawCall({
             method: AoriMethods.SendTransaction,
-            params: [{ signedTx, chainId }]
+            params: [{
+                signedTx, chainId
+            }]
         });
     }
 
