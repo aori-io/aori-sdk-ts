@@ -10,8 +10,8 @@ export interface OrderToExecute {
 export interface QuoteRequested {
     inputToken: string;
     outputToken: string;
-    inputAmount?: number;
-    outputAmount?: number;
+    inputAmount?: string;
+    outputAmount?: string;
     chainId: number;
 }
 
@@ -23,8 +23,8 @@ export interface OrderView {
     orderHash: string,
     inputToken: string,
     outputToken: string,
-    inputAmount: number;
-    outputAmount: number;
+    inputAmount: string;
+    outputAmount: string;
     chainId: number;
     rate: number;
     createdAt: number;
