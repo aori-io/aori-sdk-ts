@@ -11,11 +11,11 @@ This SDK is released under the [MIT License](LICENSE).
 If you have any further questions, refer to [the technical documentation](https://www.aori.io/developers). Alternatively, please reach out to us [on Discord](https://discord.gg/K37wkh2ZfR) or [on Twitter](https://twitter.com/aori_io).
 
 ## Table of Contents
-- [Installation](#Installation)
-  - [Initialization](#Initialization)
-  - [Websockets](#Websockets)
-- [Key Functionalities](#UsefulFunctions)
-  - [Order Creation and Management]()
+- [Installation](#installation)
+  - [Initialization](#initialization)
+  - [Websockets](#websockets)
+- [Key Functionalities](#key-functionalities)
+  - [Order Creation and Management](#order-creation-and-management)
     - [Creating a Limit Order](#creating-a-limit-order)
     - [Publishing a Limit Order](#publishing-a-limit-order)
     - [Cancelling a Limit Order](#cancelling-a-limit-order)
@@ -85,6 +85,8 @@ provider.on(NotificationEvents.OrderToExecute, (...) => {
 # Key Functionalities
 
 There are a number of key functionalities that can be performed using the SDK. Examples are accompanied by code snippets below.
+
+## Order Creation and Management
 
 ### Creating a Limit Order
 
