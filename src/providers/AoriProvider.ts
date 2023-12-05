@@ -432,7 +432,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
-                apiKey: (this.jwt != undefined) ? this.jwt : this.apiKey,
+                apiKey: (this.apiKey != "") ? this.apiKey : this.jwt,
                 inputToken,
                 inputAmount,
                 outputToken,
