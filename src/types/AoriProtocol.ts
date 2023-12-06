@@ -8,6 +8,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -17,6 +18,7 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "./common";
@@ -153,7 +155,7 @@ export type FulfillmentStructOutput = [
   considerationComponents: FulfillmentComponentStructOutput[];
 };
 
-export declare namespace OrderProtocol {
+export declare namespace AoriProtocol {
   export type MatchingDetailsStruct = {
     makerOrders: AdvancedOrderStruct[];
     takerOrder: AdvancedOrderStruct;
@@ -185,17 +187,20 @@ export declare namespace OrderProtocol {
   };
 }
 
-export interface OrderInterface extends Interface {
+export interface AoriProtocolInterface extends Interface {
   getFunction(
-    nameOrSignature: "owner" | "seaport" | "settleOrders"
+    nameOrSignature: "owner" | "seaport" | "settleOrders" | "version"
   ): FunctionFragment;
+
+  getEvent(nameOrSignatureOrTopic: "TradeOccurred"): EventFragment;
 
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "seaport", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "settleOrders",
-    values: [OrderProtocol.MatchingDetailsStruct, OrderProtocol.SignatureStruct]
+    values: [AoriProtocol.MatchingDetailsStruct, AoriProtocol.SignatureStruct]
   ): string;
+  encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "seaport", data: BytesLike): Result;
@@ -203,13 +208,24 @@ export interface OrderInterface extends Interface {
     functionFragment: "settleOrders",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 }
 
-export interface Order extends BaseContract {
-  connect(runner?: ContractRunner | null): Order;
+export namespace TradeOccurredEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export interface AoriProtocol extends BaseContract {
+  connect(runner?: ContractRunner | null): AoriProtocol;
   waitForDeployment(): Promise<this>;
 
-  interface: OrderInterface;
+  interface: AoriProtocolInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -254,12 +270,14 @@ export interface Order extends BaseContract {
 
   settleOrders: TypedContractMethod<
     [
-      matching: OrderProtocol.MatchingDetailsStruct,
-      serverSignature: OrderProtocol.SignatureStruct
+      matching: AoriProtocol.MatchingDetailsStruct,
+      serverSignature: AoriProtocol.SignatureStruct
     ],
     [void],
     "nonpayable"
   >;
+
+  version: TypedContractMethod<[], [string], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -275,12 +293,34 @@ export interface Order extends BaseContract {
     nameOrSignature: "settleOrders"
   ): TypedContractMethod<
     [
-      matching: OrderProtocol.MatchingDetailsStruct,
-      serverSignature: OrderProtocol.SignatureStruct
+      matching: AoriProtocol.MatchingDetailsStruct,
+      serverSignature: AoriProtocol.SignatureStruct
     ],
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "version"
+  ): TypedContractMethod<[], [string], "view">;
 
-  filters: {};
+  getEvent(
+    key: "TradeOccurred"
+  ): TypedContractEvent<
+    TradeOccurredEvent.InputTuple,
+    TradeOccurredEvent.OutputTuple,
+    TradeOccurredEvent.OutputObject
+  >;
+
+  filters: {
+    "TradeOccurred()": TypedContractEvent<
+      TradeOccurredEvent.InputTuple,
+      TradeOccurredEvent.OutputTuple,
+      TradeOccurredEvent.OutputObject
+    >;
+    TradeOccurred: TypedContractEvent<
+      TradeOccurredEvent.InputTuple,
+      TradeOccurredEvent.OutputTuple,
+      TradeOccurredEvent.OutputObject
+    >;
+  };
 }

@@ -3,11 +3,16 @@
 /* eslint-disable */
 
 import { Contract, Interface, type ContractRunner } from "ethers";
-import type { Order, OrderInterface } from "../Order";
+import type { AoriProtocol, AoriProtocolInterface } from "../AoriProtocol";
 
 const _abi = [
   {
     inputs: [
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "_seaport",
@@ -16,6 +21,12 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [],
+    name: "TradeOccurred",
+    type: "event",
   },
   {
     inputs: [],
@@ -395,7 +406,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct OrderProtocol.MatchingDetails",
+        internalType: "struct AoriProtocol.MatchingDetails",
         name: "matching",
         type: "tuple",
       },
@@ -417,7 +428,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct OrderProtocol.Signature",
+        internalType: "struct AoriProtocol.Signature",
         name: "serverSignature",
         type: "tuple",
       },
@@ -427,14 +438,30 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "version",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
 ] as const;
 
-export class Order__factory {
+export class AoriProtocol__factory {
   static readonly abi = _abi;
-  static createInterface(): OrderInterface {
-    return new Interface(_abi) as OrderInterface;
+  static createInterface(): AoriProtocolInterface {
+    return new Interface(_abi) as AoriProtocolInterface;
   }
-  static connect(address: string, runner?: ContractRunner | null): Order {
-    return new Contract(address, _abi, runner) as unknown as Order;
+  static connect(
+    address: string,
+    runner?: ContractRunner | null
+  ): AoriProtocol {
+    return new Contract(address, _abi, runner) as unknown as AoriProtocol;
   }
 }
