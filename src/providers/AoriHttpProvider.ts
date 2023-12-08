@@ -2,7 +2,7 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, JsonRpcError, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_FEED, AORI_ZONE_ADDRESS, connectTo } from "../utils";
+import { AORI_FEED, AORI_HTTP_API, AORI_ZONE_ADDRESS, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
@@ -62,7 +62,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     static default({ wallet }: { wallet: Wallet }): AoriHttpProvider {
         return new AoriHttpProvider({
             wallet,
-            apiUrl: AORI_API,
+            apiUrl: AORI_HTTP_API,
             feedUrl: AORI_FEED,
         })
     }
