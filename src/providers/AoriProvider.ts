@@ -5,7 +5,7 @@ import { AORI_API, AORI_FEED, AORI_ZONE_ADDRESS, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
-import { AoriMethods, AoriMethodsEvents, NotificationEvents, SubscriptionEvents } from "./utils";
+import { AoriMethods, AoriMethodsEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
@@ -18,9 +18,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     counter: number = 0;
     cancelIndex: number = 0;
 
-    jwt: string = ""; // Not needed at the moment
     messages: { [counter: number]: AoriMethods | string }
-    useVirtualOrders: boolean;
     keepAlive: boolean;
     keepAliveTimer: NodeJS.Timeout;
     defaultChainId: number;
@@ -35,7 +33,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         apiUrl,
         feedUrl,
         apiKey,
-        useVirtualOrders = true,
         keepAlive = true,
         defaultChainId = 5,
     }: {
@@ -43,7 +40,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         apiUrl: string,
         feedUrl: string,
         apiKey?: string,
-        useVirtualOrders?: boolean,
         keepAlive?: boolean,
         defaultChainId?: number
     }) {
@@ -56,7 +52,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
 
-        this.useVirtualOrders = useVirtualOrders;
         this.keepAlive = keepAlive;
         this.keepAliveTimer = null as any;
 
@@ -84,7 +79,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         this.api.on("open", () => {
             console.log(`Connected to ${this.apiUrl}`);
-            if (this.useVirtualOrders) this.authWallet();
             if (this.keepAlive) {
                 this.keepAliveTimer = setInterval(() => {
                     this.api.ping();
@@ -113,7 +107,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(AoriMethods.Ping, "aori_pong");
                     break;
                 case AoriMethods.AuthWallet:
-                    this.jwt = result.auth;
                     this.emit(AoriMethods.AuthWallet, result.auth);
                     break;
                 case AoriMethods.CheckAuth:
@@ -151,22 +144,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case AoriMethods.CancelAllOrders:
                     this.emit(AoriMethods.CancelAllOrders);
                     break;
-                case null:
-                    // This is a notification
-                    const { type, data } = result;
-
-                    switch (type) {
-                        case NotificationEvents.OrderToExecute:
-                            this.emit(NotificationEvents.OrderToExecute, data);
-                            break;
-                        case NotificationEvents.QuoteRequested:
-                            this.emit(NotificationEvents.QuoteRequested, data);
-                        default:
-                            console.error(`Unexpected notification event: ${type}`);
-                            break;
-                    }
-                    break;
-
                 default:
                     this.emit(this.messages[id], result);
                     break;
@@ -209,6 +186,11 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case SubscriptionEvents.OrderFulfilled:
                     this.emit(SubscriptionEvents.OrderFulfilled, data);
                     break;
+                case SubscriptionEvents.OrderToExecute:
+                    this.emit(SubscriptionEvents.OrderToExecute, data);
+                    break;
+                case SubscriptionEvents.QuoteRequested:
+                    this.emit(SubscriptionEvents.QuoteRequested, data);
             }
         });
 
@@ -311,15 +293,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async authWallet(deferExecution: boolean = false) {
+    async authWallet() {
         const { address } = this.wallet;
 
         await this.rawCall({
             method: AoriMethods.AuthWallet,
             params: [{
                 address,
-                signature: this.wallet.signMessageSync(address),
-                deferExecution
+                signature: this.wallet.signMessageSync(address)
             }]
         })
     }
@@ -432,7 +413,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
-                apiKey: (this.apiKey != "") ? this.apiKey : this.jwt,
+                apiKey: this.apiKey,
                 inputToken,
                 inputAmount,
                 outputToken,

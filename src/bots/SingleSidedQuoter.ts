@@ -1,4 +1,4 @@
-import { NotificationEvents, SubscriptionEvents } from "../providers";
+import { SubscriptionEvents } from "../providers";
 import { SingleSidedMaker } from "./SingleSidedMaker";
 
 export class SingleSidedQuoter extends SingleSidedMaker {
@@ -12,7 +12,7 @@ export class SingleSidedQuoter extends SingleSidedMaker {
             }, intervalInMs);
         }
 
-        this.on(NotificationEvents.QuoteRequested, ({ inputToken, inputAmount, outputToken, outputAmount }) => {
+        this.on(SubscriptionEvents.QuoteRequested, ({ inputToken, inputAmount, outputToken, outputAmount }) => {
             if (inputToken === this.inputToken && outputToken === this.outputToken) {
                 this.refreshOrders();
             }

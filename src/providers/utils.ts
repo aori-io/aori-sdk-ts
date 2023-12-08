@@ -19,31 +19,26 @@ export enum AoriMethods {
     CancelAllOrders = "aori_cancelAllOrders",
 }
 
-export enum NotificationEvents {
-    OrderToExecute = "OrderToExecute",
-    QuoteRequested = "QuoteRequested",
-}
-
 export enum SubscriptionEvents {
     OrderCreated = "OrderCreated",
     OrderCancelled = "OrderCancelled",
     OrderTaken = "OrderTaken",
     OrderFulfilled = "OrderFulfilled",
+    OrderToExecute = "OrderToExecute",
+    QuoteRequested = "QuoteRequested",
 }
 
-export const ResponseEvents = { AoriMethods, NotificationEvents, SubscriptionEvents };
+export const ResponseEvents = { AoriMethods, SubscriptionEvents };
 
 export type AoriMethodsEvents = {
     ["ready"]: [],
     ["error"]: [error: any],
-    [NotificationEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
-    [NotificationEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [AoriMethods.Ping]: ["aori_pong"],
     [AoriMethods.SupportedChains]: [chainIds: number[]],
     [AoriMethods.AuthWallet]: [jwt: string],
     [AoriMethods.CheckAuth]: [authed: boolean],
     [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
-    [AoriMethods.MakeOrder]: [orderHash: string],
+    [AoriMethods.MakeOrder]: [order: OrderView],
     [AoriMethods.CancelOrder]: [orderHash: string],
     [AoriMethods.CancelAllOrders]: [],
     [AoriMethods.TakeOrder]: [orderHash: string],
@@ -56,6 +51,8 @@ export type AoriMethodsEvents = {
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [orderHash: string],
+    [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
+    [SubscriptionEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
 
     // 
     [_: string]: any
