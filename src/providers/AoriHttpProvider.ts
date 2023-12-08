@@ -103,6 +103,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     break;
                 case SubscriptionEvents.QuoteRequested:
                     this.emit(SubscriptionEvents.QuoteRequested, data);
+                    break;
             }
         });
 
