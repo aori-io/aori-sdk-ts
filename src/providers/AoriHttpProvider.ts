@@ -2,7 +2,7 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, JsonRpcError, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_FEED, AORI_HTTP_API, AORI_ZONE_ADDRESS, connectTo } from "../utils";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { OrderView, ViewOrderbookQuery } from "./interfaces";
@@ -11,12 +11,15 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
     feedUrl: string;
+    takerUrl: string;
+
     feed: WebSocket = null as any;
 
     wallet: Wallet;
     apiKey: string = "";
     counter: number = 0;
     cancelIndex: number = 0;
+    seatId: number = 0;
 
     messages: { [counter: number]: AoriMethods | string }
     keepAlive: boolean;
@@ -29,24 +32,30 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     constructor({
         wallet,
-        apiUrl,
-        feedUrl,
+        apiUrl = AORI_HTTP_API,
+        feedUrl = AORI_FEED,
+        takerUrl = AORI_TAKER_API,
         apiKey,
         keepAlive = true,
         defaultChainId = 5,
+        seatId = 0
     }: {
         wallet: Wallet,
-        apiUrl: string,
-        feedUrl: string,
+        apiUrl?: string,
+        feedUrl?: string,
+        takerUrl?: string,
         apiKey?: string,
         keepAlive?: boolean,
         defaultChainId?: number
+        seatId?: number
     }) {
         super();
 
         this.wallet = wallet;
         this.apiUrl = apiUrl;
         this.feedUrl = feedUrl;
+        this.takerUrl = takerUrl;
+        this.seatId = seatId;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
@@ -60,11 +69,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     static default({ wallet }: { wallet: Wallet }): AoriHttpProvider {
-        return new AoriHttpProvider({
-            wallet,
-            apiUrl: AORI_HTTP_API,
-            feedUrl: AORI_FEED,
-        })
+        return new AoriHttpProvider({ wallet })
     }
 
     async connect() {
@@ -301,7 +306,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         orderId,
         order,
         chainId = this.defaultChainId,
-        seatId = 0
+        seatId = this.seatId
     }: {
         orderId: string,
         order: OrderWithCounter,
@@ -433,5 +438,26 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: "aori_subscribeOrderbook",
             params: []
         }));
+    }
+
+    async marketOrder({
+        order,
+        chainId = this.defaultChainId,
+        seatId = this.seatId
+    }: {
+        order: OrderWithCounter,
+        chainId?: number,
+        seatId?: number
+    }) {
+        await axios.post(this.takerUrl, {
+            id: 1,
+            jsonrpc: "2.0",
+            method: "aori_takeOrder",
+            params: [{
+                order,
+                chainId,
+                seatId
+            }]
+        });
     }
 }

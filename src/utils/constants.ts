@@ -15,10 +15,17 @@ export const AORI_DEVELOPMENT_FEED: string = "wss://dev.feed.aori.io";
                         HTTP POST URLS
 //////////////////////////////////////////////////////////////*/
 
+// Main Aori API for facilitating CRUD operations
 export const AORI_HTTP_API: string = "https://api.aori.io";
 export const AORI_HTTP_PRODUCTION_API: string = "https://api.aori.io";
 export const AORI_HTTP_STAGING_API: string = "https://staging.api.aori.io";
 export const AORI_HTTP_DEVELOPMENT_API: string = "https://dev.api.aori.io";
+
+// Taker Service for facilitating UX-friendly Market Orders
+export const AORI_TAKER_API: string = "https://taker.aori.io";
+export const AORI_TAKER_PRODUCTION_API: string = "https://taker.aori.io";
+export const AORI_TAKER_STAGING_API: string = "https://staging.taker.aori.io";
+export const AORI_TAKER_DEVELOPMENT_API: string = "https://dev.taker.aori.io";
 
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
