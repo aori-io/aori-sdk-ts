@@ -1,4 +1,4 @@
-import { OrderWithCounter } from "@opensea/seaport-js/lib/types";
+import { OrderWithCounter } from "../utils";
 
 export interface OrderToExecute {
     orderHash: string;
