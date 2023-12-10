@@ -5,7 +5,7 @@ import { WebSocket } from "ws";
 import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { OrderView, ViewOrderbookQuery } from "./interfaces";
+import { ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, SubscriptionEvents } from "./utils";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
@@ -175,7 +175,10 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async createMatchingOrder({
         order,
         chainId = this.defaultChainId,
-    }: OrderView, feeInBips = 3n) {
+    }: {
+        order: OrderWithCounter,
+        chainId: number
+    }, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: this.wallet.address,
             zone: order.parameters.zone,
