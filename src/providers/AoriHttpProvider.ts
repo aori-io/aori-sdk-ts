@@ -300,18 +300,21 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async takeOrder({
         orderId,
         order,
-        chainId = this.defaultChainId
+        chainId = this.defaultChainId,
+        seatId = 0
     }: {
         orderId: string,
         order: OrderWithCounter,
-        chainId?: number
+        chainId?: number,
+        seatId?: number
     }): Promise<AoriMethodsEvents[AoriMethods.TakeOrder]> {
         return await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
                 order,
                 chainId,
-                orderId
+                orderId,
+                seatId
             }]
         })
     }

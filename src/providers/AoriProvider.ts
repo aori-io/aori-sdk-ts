@@ -378,13 +378,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async takeOrder({ orderId, order, chainId = this.defaultChainId }: { orderId: string, order: OrderWithCounter, chainId?: number }) {
+    async takeOrder({ orderId, order, chainId = this.defaultChainId, seatId = 0 }: { orderId: string, order: OrderWithCounter, chainId?: number, seatId?: number }) {
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
                 order,
                 chainId,
-                orderId
+                orderId,
+                seatId
             }]
         })
     }
