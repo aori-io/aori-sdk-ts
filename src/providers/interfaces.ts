@@ -1,3 +1,5 @@
+import { OrderWithCounter } from "@opensea/seaport-js/lib/types";
+
 export interface OrderToExecute {
     orderHash: string;
     chainId: number;
@@ -16,10 +18,7 @@ export interface QuoteRequested {
 }
 
 export interface OrderView {
-    order: {
-        parameters: any;
-        signature: string;
-    },
+    order: OrderWithCounter,
     orderHash: string,
     inputToken: string,
     outputToken: string,

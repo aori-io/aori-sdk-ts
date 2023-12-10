@@ -174,19 +174,15 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async createMatchingOrder({
         order,
-        inputToken,
-        inputAmount,
-        outputToken,
-        outputAmount,
         chainId = this.defaultChainId,
     }: OrderView, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: this.wallet.address,
             zone: order.parameters.zone,
-            inputToken: outputToken,
-            inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
-            outputToken: inputToken,
-            outputAmount: BigInt(inputAmount),
+            inputToken: order.parameters.consideration[0].token,
+            inputAmount: BigInt(order.parameters.consideration[0].startAmount) * (10000n + feeInBips) / 10000n,
+            outputToken: order.parameters.offer[0].token,
+            outputAmount: BigInt(order.parameters.offer[0].startAmount),
             counter: `${this.cancelIndex}`
         });
 
