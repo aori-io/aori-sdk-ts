@@ -38,5 +38,9 @@ export interface ViewOrderbookQuery {
     query?: {
         base: string;
         quote: string;
-    }
+    };
+    chainId?: number;
+    sortBy?: "createdAt_asc" | "createdAt_desc" | "rate_asc" | "rate_desc";
+    inputAmount?: string;
+    outputAmount?: string;
 }
