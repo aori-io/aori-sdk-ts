@@ -1,12 +1,23 @@
 import { OrderWithCounter } from "../utils";
 
 export interface OrderToExecute {
-    orderHash: string;
+
+    // Relevant hashes
+    matchingHash: string;
+    makerOrderHash: string;
+    takerOrderHash: string;
+
     chainId: number;
     to: string;
     value: number;
     data: string;
     blockDeadline: number;
+
+    // Additional parameters
+    parameters: {
+        makerOrders: OrderWithCounter[];
+        takerOrder: OrderWithCounter;
+    }
 }
 
 export interface QuoteRequested {
