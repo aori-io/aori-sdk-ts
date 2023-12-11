@@ -201,14 +201,14 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                                 ACTIONS
     //////////////////////////////////////////////////////////////*/
 
-    async ping(): Promise<AoriMethodsEvents[AoriMethods.Ping]> {
+    async ping(): Promise<AoriMethodsEvents[AoriMethods.Ping][0]> {
         return await this.rawCall({
             method: AoriMethods.Ping,
             params: []
         });
     }
 
-    async authWallet(): Promise<AoriMethodsEvents[AoriMethods.AuthWallet]> {
+    async authWallet(): Promise<AoriMethodsEvents[AoriMethods.AuthWallet][0]> {
         const { address } = this.wallet;
 
         return await this.rawCall({
@@ -220,7 +220,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async checkAuth({ auth }: { auth: string }): Promise<AoriMethodsEvents[AoriMethods.CheckAuth]> {
+    async checkAuth({ auth }: { auth: string }): Promise<AoriMethodsEvents[AoriMethods.CheckAuth][0]> {
         return await this.rawCall({
             method: AoriMethods.CheckAuth,
             params: [{
@@ -229,7 +229,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async viewOrderbook(query?: ViewOrderbookQuery): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook]> {
+    async viewOrderbook(query?: ViewOrderbookQuery): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook][0]> {
         const { orders } = await this.rawCall({
             method: AoriMethods.ViewOrderbook,
             params: query != undefined ? [query] : []
@@ -237,7 +237,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         return orders;
     }
 
-    async accountOrders(): Promise<AoriMethodsEvents[AoriMethods.AccountOrders]> {
+    async accountOrders(): Promise<AoriMethodsEvents[AoriMethods.AccountOrders][0]> {
         const offerer = this.wallet.address;
         return await this.rawCall({
             method: AoriMethods.AccountOrders,
@@ -248,7 +248,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async accountBalance(token: string, chainId: number = this.defaultChainId): Promise<AoriMethodsEvents[AoriMethods.AccountBalance]> {
+    async accountBalance(token: string, chainId: number = this.defaultChainId): Promise<AoriMethodsEvents[AoriMethods.AccountBalance][0]> {
         const { address } = this.wallet;
         return await this.rawCall({
             method: AoriMethods.AccountBalance,
@@ -261,7 +261,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async accountCredit(): Promise<AoriMethodsEvents[AoriMethods.AccountCredit]> {
+    async accountCredit(): Promise<AoriMethodsEvents[AoriMethods.AccountCredit][0]> {
         const { address } = this.wallet;
         return await this.rawCall({
             method: AoriMethods.AccountCredit,
@@ -272,7 +272,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async orderStatus(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.OrderStatus]> {
+    async orderStatus(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.OrderStatus][0]> {
         return await this.rawCall({
             method: AoriMethods.OrderStatus,
             params: [{
@@ -289,7 +289,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         order: OrderWithCounter,
         chainId?: number,
         isPrivate?: boolean
-    }): Promise<AoriMethodsEvents[AoriMethods.MakeOrder]> {
+    }): Promise<AoriMethodsEvents[AoriMethods.MakeOrder][0]> {
         return await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
@@ -312,7 +312,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         order: OrderWithCounter,
         chainId?: number,
         seatId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.TakeOrder]> {
+    }): Promise<AoriMethodsEvents[AoriMethods.TakeOrder][0]> {
         return await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
@@ -324,7 +324,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async cancelOrder(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.CancelOrder]> {
+    async cancelOrder(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
         return await this.rawCall({
             method: AoriMethods.CancelOrder,
             params: [{
@@ -354,7 +354,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputAmount: BigNumberish,
         outputToken: string,
         chainId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.RequestQuote]> {
+    }): Promise<AoriMethodsEvents[AoriMethods.RequestQuote][0]> {
         return await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
@@ -373,7 +373,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }: {
         address: string,
         chainId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.GetCounter]> {
+    }): Promise<AoriMethodsEvents[AoriMethods.GetCounter][0]> {
         return await this.rawCall({
             method: AoriMethods.GetCounter,
             params: [{
@@ -395,7 +395,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         data: string,
         gasLimit?: number,
         chainId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.SendTransaction]> {
+    }): Promise<AoriMethodsEvents[AoriMethods.SendTransaction][0]> {
         const signedTx = await this.wallet.signTransaction({ to, value, data, gasLimit });
 
         return await this.rawCall({
