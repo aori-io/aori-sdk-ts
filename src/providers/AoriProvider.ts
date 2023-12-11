@@ -2,7 +2,7 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo } from "../utils";
+import { AORI_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
@@ -259,7 +259,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             counter: `${this.cancelIndex}`
         });
         limitOrder.signature = await this.signOrder(limitOrder, chainId);
-        return limitOrder;
+        return {
+            ...limitOrder,
+            orderHash: getOrderHash(limitOrder.parameters, this.cancelIndex)
+        };
     }
 
     async createMatchingOrder({
@@ -280,7 +283,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
 
         matchingOrder.signature = await this.signOrder(matchingOrder, chainId);
-        return matchingOrder;
+        return {
+            ...matchingOrder,
+            orderHash: getOrderHash(matchingOrder.parameters, this.cancelIndex)
+        };
     }
 
     async signOrder(order: OrderWithCounter, chainId: string | number = this.defaultChainId) {
