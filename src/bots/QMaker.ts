@@ -45,8 +45,8 @@ export function QMaker({
 
                 try {
                     await qm.generateQuoteOrder({
-                        inputToken: outputToken,
-                        outputToken: inputToken,
+                        inputToken,
+                        outputToken,
                         outputAmount: BigInt(inputAmount),
                         spreadPercentage,
                         quoter,
