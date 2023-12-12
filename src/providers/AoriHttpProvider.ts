@@ -1,6 +1,6 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
-import { BigNumberish, getBytes, JsonRpcError, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
+import { BigNumberish, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
 import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
@@ -414,25 +414,15 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async sendTransaction({
-        to,
-        value,
-        data,
-        gasLimit = 800_000,
-        chainId = this.defaultChainId
-    }: {
-        to: string,
-        value: BigNumberish,
-        data: string,
-        gasLimit?: number,
-        chainId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.SendTransaction][0]> {
-        const signedTx = await this.wallet.signTransaction({ to, value, data, gasLimit });
+    async sendTransaction(tx: TransactionRequest): Promise<AoriMethodsEvents[AoriMethods.SendTransaction][0]> {
+        if (tx.chainId == undefined) tx.chainId = this.defaultChainId;
+        const signedTx = await this.wallet.signTransaction(tx);
 
         return await this.rawCall({
             method: AoriMethods.SendTransaction,
             params: [{
-                signedTx, chainId
+                signedTx,
+                chainId: tx.chainId
             }]
         });
     }
