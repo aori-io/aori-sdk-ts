@@ -93,7 +93,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.readyLatch = false;
 
         this.api.on("open", () => {
-            console.log(`Connected to ${this.apiUrl}`);
+            console.log(`⚡ Connected to ${this.apiUrl}`);
             if (this.keepAlive) {
                 this.keepAliveTimer = setInterval(() => {
                     this.api.ping();
@@ -175,12 +175,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
 
         this.feed.on("open", () => {
-            console.log(`Connected to ${this.feedUrl}`);
+            console.log(`⚡ Connected to ${this.feedUrl}`);
 
             if (!this.readyLatch) {
                 this.readyLatch = true;
             } else {
                 this.emit("ready");
+                console.log(`🫡 Provider ready to send requests`);
             }
         });
 
@@ -207,6 +208,10 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case SubscriptionEvents.QuoteRequested:
                     this.emit(SubscriptionEvents.QuoteRequested, data);
             }
+        });
+
+        this.feed.on(AoriMethods.Ping, () => {
+            console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
         });
 
         this.feed.on("close", () => {
