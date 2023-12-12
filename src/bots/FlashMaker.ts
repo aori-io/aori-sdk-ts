@@ -6,7 +6,7 @@ import { SEAPORT_ADDRESS } from "../utils";
 
 export class FlashMaker extends AoriHttpProvider {
 
-    aoriVaultContract: string = "";
+    initialised = false;
 
     /*//////////////////////////////////////////////////////////////
                                  STATE
@@ -20,16 +20,20 @@ export class FlashMaker extends AoriHttpProvider {
                                INITIALISE
     //////////////////////////////////////////////////////////////*/
 
-    async initialise({ aoriVaultContract }: { aoriVaultContract: string }) {
+    async initialise() {
+        if (this.vaultContract == undefined) {
+            console.log(`No aori vault contract provided`);
+            return;
+        }
+
         console.log("Initialising flash maker...");
-        this.aoriVaultContract = aoriVaultContract;
 
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, to, value, data }) => {
             if (!this.preCalldata[orderHash]) return;
 
             try {
                 await this.sendTransaction({
-                    to: aoriVaultContract,
+                    to: this.vaultContract || "",
                     value: 0,
                     // @ts-ignore 
                     data: AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
@@ -47,6 +51,8 @@ export class FlashMaker extends AoriHttpProvider {
                 console.log(e);
             }
         });
+
+        this.initialised = true;
     }
 
     async generateQuoteOrder({
@@ -64,6 +70,10 @@ export class FlashMaker extends AoriHttpProvider {
         quoter: Quoter;
         cancelAfter?: number
     }) {
+        if (!this.initialised) {
+            await this.initialise();
+        }
+
         const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
             inputToken,
             outputToken,
@@ -73,7 +83,6 @@ export class FlashMaker extends AoriHttpProvider {
         });
 
         const order = await this.createLimitOrder({
-            offerer: this.aoriVaultContract,
             inputToken: outputToken,
             inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n, // give less
             outputToken: inputToken,

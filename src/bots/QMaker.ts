@@ -36,7 +36,7 @@ export function QMaker({
     });
 
     qm.on("ready", () => {
-        qm.initialise({ aoriVaultContract });
+        qm.initialise();
         qm.subscribe();
 
         qm.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {

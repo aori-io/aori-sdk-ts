@@ -6,7 +6,7 @@ import { SEAPORT_ADDRESS } from "../utils";
 
 export class BatchMaker extends AoriHttpProvider {
 
-    aoriVaultContract: string = "";
+    initialised = false;
 
     /*//////////////////////////////////////////////////////////////
                                  STATE
@@ -19,16 +19,20 @@ export class BatchMaker extends AoriHttpProvider {
                                INITIALISE
     //////////////////////////////////////////////////////////////*/
 
-    async initialise({ aoriVaultContract }: { aoriVaultContract: string }) {
+    async initialise() {
+        if (this.vaultContract == undefined) {
+            console.log(`No aori vault contract provided`);
+            return;
+        }
+
         console.log("Initialising flash maker...");
-        this.aoriVaultContract = aoriVaultContract;
 
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, to, value, data }) => {
             if (!this.preCalldata[orderHash]) return;
 
             try {
                 await this.sendTransaction({
-                    to: aoriVaultContract,
+                    to: this.vaultContract || "",
                     value: 0,
                     // @ts-ignore 
                     data: AoriVault__factory.createInterface().encodeFunctionData("execute", [[
@@ -43,6 +47,8 @@ export class BatchMaker extends AoriHttpProvider {
                 console.log(e);
             }
         });
+
+        this.initialised = true;
     }
 
     async generateQuoteOrder({
@@ -62,9 +68,11 @@ export class BatchMaker extends AoriHttpProvider {
         postCalldata?: InstructionStruct[],
         cancelAfter?: number
     }) {
+        if (!this.initialised) {
+            await this.initialise();
+        }
 
         const order = await this.createLimitOrder({
-            offerer: this.aoriVaultContract,
             inputToken: outputToken,
             inputAmount: amountFromMe,
             outputToken: inputToken,
