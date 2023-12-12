@@ -31,6 +31,7 @@ export function QMaker({
         apiUrl,
         feedUrl,
         takerUrl,
+        vaultContract: aoriVaultContract,
         apiKey,
         defaultChainId: chainId
     });
