@@ -1,7 +1,7 @@
 import { Quoter } from "@aori-io/adapters";
 import { parseEther } from "ethers";
 import { AoriHttpProvider, SubscriptionEvents } from "../providers";
-import { ERC20__factory } from "../types";
+import { AoriVault__factory, ERC20__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
 
 export class FlashMaker extends AoriHttpProvider {

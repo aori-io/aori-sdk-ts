@@ -1,6 +1,6 @@
 import { parseEther } from "ethers";
 import { AoriHttpProvider, SubscriptionEvents } from "../providers";
-import { ERC20__factory } from "../types";
+import { AoriVault__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { SEAPORT_ADDRESS } from "../utils";
 
