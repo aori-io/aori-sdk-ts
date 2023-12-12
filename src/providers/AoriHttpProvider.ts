@@ -56,6 +56,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.feedUrl = feedUrl;
         this.takerUrl = takerUrl;
         this.seatId = seatId;
+        this.defaultChainId = defaultChainId;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
@@ -63,8 +64,16 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.keepAlive = keepAlive;
         this.keepAliveTimer = null as any;
 
-        this.defaultChainId = defaultChainId;
+        console.log("🤖 Creating an Aori Provider Instance");
+        console.log("==================================================================");
+        console.log(`> Executor Wallet: ${wallet.address}`);
+        console.log(`> API URL: ${apiUrl}`);
+        console.log(`> Feed URL: ${feedUrl}`);
+        console.log(`> Seat Id: ${seatId} (read more about seats at seats.aori.io)`);
+        console.log(`> Default Chain ID: ${defaultChainId}`);
+        console.log("==================================================================");
 
+        console.log(`🔌 Connected via HTTP to ${apiUrl}...`);
         this.connect();
     }
 
@@ -77,13 +86,14 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.feed = connectTo(this.feedUrl);
 
         this.feed.on("open", () => {
-            console.log(`Connected to ${this.feedUrl}`);
+            console.log(`⚡ Connected to ${this.feedUrl}`);
             if (this.keepAlive) {
                 this.keepAliveTimer = setInterval(() => {
                     this.feed.ping();
                 }, 10_000);
             }
             this.emit("ready");
+            console.log(`🫡 Provider ready to send requests`);
         });
 
         this.feed.on("message", (msg) => {
@@ -110,6 +120,10 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(SubscriptionEvents.QuoteRequested, data);
                     break;
             }
+        });
+
+        this.feed.on(AoriMethods.Ping, () => {
+            console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
         });
 
         this.feed.on("close", () => {
