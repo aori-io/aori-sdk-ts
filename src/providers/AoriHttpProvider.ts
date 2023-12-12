@@ -56,6 +56,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.feedUrl = feedUrl;
         this.takerUrl = takerUrl;
         this.seatId = seatId;
+        this.defaultChainId = defaultChainId;
 
         this.messages = {};
         if (apiKey) this.apiKey = apiKey;
@@ -63,8 +64,16 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         this.keepAlive = keepAlive;
         this.keepAliveTimer = null as any;
 
-        this.defaultChainId = defaultChainId;
+        console.log("🤖 Creating an Aori Provider Instance");
+        console.log("==================================================================");
+        console.log(`> Executor Wallet: ${wallet.address}`);
+        console.log(`> API URL: ${apiUrl}`);
+        console.log(`> Feed URL: ${feedUrl}`);
+        console.log(`> Seat Id: ${seatId} (read more about seats at seats.aori.io)`);
+        console.log(`> Default Chain ID: ${defaultChainId}`);
+        console.log("==================================================================");
 
+        console.log(`🔌 Connecting via HTTP to ${apiUrl}...`);
         this.connect();
     }
 
