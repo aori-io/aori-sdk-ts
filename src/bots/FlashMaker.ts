@@ -45,7 +45,7 @@ export class FlashMaker extends AoriHttpProvider {
                         { to, value, data },
                         ...(this.postCalldata[orderHash] || [])
                     ]]),
-                    gasLimit: 3_000_000
+                    gasLimit: 10_000_000
                 });
                 console.log(`Sent transaction: `, { to, value, data });
             } catch (e: any) {
