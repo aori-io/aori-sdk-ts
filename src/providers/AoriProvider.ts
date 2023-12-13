@@ -1,6 +1,6 @@
 import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
-import { BigNumberish, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
+import { BigNumberish, formatEther, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
 import { AORI_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
@@ -400,6 +400,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async makeOrder({ order, chainId = this.defaultChainId, isPrivate = false }: { order: OrderWithCounter, chainId?: number, isPrivate?: boolean }) {
+        console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
+        console.log(this.formatOrder(order, chainId));
         await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
@@ -413,6 +415,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async takeOrder({ orderId, order, chainId = this.defaultChainId, seatId = this.seatId }: { orderId: string, order: OrderWithCounter, chainId?: number, seatId?: number }) {
+        console.log(`💹 Attempting to Take ${orderId} on ${this.apiUrl}`);
+        console.log(this.formatOrder(order, chainId));
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
@@ -447,6 +451,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async requestQuote({ inputToken, inputAmount, outputToken, chainId = this.defaultChainId }: { inputToken: string, inputAmount: BigNumberish, outputToken: string, chainId?: number }) {
+        console.log(`🗨️ Requesting Quote to trade ${formatEther(inputAmount)} ${inputToken} for ${outputToken} on chain ${chainId}`);
         await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
@@ -511,6 +516,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         chainId?: number,
         seatId?: number
     }) {
+        console.log(`💹 Placing Market Order to ${this.takerUrl}`);
+        console.log(this.formatOrder(order, chainId));
         await axios.post(this.takerUrl, {
             id: 1,
             jsonrpc: "2.0",
@@ -521,5 +528,22 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 seatId
             }]
         });
+    }
+
+    formatOrder(order: OrderWithCounter, chainId = this.defaultChainId) {
+        const orderHash = getOrderHash(order.parameters, 0);
+
+        return `==================================================================\n` +
+            `> Hash: ${orderHash}\n` +
+            `> [${formatEther(order.parameters.offer[0].startAmount)} ${order.parameters.offer[0].token} -> ` +
+            `${formatEther(order.parameters.consideration[0].endAmount)} ${order.parameters.consideration[0].token}]\n` +
+            `> Creator: ${order.parameters.offerer}\n` +
+            `> Chain Id: ${chainId}\n` +
+            `> Zone: ${order.parameters.zone}\n` +
+            `> Conduit Key: ${order.parameters.conduitKey}\n` +
+            `> Start Time: ${new Date(Math.min(parseInt(order.parameters.startTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
+            `> End Time: ${new Date(Math.min(parseInt(order.parameters.endTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
+            `> Cancel Index: ${order.parameters.counter}\n` +
+            `==================================================================`;
     }
 }
