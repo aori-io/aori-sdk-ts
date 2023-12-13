@@ -13,6 +13,7 @@ export function QMaker({
     spreadPercentage,
     chainId,
     cancelAfter,
+    retryCount = 3,
     quoter
 }: {
     wallet: Wallet;
@@ -24,7 +25,8 @@ export function QMaker({
     spreadPercentage: bigint;
     chainId: number;
     cancelAfter: number;
-    quoter: Quoter
+    retryCount: number;
+    quoter: Quoter;
 }) {
     const qm = new FlashMaker({
         wallet,
@@ -44,17 +46,23 @@ export function QMaker({
             if (chainId == qm.defaultChainId) {
                 if (inputAmount == undefined) return;
 
-                try {
-                    await qm.generateQuoteOrder({
-                        inputToken,
-                        outputToken,
-                        outputAmount: BigInt(inputAmount),
-                        spreadPercentage,
-                        quoter,
-                        cancelAfter
-                    });
-                } catch (e: any) {
-                    console.log(e);
+                for (let i = 0; i < retryCount; i++) {
+                    try {
+                        await qm.generateQuoteOrder({
+                            inputToken,
+                            outputToken,
+                            outputAmount: BigInt(inputAmount),
+                            spreadPercentage,
+                            quoter,
+                            cancelAfter
+                        });
+                        return;
+                    } catch (e: any) {
+                        console.log(e);
+                    }
+
+                    // Wait some seconds before trying again
+                    await new Promise((resolve) => setTimeout(resolve, cancelAfter));
                 }
             }
         })
