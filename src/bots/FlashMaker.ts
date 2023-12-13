@@ -1,5 +1,5 @@
 import { Quoter } from "@aori-io/adapters";
-import { parseEther } from "ethers";
+import { parseEther, parseUnits } from "ethers";
 import { AoriHttpProvider, SubscriptionEvents } from "../providers";
 import { AoriVault__factory, ERC20__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
@@ -28,7 +28,7 @@ export class FlashMaker extends AoriHttpProvider {
 
         console.log("Initialising flash maker...");
 
-        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to, value, data }) => {
+        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to, value, data, chainId }) => {
             console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to, value, data });
             if (!this.preCalldata[orderHash]) return;
 
@@ -45,7 +45,9 @@ export class FlashMaker extends AoriHttpProvider {
                         { to, value, data },
                         ...(this.postCalldata[orderHash] || [])
                     ]]),
-                    gasLimit: 10_000_000
+                    gasPrice: parseUnits("1", "gwei"),
+                    gasLimit: 10_000_000,
+                    chainId
                 });
                 console.log(`Sent transaction: `, { to, value, data });
             } catch (e: any) {
