@@ -194,7 +194,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async createMatchingOrder({
-        order,
+        order: { parameters },
         chainId = this.defaultChainId,
     }: {
         order: OrderWithCounter,
@@ -202,11 +202,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-            zone: order.parameters.zone,
-            inputToken: order.parameters.consideration[0].token,
-            inputAmount: BigInt(order.parameters.consideration[0].startAmount) * (10000n + feeInBips) / 10000n,
-            outputToken: order.parameters.offer[0].token,
-            outputAmount: BigInt(order.parameters.offer[0].startAmount),
+            zone: parameters.zone,
+            inputToken: parameters.consideration[0].token,
+            inputAmount: BigInt(parameters.consideration[0].startAmount) * (10000n + feeInBips) / 10000n,
+            outputToken: parameters.offer[0].token,
+            outputAmount: BigInt(parameters.offer[0].startAmount),
             counter: `${this.cancelIndex}`
         });
 
@@ -217,8 +217,8 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         };
     }
 
-    async signOrder(order: OrderWithCounter, chainId: string | number = this.defaultChainId) {
-        return await signOrder(this.wallet, order, chainId);
+    async signOrder({ parameters, signature }: OrderWithCounter, chainId: string | number = this.defaultChainId) {
+        return await signOrder(this.wallet, { parameters, signature }, chainId);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async makeOrder({
-        order,
+        order: { parameters, signature },
         chainId = this.defaultChainId,
         isPrivate = false
     }: {
@@ -319,11 +319,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         isPrivate?: boolean
     }): Promise<AoriMethodsEvents[AoriMethods.MakeOrder][0]> {
         console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
-        console.log(this.formatOrder(order, chainId));
+        console.log(this.formatOrder({ parameters, signature }, chainId));
         return await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
-                order,
+                order: { parameters, signature },
                 apiKey: this.apiKey,
                 signer: ZeroAddress,
                 isPublic: !isPrivate,
@@ -334,7 +334,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async takeOrder({
         orderId,
-        order,
+        order: { parameters, signature },
         chainId = this.defaultChainId,
         seatId = this.seatId
     }: {
@@ -344,11 +344,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         seatId?: number
     }): Promise<AoriMethodsEvents[AoriMethods.TakeOrder][0]> {
         console.log(`💹 Attempting to Take ${orderId} on ${this.apiUrl}`);
-        console.log(this.formatOrder(order, chainId));
+        console.log(this.formatOrder({ parameters, signature }, chainId));
         return await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
-                order,
+                order: { parameters, signature },
                 chainId,
                 orderId,
                 seatId
@@ -479,7 +479,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async marketOrder({
-        order,
+        order: { parameters, signature },
         chainId = this.defaultChainId,
         seatId = this.seatId
     }: {
@@ -488,13 +488,13 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         seatId?: number
     }) {
         console.log(`💹 Placing Market Order to ${this.takerUrl}`);
-        console.log(this.formatOrder(order, chainId));
+        console.log(this.formatOrder({ parameters, signature }, chainId));
         await axios.post(this.takerUrl, {
             id: 1,
             jsonrpc: "2.0",
             method: "aori_takeOrder",
             params: [{
-                order,
+                order: { parameters, signature },
                 chainId,
                 seatId
             }]
