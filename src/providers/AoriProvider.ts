@@ -565,6 +565,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             `> [${formatEther(order.parameters.offer[0].startAmount)} ${order.parameters.offer[0].token} -> ` +
             `${formatEther(order.parameters.consideration[0].endAmount)} ${order.parameters.consideration[0].token}]\n` +
             `> Creator: ${order.parameters.offerer}\n` +
+            `> Signature: ${order.signature}\n` +
             `> Chain Id: ${chainId}\n` +
             `> Zone: ${order.parameters.zone}\n` +
             `> Conduit Key: ${order.parameters.conduitKey}\n` +
