@@ -43,7 +43,7 @@ export function QMaker({
     });
 
     qm.on("ready", () => {
-        qm.initialise({ getGasData });
+        qm.initialise({ getGasData, cancelAllFirst: true });
         qm.subscribe();
 
         qm.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
