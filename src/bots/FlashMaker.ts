@@ -20,10 +20,11 @@ export class FlashMaker extends AoriHttpProvider {
                                INITIALISE
     //////////////////////////////////////////////////////////////*/
 
-    async initialise({ getGasData }: {
+    async initialise({ getGasData, cancelAllFirst = false }: {
         getGasData: ({ to, value, data, chainId }:
             { to: string, value: number, data: string, chainId: number })
-            => Promise<{ gasPrice: bigint, gasLimit: bigint }>
+            => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
+        cancelAllFirst?: boolean
     }) {
         if (this.vaultContract == undefined) {
             console.log(`No aori vault contract provided`);
@@ -31,6 +32,10 @@ export class FlashMaker extends AoriHttpProvider {
         }
 
         console.log("Initialising flash maker...");
+
+        if (cancelAllFirst) {
+            await this.cancelAllOrders();
+        }
 
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
             if (!this.preCalldata[orderHash]) return;
