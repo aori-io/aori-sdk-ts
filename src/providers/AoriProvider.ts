@@ -555,7 +555,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 tag: "pending"
             }]
         });
-        return data.nonce;
+        return data.result.nonce;
     }
 
     formatOrder(order: OrderWithCounter, chainId = this.defaultChainId) {
