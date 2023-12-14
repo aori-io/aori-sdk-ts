@@ -106,6 +106,9 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             const { type, data } = result;
 
             switch (type) {
+                case AoriMethods.Ping:
+                    console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
+                    break;
                 case SubscriptionEvents.OrderCreated:
                     this.emit(SubscriptionEvents.OrderCreated, data);
                     break;
@@ -125,10 +128,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(SubscriptionEvents.QuoteRequested, data);
                     break;
             }
-        });
-
-        this.feed.on(AoriMethods.Ping, () => {
-            console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
         });
 
         this.feed.on("close", () => {
