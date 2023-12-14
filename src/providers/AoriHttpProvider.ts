@@ -2,7 +2,7 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
@@ -98,7 +98,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 }, 10_000);
             }
             this.emit("ready");
-            console.log(`🫡 Provider ready to send requests`);
+            console.log(`🫡  Provider ready to send requests`);
         });
 
         this.feed.on("message", (msg) => {
@@ -488,6 +488,20 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 seatId
             }]
         });
+    }
+
+    async getNonce(chainId: number = this.defaultChainId): Promise<number> {
+        const { data } = await axios.post(AORI_DATA_PROVIDER_API, {
+            id: 1,
+            jsonrpc: "2.0",
+            method: "aori_getNonce",
+            params: [{
+                address: this.wallet.address,
+                chainId,
+                tag: "pending"
+            }]
+        });
+        return data.nonce;
     }
 
     formatOrder(order: OrderWithCounter, chainId = this.defaultChainId) {

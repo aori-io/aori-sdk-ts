@@ -63,7 +63,8 @@ export class FlashMaker extends AoriHttpProvider {
                     data,
                     gasPrice,
                     gasLimit,
-                    chainId
+                    chainId,
+                    nonce: await this.getNonce()
                 });
                 console.log(`Sent transaction: `, response);
             } catch (e: any) {

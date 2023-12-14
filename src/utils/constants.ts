@@ -27,6 +27,9 @@ export const AORI_TAKER_PRODUCTION_API: string = "https://taker.aori.io";
 export const AORI_TAKER_STAGING_API: string = "https://staging.taker.aori.io";
 export const AORI_TAKER_DEVELOPMENT_API: string = "https://dev.taker.aori.io";
 
+// Data Provider API
+export const AORI_DATA_PROVIDER_API: string = "https://provider.aori.io";
+
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/
