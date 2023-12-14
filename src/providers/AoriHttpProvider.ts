@@ -40,7 +40,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         apiKey,
         keepAlive = true,
         defaultChainId = 5,
-        seatId = 0
+        seatId = 0,
     }: {
         wallet: Wallet,
         apiUrl?: string,

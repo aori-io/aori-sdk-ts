@@ -414,15 +414,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async takeOrder({ orderId, order, chainId = this.defaultChainId, seatId = this.seatId }: { orderId: string, order: OrderWithCounter, chainId?: number, seatId?: number }) {
-        console.log(`💹 Attempting to Take ${orderId} on ${this.apiUrl}`);
+    async takeOrder({ orderHash, order, chainId = this.defaultChainId, seatId = this.seatId }: { orderHash: string, order: OrderWithCounter, chainId?: number, seatId?: number }) {
+        console.log(`💹 Attempting to Take ${orderHash} on ${this.apiUrl}`);
         console.log(this.formatOrder(order, chainId));
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
                 order,
                 chainId,
-                orderId,
+                orderId: orderHash,
                 seatId
             }]
         })
