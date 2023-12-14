@@ -19,6 +19,20 @@ export enum AoriMethods {
     CancelAllOrders = "aori_cancelAllOrders",
 }
 
+export enum AoriDataMethods {
+    Ping = "aori_ping",
+    GetBlockNumber = "aori_getBlockNumber",
+    GetNonce = "aori_getNonce",
+    GetSeaportCounter = "aori_getSeaportCounter",
+    GetSeatDetails = "aori_getSeatDetails",
+    GetTokenAllowance = "aori_getTokenAllowance",
+    GetTokenBalance = "aori_getTokenBalance",
+    HasOrderSettled = "aori_hasOrderSettled",
+    IsValidSignature = "aori_isValidSignature",
+    GetGasData = "aori_getGasData",
+    SendTransaction = "aori_sendTransaction",
+}
+
 export enum SubscriptionEvents {
     OrderCreated = "OrderCreated",
     OrderCancelled = "OrderCancelled",
