@@ -1,5 +1,5 @@
 import { Quoter } from "@aori-io/adapters";
-import { parseEther, parseUnits } from "ethers";
+import { parseEther } from "ethers";
 import { AoriHttpProvider, SubscriptionEvents } from "../providers";
 import { AoriVault__factory, ERC20__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
@@ -20,7 +20,11 @@ export class FlashMaker extends AoriHttpProvider {
                                INITIALISE
     //////////////////////////////////////////////////////////////*/
 
-    async initialise() {
+    async initialise({ getGasData }: {
+        getGasData: ({ to, value, data, chainId }:
+            { to: string, value: number, data: string, chainId: number })
+            => Promise<{ gasPrice: bigint, gasLimit: bigint }>
+    }) {
         if (this.vaultContract == undefined) {
             console.log(`No aori vault contract provided`);
             return;
@@ -28,28 +32,40 @@ export class FlashMaker extends AoriHttpProvider {
 
         console.log("Initialising flash maker...");
 
-        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to, value, data, chainId }) => {
-            console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to, value, data });
+        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
+            console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
             if (!this.preCalldata[orderHash]) return;
 
+            /*//////////////////////////////////////////////////////////////
+                                     SET TX DETAILS
+            //////////////////////////////////////////////////////////////*/
+
+            const to = this.vaultContract || "";
+            const value = 0;
+            const data = AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
+                tokens: this.flashAmount[orderHash].map(({ token }) => token),
+                amounts: this.flashAmount[orderHash].map(({ amount }) => amount),
+            }, [
+                ...(this.preCalldata[orderHash] || []),
+                { to: aoriTo, value: aoriValue, data: aoriData },
+                ...(this.postCalldata[orderHash] || [])
+            ]]);
+            const { gasPrice, gasLimit } = await getGasData({ to, value, data, chainId });
+
+            /*//////////////////////////////////////////////////////////////
+                                        SEND TX
+            //////////////////////////////////////////////////////////////*/
+
             try {
-                await this.sendTransaction({
-                    to: this.vaultContract || "",
-                    value: 0,
-                    // @ts-ignore 
-                    data: AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
-                        tokens: this.flashAmount[orderHash].map(({ token }) => token),
-                        amounts: this.flashAmount[orderHash].map(({ amount }) => amount),
-                    }, [
-                        ...(this.preCalldata[orderHash] || []),
-                        { to, value, data },
-                        ...(this.postCalldata[orderHash] || [])
-                    ]]),
-                    gasPrice: parseUnits("1", "gwei"),
-                    gasLimit: 10_000_000,
+                const response = await this.sendTransaction({
+                    to,
+                    value,
+                    data,
+                    gasPrice,
+                    gasLimit,
                     chainId
                 });
-                console.log(`Sent transaction: `, { to, value, data });
+                console.log(`Sent transaction: `, response);
             } catch (e: any) {
                 console.log(e);
             }
@@ -74,7 +90,7 @@ export class FlashMaker extends AoriHttpProvider {
         cancelAfter?: number
     }) {
         if (!this.initialised) {
-            await this.initialise();
+            throw new Error(`Flash maker not initialised - please call initialise() first`);
         }
 
         const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({

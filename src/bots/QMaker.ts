@@ -13,8 +13,9 @@ export function QMaker({
     spreadPercentage,
     chainId,
     cancelAfter,
-    retryCount = 3,
-    quoter
+    retryCount = 1,
+    quoter,
+    getGasData
 }: {
     wallet: Wallet;
     apiUrl: string;
@@ -25,8 +26,11 @@ export function QMaker({
     spreadPercentage: bigint;
     chainId: number;
     cancelAfter: number;
-    retryCount: number;
+    retryCount?: number;
     quoter: Quoter;
+    getGasData: ({ to, value, data, chainId }:
+        { to: string, value: number, data: string, chainId: number })
+        => Promise<{ gasPrice: bigint, gasLimit: bigint }>
 }) {
     const qm = new FlashMaker({
         wallet,
@@ -39,7 +43,7 @@ export function QMaker({
     });
 
     qm.on("ready", () => {
-        qm.initialise();
+        qm.initialise({ getGasData });
         qm.subscribe();
 
         qm.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
