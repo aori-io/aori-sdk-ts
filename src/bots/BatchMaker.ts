@@ -32,8 +32,8 @@ export class BatchMaker extends AoriHttpProvider {
         console.log("Initialising flash maker...");
 
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
-            console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
             if (!this.preCalldata[orderHash]) return;
+            console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
 
             /*//////////////////////////////////////////////////////////////
                                      SET TX DETAILS
