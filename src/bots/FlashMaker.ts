@@ -120,7 +120,7 @@ export class FlashMaker extends AoriHttpProvider {
 
         this.preCalldata[orderHash] = [
             {
-                to: outputToken,
+                to: inputToken,
                 value: 0,
                 data: ERC20__factory.createInterface().encodeFunctionData("approve", [
                     quoterTo, parseEther("100000")
