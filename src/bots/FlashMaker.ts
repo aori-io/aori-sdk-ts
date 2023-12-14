@@ -113,9 +113,8 @@ export class FlashMaker extends AoriHttpProvider {
             outputToken: inputToken,
             outputAmount: amountForUser
         });
-        console.log(`Made order: `, order.parameters.offer, `for`, order.parameters.consideration);
-        const orderHash = order.orderHash;
 
+        const orderHash = order.orderHash;
         await this.makeOrder({ order });
 
         this.preCalldata[orderHash] = [
