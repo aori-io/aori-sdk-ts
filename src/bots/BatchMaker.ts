@@ -110,7 +110,7 @@ export class BatchMaker extends AoriHttpProvider {
 
         this.preCalldata[orderHash] = [
             {
-                to: inputToken,
+                to: outputToken,
                 value: 0,
                 data: ERC20__factory.createInterface().encodeFunctionData("approve", [
                     SEAPORT_ADDRESS, parseEther("100000")
