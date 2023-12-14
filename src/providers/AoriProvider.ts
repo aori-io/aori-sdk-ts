@@ -477,7 +477,19 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async sendTransaction(tx: TransactionRequest): Promise<AoriMethodsEvents[AoriMethods.SendTransaction][0]> {
         if (tx.chainId == undefined) tx.chainId = this.defaultChainId;
         const signedTx = await this.wallet.signTransaction(tx);
-        console.log(`🚚 Sending Transaction ${signedTx} on chain ${tx.chainId} by signer ${this.wallet.address}`);
+
+        console.log(`🚚 Sending Transaction on chain ${tx.chainId} via ${this.apiUrl}`);
+        console.log(`==================================================================`);
+        console.log(`> Serialised Transaction: ${signedTx}`);
+        console.log(`> Signer: ${this.wallet.address}`);
+        console.log(`> To: ${tx.to}`);
+        console.log(`> Value: ${tx.value}`);
+        console.log(`> Data: ${tx.data}`);
+        console.log(`> Gas Limit: ${tx.gasLimit}`);
+        console.log(`> Gas Price: ${tx.gasPrice}`);
+        console.log(`> Chain Id: ${tx.chainId || 1}`);
+        console.log(`> Nonce: ${tx.nonce || 0}`);
+        console.log(`==================================================================`);
 
         return await this.rawCall({
             method: AoriMethods.SendTransaction,
