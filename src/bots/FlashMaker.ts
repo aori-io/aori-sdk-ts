@@ -34,7 +34,11 @@ export class FlashMaker extends AoriHttpProvider {
         console.log("Initialising flash maker...");
 
         if (cancelAllFirst) {
-            await this.cancelAllOrders();
+            try {
+                await this.cancelAllOrders();
+            } catch (e: any) {
+                console.log(e);
+            }
         }
 
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
