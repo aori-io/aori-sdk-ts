@@ -2,8 +2,8 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash } from "../utils";
-import { formatIntoLimitOrder, OrderWithCounter, signOrder } from "../utils/helpers";
+import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash, signOrder } from "../utils";
+import { formatIntoLimitOrder, OrderWithCounter } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, SubscriptionEvents } from "./utils";
@@ -186,7 +186,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputAmount: BigInt(outputAmount),
             counter: `${this.cancelIndex}`
         });
-        limitOrder.signature = await this.signOrder(limitOrder, chainId);
+        await this.signOrder(limitOrder, chainId);
         return {
             ...limitOrder,
             orderHash: getOrderHash(limitOrder.parameters, this.cancelIndex)
@@ -209,16 +209,17 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputAmount: BigInt(parameters.offer[0].startAmount),
             counter: `${this.cancelIndex}`
         });
-
-        matchingOrder.signature = await this.signOrder(matchingOrder, chainId);
+        await this.signOrder(matchingOrder, chainId);
         return {
             ...matchingOrder,
             orderHash: getOrderHash(matchingOrder.parameters, this.cancelIndex)
         };
     }
 
-    async signOrder({ parameters, signature }: OrderWithCounter, chainId: string | number = this.defaultChainId) {
-        return await signOrder(this.wallet, { parameters, signature }, chainId);
+    async signOrder(order: OrderWithCounter, chainId: string | number = this.defaultChainId) {
+        const signature = await signOrder(this.wallet, order.parameters, chainId);
+        order.signature = signature;
+        return signature;
     }
 
     /*//////////////////////////////////////////////////////////////

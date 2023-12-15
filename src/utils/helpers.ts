@@ -1,7 +1,7 @@
-import { EIP_712_ORDER_TYPE, ItemType, OrderType } from "@opensea/seaport-js/lib/constants";
+import { ItemType, OrderType } from "@opensea/seaport-js/lib/constants";
 import { Order } from "@opensea/seaport-js/lib/types";
-import { BigNumberish, Signer } from "ethers";
-import { AORI_ZONE_ADDRESS, defaultConduitKey, defaultDuration, defaultZoneHash, maxSalt, SEAPORT_ADDRESS, SEAPORT_VERSION } from "./constants";
+import { BigNumberish } from "ethers";
+import { AORI_ZONE_ADDRESS, defaultConduitKey, defaultDuration, defaultZoneHash, maxSalt } from "./constants";
 
 export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } };
 
@@ -60,12 +60,3 @@ export async function formatIntoLimitOrder({
     }
 }
 
-export async function signOrder(wallet: Signer, order: Order & { parameters: { counter: BigNumberish } }, chainId: number | string = 1): Promise<string> {
-    order.signature = await wallet.signTypedData({
-        name: "Seaport",
-        version: SEAPORT_VERSION,
-        chainId,
-        verifyingContract: SEAPORT_ADDRESS
-    }, EIP_712_ORDER_TYPE, order.parameters);
-    return order.signature;
-}
