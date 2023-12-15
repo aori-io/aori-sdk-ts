@@ -13,6 +13,7 @@ export function QMaker({
     spreadPercentage,
     chainId,
     cancelAfter,
+    cancelAllFirst = false,
     retryCount = 1,
     quoter,
     getGasData
@@ -26,6 +27,7 @@ export function QMaker({
     spreadPercentage: bigint;
     chainId: number;
     cancelAfter: number;
+    cancelAllFirst: boolean;
     retryCount?: number;
     quoter: Quoter;
     getGasData: ({ to, value, data, chainId }:
@@ -43,7 +45,7 @@ export function QMaker({
     });
 
     qm.on("ready", () => {
-        qm.initialise({ getGasData, cancelAllFirst: true });
+        qm.initialise({ getGasData, cancelAllFirst });
         qm.subscribe();
 
         qm.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
