@@ -358,6 +358,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async cancelOrder(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
+        console.log(`🗑️ Attempting to Cancel ${orderHash} on ${this.apiUrl}`);
         return await this.rawCall({
             method: AoriMethods.CancelOrder,
             params: [{
