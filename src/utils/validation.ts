@@ -1,6 +1,6 @@
 import { OrderComponents, OrderParameters } from "@opensea/seaport-js/lib/types";
 
-export async function getOrderComponents(orderParameters: OrderParameters, counter: number): Promise<OrderComponents> {
+export function getOrderComponents(orderParameters: OrderParameters, counter: number): OrderComponents {
 
     return {
         offerer: orderParameters.offerer,
