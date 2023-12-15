@@ -10,11 +10,11 @@ export class AoriDataProvider {
     }: {
         chainId: number
     }) {
-        const { data } = await this.rawCall({
+        const { blockNumber } = await this.rawCall({
             method: AoriDataMethods.GetBlockNumber,
             params: [{ chainId }]
         })
-        return data.blockNumber;
+        return blockNumber;
     }
 
     async getNonce({
@@ -24,11 +24,11 @@ export class AoriDataProvider {
         chainId: number;
         address: string;
     }) {
-        const { data } = await this.rawCall({
+        const { nonce } = await this.rawCall({
             method: AoriDataMethods.GetNonce,
             params: [{ address, chainId }]
         });
-        return data.nonce;
+        return nonce;
     }
 
     async getSeaportCounter({
@@ -38,11 +38,11 @@ export class AoriDataProvider {
         chainId: number;
         address: string;
     }) {
-        const { data } = await this.rawCall({
+        const { counter } = await this.rawCall({
             method: AoriDataMethods.GetSeaportCounter,
             params: [{ address, chainId }]
         });
-        return data.counter;
+        return counter;
     }
 
     async getSeatDetails({
@@ -50,7 +50,7 @@ export class AoriDataProvider {
     }: {
         seatId: number
     }) {
-        const { data } = await this.rawCall({
+        const data = await this.rawCall({
             method: AoriDataMethods.GetSeatDetails,
             params: [{ seatId }]
         });
@@ -66,11 +66,11 @@ export class AoriDataProvider {
         address: string;
         token: string;
     }) {
-        const { data } = await this.rawCall({
+        const { tokenAllowance } = await this.rawCall({
             method: AoriDataMethods.GetTokenAllowance,
             params: [{ address, chainId, token }]
         });
-        return data.tokenAllowance;
+        return tokenAllowance;
     }
 
     async getTokenBalance({
@@ -82,11 +82,11 @@ export class AoriDataProvider {
         address: string;
         token: string;
     }) {
-        const { data } = await this.rawCall({
+        const { tokenBalance } = await this.rawCall({
             method: AoriDataMethods.GetTokenBalance,
             params: [{ address, chainId, token }]
         });
-        return data.tokenBalance;
+        return tokenBalance;
     }
 
     async hasOrderSettled({
@@ -96,11 +96,11 @@ export class AoriDataProvider {
         chainId: number;
         orderHash: string;
     }) {
-        const { data } = await this.rawCall({
+        const { orderSettled } = await this.rawCall({
             method: AoriDataMethods.HasOrderSettled,
             params: [{ chainId, orderHash }]
         });
-        return data.orderSettled;
+        return orderSettled;
     }
 
     async isValidSignature({
@@ -114,11 +114,11 @@ export class AoriDataProvider {
         hash: string;
         signature: string;
     }) {
-        const { data } = await this.rawCall({
+        const { isValidSignature } = await this.rawCall({
             method: AoriDataMethods.IsValidSignature,
             params: [{ chainId, vault, hash, signature }]
         });
-        return data.isValidSignature;
+        return isValidSignature;
     }
 
     async getGasData({
@@ -132,7 +132,7 @@ export class AoriDataProvider {
         value: number;
         data: string;
     }) {
-        const { data } = await this.rawCall({
+        const data = await this.rawCall({
             method: AoriDataMethods.GetGasData,
             params: [{ chainId, to, value, data: _data }]
         });
@@ -146,7 +146,7 @@ export class AoriDataProvider {
         signedTx: string
         chainId: number
     }) {
-        const { data } = await this.rawCall({
+        const data = await this.rawCall({
             method: AoriDataMethods.SendTransaction,
             params: [{ signedTx, chainId }]
         });
