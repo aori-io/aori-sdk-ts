@@ -27,7 +27,7 @@ export function QMaker({
     spreadPercentage: bigint;
     chainId: number;
     cancelAfter: number;
-    cancelAllFirst: boolean;
+    cancelAllFirst?: boolean;
     retryCount?: number;
     quoter: Quoter;
     getGasData: ({ to, value, data, chainId }:
