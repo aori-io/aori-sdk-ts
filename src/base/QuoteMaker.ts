@@ -1,0 +1,84 @@
+import { Quoter } from "@aori-io/adapters";
+import { Wallet } from "ethers";
+import { SubscriptionEvents } from "../providers";
+import { BaseMaker } from "./BaseMaker";
+
+export function QuoteMaker({
+    wallet,
+    apiUrl,
+    feedUrl,
+    takerUrl,
+    apiKey,
+    aoriVaultContract,
+    spreadPercentage,
+    chainId,
+    cancelAfter,
+    cancelAllFirst = false,
+    quoter,
+    getGasData
+}: {
+    wallet: Wallet;
+    apiUrl: string;
+    feedUrl: string;
+    takerUrl?: string;
+    apiKey: string;
+    aoriVaultContract: string;
+    spreadPercentage: bigint;
+    chainId: number;
+    cancelAfter: number;
+    cancelAllFirst?: boolean;
+    quoter: Quoter;
+    getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>
+}) {
+    const baseMaker = new BaseMaker({
+        wallet,
+        apiUrl,
+        feedUrl,
+        takerUrl,
+        vaultContract: aoriVaultContract,
+        apiKey,
+        defaultChainId: chainId
+    });
+
+    baseMaker.on("ready", () => {
+        baseMaker.initialise({ getGasData, cancelAllFirst });
+        baseMaker.subscribe();
+
+        baseMaker.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
+
+            if (chainId == baseMaker.defaultChainId) {
+                if (inputAmount == undefined) return;
+
+                const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
+                    inputToken,
+                    outputToken,
+                    inputAmount,
+                    fromAddress: baseMaker.vaultContract || "",
+                    chainId
+                });
+
+                try {
+                    await baseMaker.generateQuoteOrder({
+                        inputToken,
+                        outputToken,
+                        inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n,
+                        outputAmount: BigInt(inputAmount),
+                        cancelAfter,
+                        preCalldata: [{
+                            to: quoterTo,
+                            value: quoterValue,
+                            data: quoterData
+                        }]
+                    });
+                    return;
+                } catch (e: any) {
+                    console.log(e);
+                }
+
+                // Wait some seconds before trying again
+                await new Promise((resolve) => setTimeout(resolve, cancelAfter));
+            }
+        });
+    })
+}
+

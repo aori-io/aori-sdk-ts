@@ -1,4 +1,3 @@
-import { Quoter } from "@aori-io/adapters";
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, SubscriptionEvents } from "../providers";
@@ -104,9 +103,8 @@ export class BaseMaker extends AoriHttpProvider {
     async generateQuoteOrder({
         inputToken,
         outputToken,
+        inputAmount,
         outputAmount: amountForUser, // this is for the user
-        spreadPercentage,
-        quoter,
         cancelAfter,
         preCalldata = [],
         flashAmount = [],
@@ -114,9 +112,8 @@ export class BaseMaker extends AoriHttpProvider {
     }: {
         inputToken: string;
         outputToken: string;
+        inputAmount: bigint;
         outputAmount: bigint;
-        spreadPercentage: bigint;
-        quoter: Quoter;
         cancelAfter?: number,
         preCalldata?: { to: string, value: number, data: string }[],
         flashAmount?: { token: string, amount: bigint }[],
@@ -126,17 +123,9 @@ export class BaseMaker extends AoriHttpProvider {
             throw new Error(`Maker not initialised - please call initialise() first`);
         }
 
-        const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-            inputToken,
-            outputToken,
-            inputAmount: amountForUser.toString(),
-            fromAddress: this.wallet.address,
-            chainId: this.defaultChainId
-        });
-
         const order = await this.createLimitOrder({
             inputToken: outputToken,
-            inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n, // give less
+            inputAmount: inputAmount, // give less
             outputToken: inputToken,
             outputAmount: amountForUser
         });
@@ -148,11 +137,7 @@ export class BaseMaker extends AoriHttpProvider {
                                 SET PRECALLDATA
         //////////////////////////////////////////////////////////////*/
 
-        this.preCalldata[orderHash] = [...preCalldata, {
-            to: quoterTo,
-            value: quoterValue,
-            data: quoterData
-        }];
+        this.preCalldata[orderHash] = preCalldata;
 
         // if we don't have enough allowance, approve
         if (this.seaportAllowances[orderHash] == undefined) {
