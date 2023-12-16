@@ -10,9 +10,9 @@ export function QuoteMaker({
     takerUrl,
     apiKey,
     aoriVaultContract,
-    spreadPercentage,
+    spreadPercentage = 0n,
     chainId,
-    cancelAfter,
+    cancelAfter = 12_000,
     cancelAllFirst = false,
     quoter,
     getGasData
@@ -23,9 +23,9 @@ export function QuoteMaker({
     takerUrl?: string;
     apiKey: string;
     aoriVaultContract: string;
-    spreadPercentage: bigint;
+    spreadPercentage?: bigint;
     chainId: number;
-    cancelAfter: number;
+    cancelAfter?: number;
     cancelAllFirst?: boolean;
     quoter: Quoter;
     getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>
@@ -57,6 +57,16 @@ export function QuoteMaker({
                     chainId
                 });
 
+                // Construct preCalldata
+                const preCalldata = [];
+                if (quoterTo != baseMaker.vaultContract) {
+                    preCalldata.push({
+                        to: quoterTo,
+                        value: quoterValue,
+                        data: quoterData
+                    });
+                }
+
                 try {
                     await baseMaker.generateQuoteOrder({
                         inputToken,
@@ -64,11 +74,7 @@ export function QuoteMaker({
                         inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n,
                         outputAmount: BigInt(inputAmount),
                         cancelAfter,
-                        preCalldata: [{
-                            to: quoterTo,
-                            value: quoterValue,
-                            data: quoterData
-                        }]
+                        preCalldata
                     });
                     return;
                 } catch (e: any) {
