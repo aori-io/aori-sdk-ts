@@ -59,7 +59,7 @@ export function QuoteMaker({
 
                 // Construct preCalldata
                 const preCalldata = [];
-                if (quoterTo != baseMaker.vaultContract) {
+                if (quoterTo != baseMaker.vaultContract || quoterTo != "") {
                     preCalldata.push({
                         to: quoterTo,
                         value: quoterValue,
@@ -85,6 +85,8 @@ export function QuoteMaker({
                 await new Promise((resolve) => setTimeout(resolve, cancelAfter));
             }
         });
-    })
+    });
+
+    return baseMaker;
 }
 
