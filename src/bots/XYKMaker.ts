@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { QuoteMaker } from "./QuoteMaker";
+import { QuoteMaker } from "../base/QuoteMaker";
 
 export function XYKMaker({
     wallet,
