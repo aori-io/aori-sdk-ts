@@ -1,12 +1,15 @@
 import { Quoter } from "@aori-io/adapters";
+import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
-import { AoriHttpProvider, SubscriptionEvents } from "../providers";
-import { AoriVault__factory, ERC20__factory } from "../types";
+import { AoriDataProvider, AoriHttpProvider, SubscriptionEvents } from "../providers";
+import { AoriVault__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
 
-export class FlashMaker extends AoriHttpProvider {
+export class BaseMaker extends AoriHttpProvider {
 
     initialised = false;
+    dataProvider = new AoriDataProvider();
+    seaportAllowances: { [token: string]: boolean } = {};
 
     /*//////////////////////////////////////////////////////////////
                                  STATE
@@ -51,14 +54,28 @@ export class FlashMaker extends AoriHttpProvider {
 
             const to = this.vaultContract || "";
             const value = 0;
-            const data = AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
-                tokens: this.flashAmount[orderHash].map(({ token }) => token),
-                amounts: this.flashAmount[orderHash].map(({ amount }) => amount),
-            }, [
-                ...(this.preCalldata[orderHash] || []),
-                { to: aoriTo, value: aoriValue, data: aoriData },
-                ...(this.postCalldata[orderHash] || [])
-            ]]);
+
+            /*//////////////////////////////////////////////////////////////
+                                   CONSTRUCT CALLDATA
+            //////////////////////////////////////////////////////////////*/
+
+            const data = this.flashAmount[orderHash].length != 0 ?
+                // Rely on a balancer flash loan
+                AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
+                    tokens: this.flashAmount[orderHash].map(({ token }) => token),
+                    amounts: this.flashAmount[orderHash].map(({ amount }) => amount),
+                }, [
+                    ...(this.preCalldata[orderHash] || []),
+                    { to: aoriTo, value: aoriValue, data: aoriData },
+                    ...(this.postCalldata[orderHash] || [])
+                ]]) :
+                // Use own liquidity / programmatic pull liquidity
+                AoriVault__factory.createInterface().encodeFunctionData("execute", [[
+                    ...(this.preCalldata[orderHash] || []),
+                    { to: aoriTo, value: aoriValue, data: aoriData },
+                    ...(this.postCalldata[orderHash] || [])
+                ]]);
+
             const { gasPrice, gasLimit } = await getGasData({ to, value, data, chainId });
 
             /*//////////////////////////////////////////////////////////////
@@ -90,17 +107,23 @@ export class FlashMaker extends AoriHttpProvider {
         outputAmount: amountForUser, // this is for the user
         spreadPercentage,
         quoter,
-        cancelAfter
+        cancelAfter,
+        preCalldata = [],
+        flashAmount = [],
+        postCalldata = []
     }: {
         inputToken: string;
         outputToken: string;
         outputAmount: bigint;
         spreadPercentage: bigint;
         quoter: Quoter;
-        cancelAfter?: number
+        cancelAfter?: number,
+        preCalldata?: { to: string, value: number, data: string }[],
+        flashAmount?: { token: string, amount: bigint }[],
+        postCalldata?: { to: string, value: number, data: string }[],
     }) {
         if (!this.initialised) {
-            throw new Error(`Flash maker not initialised - please call initialise() first`);
+            throw new Error(`Maker not initialised - please call initialise() first`);
         }
 
         const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
@@ -121,29 +144,46 @@ export class FlashMaker extends AoriHttpProvider {
         const orderHash = order.orderHash;
         await this.makeOrder({ order });
 
-        this.preCalldata[orderHash] = [
-            {
-                to: outputToken,
-                value: 0,
-                data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                    SEAPORT_ADDRESS, parseEther("100000")
-                ])
-            },
-            {
-                to: inputToken,
-                value: 0,
-                data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                    quoterTo, parseEther("100000")
-                ])
-            },
-            {
-                to: quoterTo,
-                value: quoterValue,
-                data: quoterData
-            }];
+        /*//////////////////////////////////////////////////////////////
+                                SET PRECALLDATA
+        //////////////////////////////////////////////////////////////*/
 
-        this.flashAmount[orderHash] = [{ token: inputToken, amount: amountForUser }];
-        this.postCalldata[orderHash] = [];
+        this.preCalldata[orderHash] = [...preCalldata, {
+            to: quoterTo,
+            value: quoterValue,
+            data: quoterData
+        }];
+
+        // if we don't have enough allowance, approve
+        if (this.seaportAllowances[orderHash] == undefined) {
+            if (await this.dataProvider.getTokenAllowance({
+                chainId: this.defaultChainId,
+                address: SEAPORT_ADDRESS,
+                token: outputToken
+            }) < amountForUser) {
+                this.preCalldata[orderHash].push({
+                    to: outputToken,
+                    value: 0,
+                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                        SEAPORT_ADDRESS, parseEther("100000")
+                    ])
+                });
+            }
+
+            this.seaportAllowances[orderHash] = true;
+        }
+
+        /*//////////////////////////////////////////////////////////////
+                                SET FLASH AMOUNT
+        //////////////////////////////////////////////////////////////*/
+
+        this.flashAmount[orderHash] = flashAmount;
+
+        /*//////////////////////////////////////////////////////////////
+                                SET POSTCALLDATA
+        //////////////////////////////////////////////////////////////*/
+
+        this.postCalldata[orderHash] = postCalldata;
 
         if (cancelAfter != undefined) {
             setTimeout(async () => {

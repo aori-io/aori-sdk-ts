@@ -23,7 +23,7 @@ export class AoriDataProvider {
     }: {
         chainId: number;
         address: string;
-    }) {
+    }): Promise<number> {
         const { nonce } = await this.rawCall({
             method: AoriDataMethods.GetNonce,
             params: [{ address, chainId }]
