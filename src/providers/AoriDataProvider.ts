@@ -9,7 +9,7 @@ export class AoriDataProvider {
         chainId
     }: {
         chainId: number
-    }) {
+    }): Promise<number> {
         const { blockNumber } = await this.rawCall({
             method: AoriDataMethods.GetBlockNumber,
             params: [{ chainId }]
@@ -37,7 +37,7 @@ export class AoriDataProvider {
     }: {
         chainId: number;
         address: string;
-    }) {
+    }): Promise<number> {
         const { counter } = await this.rawCall({
             method: AoriDataMethods.GetSeaportCounter,
             params: [{ address, chainId }]
@@ -49,7 +49,7 @@ export class AoriDataProvider {
         seatId
     }: {
         seatId: number
-    }) {
+    }): Promise<{ seatId: number, seatOwner: string, seatScore: number }> {
         const data = await this.rawCall({
             method: AoriDataMethods.GetSeatDetails,
             params: [{ seatId }]
@@ -60,17 +60,19 @@ export class AoriDataProvider {
     async getTokenAllowance({
         chainId,
         address,
+        spender,
         token
     }: {
         chainId: number;
         address: string;
+        spender: string;
         token: string;
-    }) {
+    }): Promise<bigint> {
         const { tokenAllowance } = await this.rawCall({
             method: AoriDataMethods.GetTokenAllowance,
-            params: [{ address, chainId, token }]
+            params: [{ address, chainId, token, spender }]
         });
-        return tokenAllowance;
+        return BigInt(tokenAllowance);
     }
 
     async getTokenBalance({
@@ -81,12 +83,12 @@ export class AoriDataProvider {
         chainId: number;
         address: string;
         token: string;
-    }) {
+    }): Promise<bigint> {
         const { tokenBalance } = await this.rawCall({
             method: AoriDataMethods.GetTokenBalance,
             params: [{ address, chainId, token }]
         });
-        return tokenBalance;
+        return BigInt(tokenBalance);
     }
 
     async hasOrderSettled({
@@ -95,7 +97,7 @@ export class AoriDataProvider {
     }: {
         chainId: number;
         orderHash: string;
-    }) {
+    }): Promise<boolean> {
         const { orderSettled } = await this.rawCall({
             method: AoriDataMethods.HasOrderSettled,
             params: [{ chainId, orderHash }]
@@ -113,7 +115,7 @@ export class AoriDataProvider {
         vault: string;
         hash: string;
         signature: string;
-    }) {
+    }): Promise<boolean> {
         const { isValidSignature } = await this.rawCall({
             method: AoriDataMethods.IsValidSignature,
             params: [{ chainId, vault, hash, signature }]
