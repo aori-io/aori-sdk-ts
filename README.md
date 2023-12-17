@@ -6,18 +6,17 @@
 
 
 
-Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for interacting with the Aori Websocket-based API to help developers integrate and build on top of the protocol as easily as possible.
+Aori is a high-performance orderbook protocol for high-frequency trading on-chain and facilitating OTC settlement. This repository provides a TypeScript SDK for interacting with the Aori API to help developers integrate and build on top of the protocol as easily as possible.
 
 This SDK is released under the [MIT License](LICENSE).
 
 ---
 
-If you have any further questions, refer to [the technical documentation](https://www.aori.io/developers). Alternatively, please reach out to us [on Discord](https://discord.gg/K37wkh2ZfR) or [on Twitter](https://twitter.com/aori_io).
+If you have any further questions, refer to [the technical documentation](https://www.aori.io/developers). Alternatively, please reach out to us on [Discord](https://discord.gg/K37wkh2ZfR), [Telegram](https://devs.aori.io) or [Twitter](https://twitter.com/aori_io).
 
 ## Table of Contents
 - [Installation](#installation)
-  - [Initialization](#initialization)
-  - [Websockets](#websockets)
+  - [Connecting via HTTP and WebSockets](#connecting-via-http-and-websockets)
 - [Key Functionalities](#key-functionalities)
   - [Order Creation and Management](#order-creation-and-management)
     - [Creating a Limit Order](#creating-a-limit-order)
@@ -48,23 +47,27 @@ Or using Yarn:
 yarn add @aori-io/sdk
 ```
 
-## Initialization
+## Connecting via HTTP and Websockets
 
-After installation, use the following import command interact with the SDK to import the base class `AoriProvider` that will allow you to do many of the base functionalities:
+Currently, the Aori API supports both HTTP and Websocket-based connections.
 
+One may be familiar with one or the other or both, but each has its own advantages and disadvantages.
+
+### HTTP
+The `AoriHttpProvider` class is the base class for HTTP-based connections.
 ```typescript
-import { AoriProvider } from '@aori-io/sdk';
+import { AoriHttpProvider } from "@aori-io/sdk";
+const provider = new AoriHttpProvider(...);
 ```
-Then access specific functions like so:
+
+### Websocket
+The `AoriProvider` class is the base class for Websocket-based connections.
 ```typescript
+import { AoriProvider } from "@aori-io/sdk";
 const provider = new AoriProvider(...);
-...
-await provider.makeOrder(...);
 ```
 
-## Sidenote: Websockets
-
-As the Aori API is a Websocket-based API, requests and responses may come back in an asynchronous manner. The `AoriProvider` class is an event-based class that is built to handle this, managing requests through the use of a `counter`.
+Requests and responses may come back in an asynchronous manner, hence the use of an `Id`. The `AoriProvider` class is an event-based class that is built to handle this, managing requests through the use of a `counter`, but this is not required in the `AoriHttpProvider` for which requests and responses are made in order.
 
 ```
 Request:
@@ -77,7 +80,7 @@ Corresponding response:
 }
 ```
 
-`AoriProvider` also inherits the `EventEmitter` class, meaning that it will emit events when the responses of requests and notifications (where no request was made to receive) are made.
+Specifically, the `AoriProvider` also inherits the `EventEmitter` class, meaning that it will emit events when the responses of requests and notifications (where no request was made to receive) are made.
 ```typescript
 const provider = new AoriProvider(...);
 ...
@@ -133,7 +136,7 @@ const order = await provider.createLimitOrder(...);
 ...
 ...
 ...
-await provider.makeOrder({ order: order, chainId: chainId });
+await provider.makeOrder({ order: order, chainId: chainId, isPrivate: false });
 ```
 
 ### Cancelling a Limit Order
@@ -175,6 +178,8 @@ All relevant orderbook events are under the enum `SubscriptionEvents`.
 const chainId = 5; // Goerli
 const provider = new AoriProvider(...);
 ...
+// Subscribe to the feed to receive updates
+provider.subscribe();
 ...
 ...
 provider.on(SubscriptionEvents.OrderCreated, (order) => {
@@ -199,6 +204,12 @@ provider.on(SubscriptionEvents.OrderFulfilled, (orderHash) => {
     ...
 });
 ...
+...
+...
+provider.on(SubscriptionEvents.OrderToExecute, (order) => {
+    ...
+})
+...
 ```
 
 ## Order Taking, Execution and Settlement
@@ -209,15 +220,16 @@ A market taker can take an order by calling the `takeOrder` method.
 
 ```typescript
 const chainId = 5; // Goerli
-const makerOrderId = "...";
+const makerOrderHash = "...";
 const provider = new AoriProvider(...);
+const seatId = 0;
 ...
 ...
 ...
 const takerOrder = await provider.createLimitOrder(...); // Make a matching limit order
 ...
 ...
-await provider.takeOrder({ orderId: makerOrderId, order: takerOrder, chainId: chainId });
+await provider.takeOrder({ orderHash: makerOrderHash, order: takerOrder, chainId, seatId });
 ```
 
 ### Executing an Order
@@ -227,7 +239,7 @@ As a market maker (or a market taker if the market maker has chosen not to make 
 This requires interaction with the on-chain smart settlement contract at `AORI_ZONE_ADDRESS`.
 
 ```typescript
-import { OrderToExecute, ResponseEvents } from "@aori-io/sdk";
+import { SubscriptionEvents } from "@aori-io/sdk";
 import { Signature } from "ethers";
 
 const chainId = 5; // Goerli
@@ -235,8 +247,8 @@ const provider = new AoriProvider(...);
 ...
 ...
 ...
-provider.on(NotificationEvents.OrderToExecute, async ({ contractCall: { to, value, data }}: OrderToExecute) => {
-    await provider.wallet.sendTransaction({ to, value, data });
+provider.on(SubscriptionEvents.OrderToExecute, async ({ to, value, data }: OrderToExecute) => {
+    await provider.sendTransaction({ to, value, data });
 });
 ```
 
@@ -244,49 +256,34 @@ provider.on(NotificationEvents.OrderToExecute, async ({ contractCall: { to, valu
 
 This SDK also provides a number of standardised bot templates to use for making development quicker. New boilerplates will be added here as more use cases come up and require standardisation - do feel free to contribute!
 
-### LimitOrderManager
+### BaseMaker
 
 ```typescript
-import { LimitOrderManager } from '@aori-io/sdk';
+import { BaseMaker } from '@aori-io/sdk';
 
 const wallet = new Wallet(...);
-const provider = new JsonRpcProvider(...);
 
-const bot = new LimitOrderManager(...);
+const bot = new BaseMaker(...);
 
 bot.on("ready", () => {
   // ...
-  await bot.initialise();
+  await bot.initialise(...);
   // ...
 });
 ```
 
-The behaviours are:
-- When making an order via `this.makeOrder`, the bot will create a limit order and save its hash under `this.awaitingOrderCreation`.
-- On `AoriMethods.AccountOrders`, own orders will be saved under `this.currentLimitOrders`
-- On `SubscriptionEvents.OrderCreated`, any expected orders to have been confirmed to be created get removed from `this.awaitingOrderCreation` and get added to `this.currentLimitOrders`.
-- On `SubscriptionEvents.OrderCancelled`, if the cancelled order is our own, it gets removed from `this.currentLimitOrders`.
-- On `SubscriptionEvents.OrderTaken`, if the taken order is our own, it gets removed from `this.currentLimitOrders`.
-
-### FromInventoryExecutor
-
-The `FromInventoryExecutor` is a standard class that does what a `LimitOrderManager` does, but will additionally handle the on-chain execution of orders.
+### QuoteMaker
 
 ```typescript
-import { FromInventoryExecutor } from '@aori-io/sdk';
+import { QuoteMaker } from '@aori-io/sdk';
 
 const wallet = new Wallet(...);
-const provider = new JsonRpcProvider(...);
 
-const bot = new FromInventoryExecutor(...);
+const bot = new QuoteMaker(...);
 
 bot.on("ready", () => {
   // ...
-  await bot.initialise();
+  await bot.initialise(...);
   // ...
 });
 ```
-
-The behaviours are:
-- Inherited from `LimtiOrderManager` (see [above](#limitordermanager))
-- On `NotificationEvents.OrderToExecute`, the bot will execute the order.
