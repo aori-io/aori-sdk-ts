@@ -1,3 +1,4 @@
+import { SEAPORT_CONTRACT_VERSION_V1_5 } from "@opensea/seaport-js/lib/constants";
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, SubscriptionEvents } from "../providers";
@@ -143,7 +144,8 @@ export class BaseMaker extends AoriHttpProvider {
         if (this.seaportAllowances[orderHash] == undefined) {
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
-                address: SEAPORT_ADDRESS,
+                address: this.vaultContract || "",
+                spender: SEAPORT_CONTRACT_VERSION_V1_5,
                 token: outputToken
             }) < amountForUser) {
                 this.preCalldata[orderHash].push({
