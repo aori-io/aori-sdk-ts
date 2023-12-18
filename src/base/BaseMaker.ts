@@ -142,6 +142,7 @@ export class BaseMaker extends AoriHttpProvider {
 
         // if we don't have enough allowance, approve
         if (this.seaportAllowances[orderHash] == undefined) {
+            console.log(`Checking allowance: ${this.vaultContract}, ${this.defaultChainId}, ${SEAPORT_CONTRACT_VERSION_V1_5}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
                 address: this.vaultContract || "",
