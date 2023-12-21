@@ -15,7 +15,8 @@ export function QuoteMaker({
     cancelAfter = 12_000,
     cancelAllFirst = false,
     quoter,
-    getGasData
+    getGasData,
+    settleTx
 }: {
     wallet: Wallet;
     apiUrl: string;
@@ -28,7 +29,8 @@ export function QuoteMaker({
     cancelAfter?: number;
     cancelAllFirst?: boolean;
     quoter: Quoter;
-    getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>
+    getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
+    settleTx?: boolean;
 }) {
     const baseMaker = new BaseMaker({
         wallet,
@@ -74,7 +76,8 @@ export function QuoteMaker({
                         inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n,
                         outputAmount: BigInt(inputAmount),
                         cancelAfter,
-                        preCalldata
+                        preCalldata,
+                        settleTx
                     });
                     return;
                 } catch (e: any) {

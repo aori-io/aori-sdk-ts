@@ -1,7 +1,7 @@
 import { SEAPORT_CONTRACT_VERSION_V1_5 } from "@opensea/seaport-js/lib/constants";
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, SubscriptionEvents } from "../providers";
+import { AoriDataProvider, AoriHttpProvider, AoriSolutionStore, SubscriptionEvents } from "../providers";
 import { AoriVault__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
 
@@ -9,6 +9,8 @@ export class BaseMaker extends AoriHttpProvider {
 
     initialised = false;
     dataProvider = new AoriDataProvider();
+    solutionStore = new AoriSolutionStore();
+
     seaportAllowances: { [token: string]: boolean } = {};
 
     /*//////////////////////////////////////////////////////////////
@@ -47,7 +49,6 @@ export class BaseMaker extends AoriHttpProvider {
         this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
             if (!this.preCalldata[orderHash]) return;
             console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
-
             /*//////////////////////////////////////////////////////////////
                                      SET TX DETAILS
             //////////////////////////////////////////////////////////////*/
@@ -109,7 +110,8 @@ export class BaseMaker extends AoriHttpProvider {
         cancelAfter,
         preCalldata = [],
         flashAmount = [],
-        postCalldata = []
+        postCalldata = [],
+        settleTx = true
     }: {
         inputToken: string;
         outputToken: string;
@@ -119,6 +121,7 @@ export class BaseMaker extends AoriHttpProvider {
         preCalldata?: { to: string, value: number, data: string }[],
         flashAmount?: { token: string, amount: bigint }[],
         postCalldata?: { to: string, value: number, data: string }[],
+        settleTx?: boolean
     }) {
         if (!this.initialised) {
             throw new Error(`Maker not initialised - please call initialise() first`);
@@ -138,10 +141,8 @@ export class BaseMaker extends AoriHttpProvider {
                                 SET PRECALLDATA
         //////////////////////////////////////////////////////////////*/
 
-        this.preCalldata[orderHash] = preCalldata;
-
         // if we don't have enough allowance, approve
-        if (this.seaportAllowances[orderHash] == undefined) {
+        if (this.seaportAllowances[outputToken] == undefined) {
             console.log(`👮 Checking approval for ${this.vaultContract} by spender ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
@@ -150,7 +151,7 @@ export class BaseMaker extends AoriHttpProvider {
                 token: outputToken
             }) < amountForUser) {
                 console.log(`✍️ Approving ${this.vaultContract} for ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
-                this.preCalldata[orderHash].push({
+                preCalldata.push({
                     to: outputToken,
                     value: 0,
                     data: ERC20__factory.createInterface().encodeFunctionData("approve", [
@@ -161,20 +162,28 @@ export class BaseMaker extends AoriHttpProvider {
                 console.log(`☑️ Already approved ${this.vaultContract} for ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
             }
 
-            this.seaportAllowances[orderHash] = true;
+            this.seaportAllowances[outputToken] = true;
         }
 
         /*//////////////////////////////////////////////////////////////
-                                SET FLASH AMOUNT
+                                SAVE SOLUTION
         //////////////////////////////////////////////////////////////*/
 
-        this.flashAmount[orderHash] = flashAmount;
-
-        /*//////////////////////////////////////////////////////////////
-                                SET POSTCALLDATA
-        //////////////////////////////////////////////////////////////*/
-
-        this.postCalldata[orderHash] = postCalldata;
+        if (!settleTx) {
+            await this.solutionStore.saveSolution({
+                orderHash,
+                chainId: this.defaultChainId,
+                from: this.wallet.address,
+                to: this.vaultContract || "",
+                flashAmount,
+                preCalldata,
+                postCalldata
+            });
+        } else {
+            this.flashAmount[orderHash] = flashAmount;
+            this.preCalldata[orderHash] = preCalldata;
+            this.postCalldata[orderHash] = postCalldata;
+        }
 
         if (cancelAfter != undefined) {
             setTimeout(async () => {
