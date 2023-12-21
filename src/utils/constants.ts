@@ -30,6 +30,9 @@ export const AORI_TAKER_DEVELOPMENT_API: string = "https://dev.taker.aori.io";
 // Data Provider API
 export const AORI_DATA_PROVIDER_API: string = "https://provider.aori.io";
 
+// Solution Store
+export const AORI_SOLUTION_STORE_API: string = "https://solution.aori.io";
+
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/
