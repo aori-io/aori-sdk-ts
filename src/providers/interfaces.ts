@@ -2,22 +2,26 @@ import { OrderWithCounter } from "../utils";
 
 export interface OrderToExecute {
 
-    // Relevant hashes
-    matchingHash: string;
+    // Relevant order details
     makerOrderHash: string;
+    makerParameters: OrderWithCounter["parameters"];
     takerOrderHash: string;
+    takerParameters: OrderWithCounter["parameters"];
+    matchingHash: string;
 
+    // Verification
     chainId: number;
     to: string;
     value: number;
     data: string;
     blockDeadline: number;
 
-    // Additional parameters
-    parameters: {
-        makerOrders: OrderWithCounter[];
-        takerOrder: OrderWithCounter;
-    }
+    // Vanity
+    maker: string;
+    inputToken: string;
+    inputAmount: string;
+    outputToken: string;
+    outputAmount: string;
 }
 
 export interface QuoteRequested {
