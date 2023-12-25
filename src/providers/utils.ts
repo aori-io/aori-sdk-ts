@@ -33,6 +33,11 @@ export enum AoriDataMethods {
     SendTransaction = "aori_sendTransaction",
 }
 
+export enum AoriPricingMethods {
+    GetAssetPrice = "aori_getAssetPrice",
+    CalculateGasInToken = "aori_calculateGasInToken",
+}
+
 export enum AoriSolutionStoreMethods {
     SaveSolution = "aori_saveSolution",
     GetSolution = "aori_getSolution",
