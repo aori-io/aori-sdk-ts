@@ -1,7 +1,7 @@
 import { SEAPORT_CONTRACT_VERSION_V1_5 } from "@opensea/seaport-js/lib/constants";
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, AoriSolutionStore, SubscriptionEvents } from "../providers";
+import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore, SubscriptionEvents } from "../providers";
 import { AoriVault__factory } from "../types";
 import { SEAPORT_ADDRESS } from "../utils";
 
@@ -9,6 +9,7 @@ export class BaseMaker extends AoriHttpProvider {
 
     initialised = false;
     dataProvider = new AoriDataProvider();
+    pricingProvider = new AoriPricingProvider();
     solutionStore = new AoriSolutionStore();
 
     seaportAllowances: { [token: string]: boolean } = {};

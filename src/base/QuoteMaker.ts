@@ -70,10 +70,25 @@ export function QuoteMaker({
                 }
 
                 try {
+
+                    const { gasLimit, gasPrice } = await getGasData({
+                        // TODO: Make more accurate
+                        to: baseMaker.vaultContract || "",
+                        value: 0,
+                        data: "0x",
+                        chainId
+                    });
+
+                    const gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
+                        chainId,
+                        gas: Number(gasLimit * gasPrice),
+                        token: inputToken
+                    });
+
                     await baseMaker.generateQuoteOrder({
                         inputToken,
                         outputToken,
-                        inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n,
+                        inputAmount: (outputAmount - gasInToken) * (10_000n - spreadPercentage) / 10_000n,
                         outputAmount: BigInt(inputAmount),
                         cancelAfter,
                         preCalldata,
