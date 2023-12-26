@@ -148,7 +148,7 @@ export class BaseMaker extends AoriHttpProvider {
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
                 address: this.vaultContract || "",
-                spender: SEAPORT_CONTRACT_VERSION_V1_5,
+                spender: SEAPORT_ADDRESS,
                 token: outputToken
             }) < amountForUser) {
                 console.log(`✍️ Approving ${this.vaultContract} for ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
