@@ -8,6 +8,8 @@ export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } }
 export async function formatIntoLimitOrder({
     offerer,
     zone = AORI_ZONE_ADDRESS,
+    startTime = Math.floor(Date.now() / 1000),
+    endTime = startTime + defaultDuration,
     inputToken,
     inputTokenType = ItemType.ERC20,
     inputAmount,
@@ -18,6 +20,8 @@ export async function formatIntoLimitOrder({
 }: {
     offerer: string;
     zone?: string;
+    startTime?: number;
+    endTime?: number;
     inputToken: string;
     inputTokenType?: ItemType;
     inputAmount: bigint;
@@ -27,14 +31,13 @@ export async function formatIntoLimitOrder({
     counter: string
 }): Promise<OrderWithCounter> {
 
-    const startTime = Math.floor(Date.now() / 1000); // seconds
     return {
         parameters: {
             offerer,
             zone,
             zoneHash: defaultZoneHash,
             startTime: `${startTime}`,
-            endTime: `${startTime + defaultDuration}`,
+            endTime: `${endTime}`,
             orderType: OrderType.PARTIAL_RESTRICTED,
             offer: [{
                 itemType: inputTokenType,

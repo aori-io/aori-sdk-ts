@@ -2,7 +2,7 @@ import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_DATA_PROVIDER_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, getOrderHash, signOrder } from "../utils";
+import { AORI_API, AORI_DATA_PROVIDER_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash, signOrder } from "../utils";
 import { formatIntoLimitOrder, OrderWithCounter } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { ViewOrderbookQuery } from "./interfaces";
@@ -247,6 +247,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async createLimitOrder({
         offerer = (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
         zone = AORI_ZONE_ADDRESS,
+        startTime = Math.floor(Date.now() / 1000),
+        endTime = startTime + defaultDuration,
         inputToken,
         inputTokenType = ItemType.ERC20,
         inputAmount,
@@ -257,6 +259,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }: {
         offerer?: string;
         zone?: string;
+        startTime?: number;
+        endTime?: number;
         inputToken: string;
         inputTokenType?: ItemType;
         inputAmount: bigint | string;
@@ -268,6 +272,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         const limitOrder = await formatIntoLimitOrder({
             offerer,
             zone,
+            startTime,
+            endTime,
             inputToken,
             inputTokenType,
             inputAmount: BigInt(inputAmount),
