@@ -112,6 +112,13 @@ export function QuoteMaker({
 
         if (generatePassiveQuotes != undefined) {
             const { generateEveryMs, quotes } = generatePassiveQuotes;
+
+            // initial
+            for (const { inputToken, inputAmount, outputToken, chainId } of quotes) {
+                generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
+            }
+
+            // every generateEveryMs
             setInterval(async () => {
                 for (const { inputToken, inputAmount, outputToken, chainId } of quotes) {
                     await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
