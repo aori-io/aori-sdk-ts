@@ -17,6 +17,7 @@ export function QuoteMaker({
     quoter,
     getGasData,
     sponsorGas = true,
+    generatePassiveQuotes,
     settleTx
 }: {
     wallet: Wallet;
@@ -31,6 +32,7 @@ export function QuoteMaker({
     cancelAllFirst?: boolean;
     quoter: Quoter;
     getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
+    generatePassiveQuotes?: { generateEveryMs: number, quotes: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }[] },
     sponsorGas?: boolean;
     settleTx?: boolean;
 }) {
@@ -48,63 +50,74 @@ export function QuoteMaker({
         baseMaker.initialise({ getGasData, cancelAllFirst });
         baseMaker.subscribe();
 
-        baseMaker.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
+        async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
+            const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
+                inputToken,
+                outputToken,
+                inputAmount,
+                fromAddress: baseMaker.vaultContract || "",
+                chainId
+            });
 
-            if (chainId == baseMaker.defaultChainId) {
-                if (inputAmount == undefined) return;
+            // Construct preCalldata
+            const preCalldata = [];
+            if (quoterTo != baseMaker.vaultContract || quoterTo != "") {
+                preCalldata.push({
+                    to: quoterTo,
+                    value: quoterValue,
+                    data: quoterData
+                });
+            }
 
-                const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-                    inputToken,
-                    outputToken,
-                    inputAmount,
-                    fromAddress: baseMaker.vaultContract || "",
+            try {
+
+                const { gasLimit, gasPrice } = await getGasData({
+                    // TODO: Make more accurate
+                    to: baseMaker.vaultContract || "",
+                    value: 0,
+                    data: "0x",
                     chainId
                 });
 
-                // Construct preCalldata
-                const preCalldata = [];
-                if (quoterTo != baseMaker.vaultContract || quoterTo != "") {
-                    preCalldata.push({
-                        to: quoterTo,
-                        value: quoterValue,
-                        data: quoterData
-                    });
-                }
+                const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
+                    chainId,
+                    gas: Number(gasLimit * gasPrice),
+                    token: inputToken
+                });
 
-                try {
+                await baseMaker.generateQuoteOrder({
+                    inputToken,
+                    outputToken,
+                    inputAmount: (outputAmount - gasInToken) * (10_000n - spreadPercentage) / 10_000n,
+                    outputAmount: BigInt(inputAmount),
+                    cancelAfter,
+                    preCalldata,
+                    settleTx
+                });
+                return;
+            } catch (e: any) {
+                console.log(e);
+            }
 
-                    const { gasLimit, gasPrice } = await getGasData({
-                        // TODO: Make more accurate
-                        to: baseMaker.vaultContract || "",
-                        value: 0,
-                        data: "0x",
-                        chainId
-                    });
+            // Wait some seconds before trying again
+            await new Promise((resolve) => setTimeout(resolve, cancelAfter));
+        }
 
-                    const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
-                        chainId,
-                        gas: Number(gasLimit * gasPrice),
-                        token: inputToken
-                    });
-
-                    await baseMaker.generateQuoteOrder({
-                        inputToken,
-                        outputToken,
-                        inputAmount: (outputAmount - gasInToken) * (10_000n - spreadPercentage) / 10_000n,
-                        outputAmount: BigInt(inputAmount),
-                        cancelAfter,
-                        preCalldata,
-                        settleTx
-                    });
-                    return;
-                } catch (e: any) {
-                    console.log(e);
-                }
-
-                // Wait some seconds before trying again
-                await new Promise((resolve) => setTimeout(resolve, cancelAfter));
+        baseMaker.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
+            if (chainId == baseMaker.defaultChainId) {
+                if (inputAmount == undefined) return;
+                await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
             }
         });
+
+        if (generatePassiveQuotes != undefined) {
+            const { generateEveryMs, quotes } = generatePassiveQuotes;
+            setInterval(async () => {
+                for (const { inputToken, inputAmount, outputToken, chainId } of quotes) {
+                    await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
+                }
+            }, generateEveryMs);
+        }
     });
 
     return baseMaker;
