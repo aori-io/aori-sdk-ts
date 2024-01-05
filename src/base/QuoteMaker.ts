@@ -16,6 +16,7 @@ export function QuoteMaker({
     cancelAllFirst = false,
     quoter,
     getGasData,
+    sponsorGas = true,
     settleTx
 }: {
     wallet: Wallet;
@@ -30,6 +31,7 @@ export function QuoteMaker({
     cancelAllFirst?: boolean;
     quoter: Quoter;
     getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
+    sponsorGas?: boolean;
     settleTx?: boolean;
 }) {
     const baseMaker = new BaseMaker({
@@ -79,7 +81,7 @@ export function QuoteMaker({
                         chainId
                     });
 
-                    const gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
+                    const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
                         chainId,
                         gas: Number(gasLimit * gasPrice),
                         token: inputToken

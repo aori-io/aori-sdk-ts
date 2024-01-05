@@ -1,4 +1,3 @@
-import { SEAPORT_CONTRACT_VERSION_V1_5 } from "@opensea/seaport-js/lib/constants";
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore, SubscriptionEvents } from "../providers";
@@ -144,14 +143,14 @@ export class BaseMaker extends AoriHttpProvider {
 
         // if we don't have enough allowance, approve
         if (this.seaportAllowances[outputToken] == undefined) {
-            console.log(`👮 Checking approval for ${this.vaultContract} by spender ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
+            console.log(`👮 Checking approval for ${this.vaultContract} by spender ${SEAPORT_ADDRESS} on chain ${this.defaultChainId}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
                 address: this.vaultContract || "",
                 spender: SEAPORT_ADDRESS,
                 token: outputToken
             }) < amountForUser) {
-                console.log(`✍️ Approving ${this.vaultContract} for ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
+                console.log(`✍️ Approving ${this.vaultContract} for ${SEAPORT_ADDRESS} on chain ${this.defaultChainId}`);
                 preCalldata.push({
                     to: outputToken,
                     value: 0,
@@ -160,7 +159,7 @@ export class BaseMaker extends AoriHttpProvider {
                     ])
                 });
             } else {
-                console.log(`☑️ Already approved ${this.vaultContract} for ${SEAPORT_CONTRACT_VERSION_V1_5} on chain ${this.defaultChainId}`);
+                console.log(`☑️ Already approved ${this.vaultContract} for ${SEAPORT_ADDRESS} on chain ${this.defaultChainId}`);
             }
 
             this.seaportAllowances[outputToken] = true;
