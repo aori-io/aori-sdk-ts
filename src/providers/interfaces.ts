@@ -58,3 +58,24 @@ export interface ViewOrderbookQuery {
     inputAmount?: string;
     outputAmount?: string;
 }
+
+export interface MatchingDetails {
+    matchingHash: string;
+    makerOrder: OrderWithCounter;
+    makerOrderHash: string;
+    takerOrder: OrderWithCounter;
+    takerOrderHash: string;
+
+    chainId: number;
+    to: string;
+    value: number;
+    data: string;
+    blockDeadline: number;
+
+    maker: string;
+    taker: string;
+    inputToken: string;
+    inputAmount: string;
+    outputToken: string;
+    outputAmount: string;
+}

@@ -43,6 +43,13 @@ export enum AoriSolutionStoreMethods {
     GetSolution = "aori_getSolution",
 }
 
+export enum AoriMempoolProviderMethods {
+    AoriPing = "aori_ping",
+    AoriSupportedChains = "aori_supportedChains",
+    AoriMatchHistory = "aori_matchHistory",
+    AoriGetMatchDetails = "aori_getMatchDetails",
+}
+
 export enum SubscriptionEvents {
     OrderCreated = "OrderCreated",
     OrderCancelled = "OrderCancelled",
