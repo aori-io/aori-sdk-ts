@@ -1,28 +1,27 @@
-import { OrderWithCounter } from "../utils";
 
-export interface OrderToExecute {
+// export interface OrderToExecute {
 
-    // Relevant order details
-    makerOrderHash: string;
-    makerParameters: OrderWithCounter["parameters"];
-    takerOrderHash: string;
-    takerParameters: OrderWithCounter["parameters"];
-    matchingHash: string;
+//     // Relevant order details
+//     makerOrderHash: string;
+//     makerParameters: OrderWithCounter["parameters"];
+//     takerOrderHash: string;
+//     takerParameters: OrderWithCounter["parameters"];
+//     matchingHash: string;
 
-    // Verification
-    chainId: number;
-    to: string;
-    value: number;
-    data: string;
-    blockDeadline: number;
+//     // Verification
+//     chainId: number;
+//     to: string;
+//     value: number;
+//     data: string;
+//     blockDeadline: number;
 
-    // Vanity
-    maker: string;
-    inputToken: string;
-    inputAmount: string;
-    outputToken: string;
-    outputAmount: string;
-}
+//     // Vanity
+//     maker: string;
+//     inputToken: string;
+//     inputAmount: string;
+//     outputToken: string;
+//     outputAmount: string;
+// }
 
 export interface QuoteRequested {
     inputToken: string;
@@ -33,13 +32,14 @@ export interface QuoteRequested {
 }
 
 export interface OrderView {
-    order: OrderWithCounter,
-    orderHash: string,
-    inputToken: string,
-    outputToken: string,
+    order: AoriOrder;
+    orderHash: string;
+    inputToken: string;
     inputAmount: string;
+    inputChainId: number;
+    outputToken: string;
     outputAmount: string;
-    chainId: number;
+    outputChainId: number;
     rate: number;
     createdAt: number;
     isPublic: boolean;
@@ -61,9 +61,9 @@ export interface ViewOrderbookQuery {
 
 export interface MatchingDetails {
     matchingHash: string;
-    makerOrder: OrderWithCounter;
+    makerOrder: AoriOrder;
     makerOrderHash: string;
-    takerOrder: OrderWithCounter;
+    takerOrder: AoriOrder;
     takerOrderHash: string;
 
     chainId: number;
@@ -78,4 +78,20 @@ export interface MatchingDetails {
     inputAmount: string;
     outputToken: string;
     outputAmount: string;
+}
+
+export interface AoriOrder {
+    offerer: string;
+    inputToken: string;
+    inputAmount: string;
+    inputChainId: number;
+    outputToken: string;
+    outputAmount: string;
+    outputChainId: number;
+    startTime: string;
+    endTime: string;
+    salt: string;
+    counter: number;
+    zone: string;
+    toWithdraw: boolean;
 }

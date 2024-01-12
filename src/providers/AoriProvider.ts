@@ -1,11 +1,10 @@
-import { ItemType } from "@opensea/seaport-js/lib/constants";
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_DATA_PROVIDER_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash, signOrder } from "../utils";
-import { formatIntoLimitOrder, OrderWithCounter } from "../utils/helpers";
+import { AORI_API, AORI_DATA_PROVIDER_API, AORI_FEED, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash } from "../utils";
+import { formatIntoLimitOrder } from "../utils/helpers";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { ViewOrderbookQuery } from "./interfaces";
+import { AoriOrder, ViewOrderbookQuery } from "./interfaces";
 import { AoriMethods, AoriMethodsEvents, SubscriptionEvents } from "./utils";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
@@ -250,23 +249,22 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         startTime = Math.floor(Date.now() / 1000),
         endTime = startTime + defaultDuration,
         inputToken,
-        inputTokenType = ItemType.ERC20,
         inputAmount,
+        inputChainId = this.defaultChainId,
         outputToken,
-        outputTokenType = ItemType.ERC20,
         outputAmount,
-        chainId = this.defaultChainId
+        outputChainId = this.defaultChainId,
     }: {
         offerer?: string;
         zone?: string;
         startTime?: number;
         endTime?: number;
         inputToken: string;
-        inputTokenType?: ItemType;
         inputAmount: bigint | string;
+        inputChainId: number;
         outputToken: string;
-        outputTokenType?: ItemType;
         outputAmount: bigint | string;
+        outputChainId: number;
         chainId?: string | number;
     }) {
         const limitOrder = await formatIntoLimitOrder({
@@ -275,48 +273,57 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             startTime,
             endTime,
             inputToken,
-            inputTokenType,
             inputAmount: BigInt(inputAmount),
+            inputChainId,
             outputToken,
-            outputTokenType,
             outputAmount: BigInt(outputAmount),
-            counter: `${this.cancelIndex}`
+            outputChainId,
+            counter: this.cancelIndex
         });
-        await this.signOrder(limitOrder, chainId);
+        const signature = await this.signOrder(limitOrder);
         return {
-            ...limitOrder,
-            orderHash: getOrderHash(limitOrder.parameters, this.cancelIndex)
+            signature,
+            orderHash: getOrderHash(limitOrder)
         };
     }
 
     async createMatchingOrder({
-        order: { parameters },
+        order: {
+            zone,
+            inputToken,
+            inputAmount,
+            inputChainId,
+            outputToken,
+            outputAmount,
+            outputChainId,
+        },
         chainId = this.defaultChainId,
     }: {
-        order: OrderWithCounter,
+        order: AoriOrder,
         chainId: number
     }, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-            zone: parameters.zone,
-            inputToken: parameters.consideration[0].token,
-            inputAmount: BigInt(parameters.consideration[0].startAmount) * (10000n + feeInBips) / 10000n,
-            outputToken: parameters.offer[0].token,
-            outputAmount: BigInt(parameters.offer[0].startAmount),
-            counter: `${this.cancelIndex}`
+            zone,
+            inputToken,
+            inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
+            inputChainId,
+            outputToken,
+            outputAmount: BigInt(inputAmount),
+            outputChainId,
+            counter: this.cancelIndex
         });
 
-        await this.signOrder(matchingOrder, chainId);
+        const signature = await this.signOrder(matchingOrder);
         return {
-            ...matchingOrder,
-            orderHash: getOrderHash(matchingOrder.parameters, this.cancelIndex)
+            signature,
+            order: matchingOrder,
         };
     }
 
-    async signOrder(order: OrderWithCounter, chainId: string | number = this.defaultChainId) {
-        const signature = await signOrder(this.wallet, order.parameters, chainId);
-        order.signature = signature;
-        return signature;
+    async signOrder(order: AoriOrder) {
+        const orderHash = getOrderHash(order);
+        return this.wallet.signMessageSync(orderHash);
     }
     /*//////////////////////////////////////////////////////////////
                                 ACTIONS
@@ -405,13 +412,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async makeOrder({ order: { parameters, signature }, chainId = this.defaultChainId, isPrivate = false }: { order: OrderWithCounter, chainId?: number, isPrivate?: boolean }) {
+    async makeOrder({ order, chainId = this.defaultChainId, isPrivate = false }: { order: AoriOrder, chainId?: number, isPrivate?: boolean }) {
         console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
-        console.log(this.formatOrder({ parameters, signature }, chainId));
+        console.log(this.formatOrder(order));
         await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
-                order: { parameters, signature },
+                order,
                 apiKey: this.apiKey,
                 signer: ZeroAddress,
                 isPublic: !isPrivate,
@@ -420,13 +427,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async takeOrder({ orderHash, order: { parameters, signature }, chainId = this.defaultChainId, seatId = this.seatId }: { orderHash: string, order: OrderWithCounter, chainId?: number, seatId?: number }) {
+    async takeOrder({ orderHash, order, chainId = this.defaultChainId, seatId = this.seatId }: { orderHash: string, order: AoriOrder, chainId?: number, seatId?: number }) {
         console.log(`💹 Attempting to Take ${orderHash} on ${this.apiUrl}`);
-        console.log(this.formatOrder({ parameters, signature }, chainId));
+        console.log(this.formatOrder(order));
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
-                order: { parameters, signature },
+                order,
                 chainId,
                 orderId: orderHash,
                 seatId
@@ -528,22 +535,22 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async marketOrder({
-        order: { parameters, signature },
+        order,
         chainId = this.defaultChainId,
         seatId = this.seatId
     }: {
-        order: OrderWithCounter,
+        order: AoriOrder,
         chainId?: number,
         seatId?: number
     }) {
         console.log(`💹 Placing Market Order to ${this.takerUrl}`);
-        console.log(this.formatOrder({ parameters, signature }, chainId));
+        console.log(this.formatOrder(order));
         await axios.post(this.takerUrl, {
             id: 1,
             jsonrpc: "2.0",
             method: "aori_takeOrder",
             params: [{
-                order: { parameters, signature },
+                order,
                 chainId,
                 seatId
             }]
@@ -564,21 +571,18 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         return data.result.nonce;
     }
 
-    formatOrder(order: OrderWithCounter, chainId = this.defaultChainId) {
-        const orderHash = getOrderHash(order.parameters, 0);
+    formatOrder(order: AoriOrder) {
+        const orderHash = getOrderHash(order);
 
         return `==================================================================\n` +
             `> Hash: ${orderHash}\n` +
-            `> [${formatEther(order.parameters.offer[0].startAmount)} ${order.parameters.offer[0].token} -> ` +
-            `${formatEther(order.parameters.consideration[0].endAmount)} ${order.parameters.consideration[0].token}]\n` +
-            `> Creator: ${order.parameters.offerer}\n` +
-            `> Signature: ${order.signature}\n` +
-            `> Chain Id: ${chainId}\n` +
-            `> Zone: ${order.parameters.zone}\n` +
-            `> Conduit Key: ${order.parameters.conduitKey}\n` +
-            `> Start Time: ${new Date(Math.min(parseInt(order.parameters.startTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
-            `> End Time: ${new Date(Math.min(parseInt(order.parameters.endTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
-            `> Cancel Index: ${order.parameters.counter}\n` +
+            `> [${formatEther(order.inputAmount)} ${order.inputToken} -> ` +
+            `${formatEther(order.outputAmount)} ${order.outputToken}]\n` +
+            `> Creator: ${order.offerer}\n` +
+            `> Zone: ${order.zone}\n` +
+            `> Start Time: ${new Date(Math.min(parseInt(order.startTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
+            `> End Time: ${new Date(Math.min(parseInt(order.endTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
+            `> Cancel Index: ${order.counter}\n` +
             `==================================================================`;
     }
 }

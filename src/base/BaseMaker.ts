@@ -11,7 +11,7 @@ export class BaseMaker extends AoriHttpProvider {
     pricingProvider = new AoriPricingProvider();
     solutionStore = new AoriSolutionStore();
 
-    seaportAllowances: { [token: string]: boolean } = {};
+    protocolAllowances: { [token: string]: boolean } = {};
 
     /*//////////////////////////////////////////////////////////////
                                  STATE
@@ -127,14 +127,13 @@ export class BaseMaker extends AoriHttpProvider {
             throw new Error(`Maker not initialised - please call initialise() first`);
         }
 
-        const order = await this.createLimitOrder({
+        const { order, orderHash } = await this.createLimitOrder({
             inputToken: outputToken,
             inputAmount: inputAmount, // give less
             outputToken: inputToken,
             outputAmount: amountForUser
         });
 
-        const orderHash = order.orderHash;
         await this.makeOrder({ order });
 
         /*//////////////////////////////////////////////////////////////
@@ -142,7 +141,7 @@ export class BaseMaker extends AoriHttpProvider {
         //////////////////////////////////////////////////////////////*/
 
         // if we don't have enough allowance, approve
-        if (this.seaportAllowances[outputToken] == undefined) {
+        if (this.protocolAllowances[outputToken] == undefined) {
             console.log(`👮 Checking approval for ${this.vaultContract} by spender ${SEAPORT_ADDRESS} on chain ${this.defaultChainId}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
@@ -162,7 +161,7 @@ export class BaseMaker extends AoriHttpProvider {
                 console.log(`☑️ Already approved ${this.vaultContract} for ${SEAPORT_ADDRESS} on chain ${this.defaultChainId}`);
             }
 
-            this.seaportAllowances[outputToken] = true;
+            this.protocolAllowances[outputToken] = true;
         }
 
         /*//////////////////////////////////////////////////////////////

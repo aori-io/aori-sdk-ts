@@ -111,14 +111,13 @@ export class FlashMaker extends AoriHttpProvider {
             chainId: this.defaultChainId
         });
 
-        const order = await this.createLimitOrder({
+        const { order, orderHash } = await this.createLimitOrder({
             inputToken: outputToken,
             inputAmount: outputAmount * (10_000n - spreadPercentage) / 10_000n, // give less
             outputToken: inputToken,
             outputAmount: amountForUser
         });
 
-        const orderHash = order.orderHash;
         await this.makeOrder({ order });
 
         this.preCalldata[orderHash] = [

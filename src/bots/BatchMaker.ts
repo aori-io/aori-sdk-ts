@@ -101,14 +101,13 @@ export class BatchMaker extends AoriHttpProvider {
             throw new Error(`Flash maker not initialised - please call initialise() first`);
         }
 
-        const order = await this.createLimitOrder({
+        const { order, orderHash } = await this.createLimitOrder({
             inputToken: outputToken,
             inputAmount: amountFromMe,
             outputToken: inputToken,
             outputAmount: amountForUser
         });
 
-        const orderHash = order.orderHash;
         await this.makeOrder({ order });
 
         this.preCalldata[orderHash] = [

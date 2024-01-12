@@ -1,4 +1,4 @@
-import { OrderToExecute, OrderView, QuoteRequested } from "./interfaces";
+import { MatchingDetails, OrderView, QuoteRequested } from "./interfaces";
 
 export enum AoriMethods {
     Ping = "aori_ping",
@@ -83,7 +83,7 @@ export type AoriMethodsEvents = {
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [orderHash: string],
     [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
-    [SubscriptionEvents.OrderToExecute]: [orderToExecute: OrderToExecute],
+    [SubscriptionEvents.OrderToExecute]: [orderToExecute: MatchingDetails],
 
     // 
     [_: string]: any
