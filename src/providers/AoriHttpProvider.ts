@@ -3,9 +3,8 @@ import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, Trans
 import { WebSocket } from "ws";
 import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash } from "../utils";
 import { formatIntoLimitOrder } from "../utils/helpers";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, SubscriptionEvents, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { AoriOrder, ViewOrderbookQuery } from "./interfaces";
-import { AoriMethods, AoriMethodsEvents, SubscriptionEvents } from "./utils";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;

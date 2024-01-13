@@ -1,7 +1,7 @@
 import axios from "axios";
 import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_SOLUTION_STORE_API } from "../utils";
-import { AoriSolutionStoreMethods } from "./utils";
+import { AoriSolutionStoreMethods } from "../utils/interfaces";
 
 export class AoriSolutionStore {
     async saveSolution({

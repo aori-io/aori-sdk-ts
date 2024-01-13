@@ -1,8 +1,7 @@
 import axios from "axios";
 import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_MEMPOOL_PROVIDER_API } from "../utils";
-import { MatchingDetails } from "./interfaces";
-import { AoriMempoolProviderMethods } from "./utils";
+import { AoriMempoolProviderMethods, MatchingDetails } from "../utils/interfaces";
 
 export class AoriMempoolProvider {
 

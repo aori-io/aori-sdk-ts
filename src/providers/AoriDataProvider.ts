@@ -1,7 +1,7 @@
 import axios from "axios";
 import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_DATA_PROVIDER_API } from "../utils";
-import { AoriDataMethods, AoriMethods } from "./utils";
+import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
 export class AoriDataProvider {
 
