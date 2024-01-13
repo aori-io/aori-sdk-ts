@@ -1,21 +1,18 @@
-import { AoriOrder } from "../providers";
+import { solidityPackedKeccak256 } from "ethers";
+import { AoriMatchingDetails, AoriOrder } from "../providers";
 import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
-
-// export type OrderWithCounter = Order & { parameters: { counter: BigNumberish } };
 
 export async function formatIntoLimitOrder({
     offerer,
-    chainId = 1,
-    zone = AORI_ZONE_ADDRESS,
     startTime = Math.floor(Date.now() / 1000),
     endTime = startTime + defaultDuration,
     inputToken,
     inputAmount,
-    inputChainId,
+    inputChainId = 1,
     inputZone = AORI_ZONE_ADDRESS,
     outputToken,
     outputAmount,
-    outputChainId,
+    outputChainId = 1,
     outputZone = AORI_ZONE_ADDRESS,
     counter
 }: {
@@ -51,43 +48,78 @@ export async function formatIntoLimitOrder({
         counter,
         toWithdraw: true
     }
-
-    // return {
-    //     parameters: {
-    //         offerer,
-    //         zone,
-    //         zoneHash: defaultZoneHash,
-    //         startTime: `${startTime}`,
-    //         endTime: `${endTime}`,
-    //         orderType: OrderType.PARTIAL_RESTRICTED,
-    //         offer: [{
-    //             itemType: inputTokenType,
-    //             token: inputToken,
-    //             identifierOrCriteria: "0",
-    //             startAmount: inputAmount.toString(),
-    //             endAmount: inputAmount.toString()
-    //         }],
-    //         consideration: [{
-    //             itemType: outputTokenType,
-    //             token: outputToken,
-    //             identifierOrCriteria: "0",
-    //             startAmount: outputAmount.toString(),
-    //             endAmount: outputAmount.toString(),
-    //             recipient: offerer
-    //         }],
-    //         totalOriginalConsiderationItems: 1,
-    //         salt: `${Math.floor(Math.random() * maxSalt)}`,
-    //         conduitKey: defaultConduitKey,
-    //         counter
-    //     },
-    //     signature: ""
-    // }
 }
 
-export function getOrderHash(order: AoriOrder): string {
-    return "";
+export function getOrderHash({
+    offerer,
+    inputToken,
+    inputAmount,
+    inputChainId,
+    inputZone,
+    outputToken,
+    outputAmount,
+    outputChainId,
+    outputZone,
+    startTime,
+    endTime,
+    salt,
+    counter,
+    toWithdraw
+}: AoriOrder): string {
+    return solidityPackedKeccak256([
+        "address", // offerer
+        // Input
+        "address", // inputToken
+        "uint256", // inputAmount
+        "uint256", // inputChainId
+        "address", // inputZone
+        // Output
+        "uint256", // outputToken
+        "address", // outputAmount
+        "uint256", // outputChainId
+        "address", // outputZone
+        // Other details
+        "uint256", // startTime
+        "uint256", // endTime
+        "uint256", // salt
+        "uint256", // counter
+        "bool" // toWithdraw
+    ], [
+        offerer,
+        inputToken,
+        inputAmount,
+        inputChainId,
+        inputZone,
+        outputToken,
+        outputAmount,
+        outputChainId,
+        outputZone,
+        startTime,
+        endTime,
+        salt,
+        counter,
+        toWithdraw
+    ]);
 }
 
-export function getMatchingHash(): string {
-    return "";
+export function getMatchingHash({
+    makerSignature,
+    takerSignature,
+    seatNumber,
+    seatHolder,
+    seatPercentOfFees
+}: AoriMatchingDetails): string {
+    return solidityPackedKeccak256([
+        "bytes",
+        "bytes",
+        "uint256",
+        "address",
+        "uint256"
+    ], [
+        makerSignature,
+        takerSignature,
+        seatNumber,
+        seatHolder,
+        seatPercentOfFees
+    ])
 }

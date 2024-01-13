@@ -1,3 +1,41 @@
+/*//////////////////////////////////////////////////////////////
+                         NATIVE TYPES
+//////////////////////////////////////////////////////////////*/
+
+export interface AoriOrder {
+    offerer: string;
+    inputToken: string;
+    inputAmount: string;
+    inputChainId: number;
+    inputZone: string;
+    outputToken: string;
+    outputAmount: string;
+    outputChainId: number;
+    outputZone: string;
+    startTime: string;
+    endTime: string;
+    salt: string;
+    counter: number;
+    toWithdraw: boolean;
+}
+
+export interface AoriMatchingDetails {
+    makerOrder: AoriOrder;
+    takerOrder: AoriOrder;
+
+    makerSignature: string;
+    takerSignature: string;
+    blockDeadline: number;
+
+    seatNumber: number;
+    seatHolder: string;
+    seatPercentOfFees: number;
+}
+
+/*//////////////////////////////////////////////////////////////
+                         METHOD TYPES
+//////////////////////////////////////////////////////////////*/
+
 export interface QuoteRequested {
     inputToken: string;
     outputToken: string;
@@ -53,21 +91,4 @@ export interface MatchingDetails {
     inputAmount: string;
     outputToken: string;
     outputAmount: string;
-}
-
-export interface AoriOrder {
-    offerer: string;
-    inputToken: string;
-    inputAmount: string;
-    inputChainId: number;
-    inputZone: string;
-    outputToken: string;
-    outputAmount: string;
-    outputChainId: number;
-    outputZone: string;
-    startTime: string;
-    endTime: string;
-    salt: string;
-    counter: number;
-    toWithdraw: boolean;
 }
