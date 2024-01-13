@@ -1,7 +1,12 @@
-import { solidityPackedKeccak256 } from "ethers";
+import { solidityPackedKeccak256, verifyMessage } from "ethers";
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
+import { OrderView } from "./interfaces";
+
+/*//////////////////////////////////////////////////////////////
+                    ORDER HELPER FUNCTIONS
+//////////////////////////////////////////////////////////////*/
 
 export async function formatIntoLimitOrder({
     offerer,
@@ -103,6 +108,35 @@ export function getOrderHash({
     ]);
 }
 
+export function getOrderSigner(order: AoriOrder, signature: string) {
+    return verifyMessage(getOrderHash(order), signature);
+}
+
+export function toOrderView(order: AoriOrder, signature?: string, isPublic: boolean = true): OrderView {
+    return {
+        orderHash: getOrderHash(order),
+        order,
+        signature,
+        inputToken: order.inputToken,
+        inputAmount: order.inputAmount,
+        inputChainId: order.inputChainId,
+        inputZone: order.inputZone,
+        outputToken: order.outputToken,
+        outputAmount: order.outputAmount,
+        outputChainId: order.outputChainId,
+        outputZone: order.outputZone,
+
+        rate: parseFloat(order.outputAmount) / parseFloat(order.inputAmount),
+        createdAt: Date.now(),
+        lastUpdatedAt: Date.now(),
+        isPublic
+    }
+}
+
+/*//////////////////////////////////////////////////////////////
+                    MATCHING HELPER FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
 export function getMatchingHash({
     makerSignature,
     takerSignature,
@@ -123,6 +157,10 @@ export function getMatchingHash({
         seatHolder,
         seatPercentOfFees
     ])
+}
+
+export function getMatchingSigner(matching: AoriMatchingDetails, signature: string) {
+    return verifyMessage(getMatchingHash(matching), signature);
 }
 
 export function calldataToSettleOrders({

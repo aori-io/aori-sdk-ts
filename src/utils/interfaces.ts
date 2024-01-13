@@ -45,16 +45,21 @@ export interface QuoteRequested {
 }
 
 export interface OrderView {
-    order: AoriOrder;
     orderHash: string;
+
+    order: AoriOrder;
+    signature?: string;
+
     inputToken: string;
     inputAmount: string;
     inputChainId: number;
     inputZone: string;
+
     outputToken: string;
     outputAmount: string;
     outputChainId: number;
     outputZone: string;
+
     rate: number;
     createdAt: number;
     lastUpdatedAt: number;
@@ -63,6 +68,7 @@ export interface OrderView {
     fulfilledAt?: number;
     systemCancelled?: boolean;
     isPublic: boolean;
+    tag?: string;
 }
 
 export interface ViewOrderbookQuery {
