@@ -1,28 +1,3 @@
-
-// export interface OrderToExecute {
-
-//     // Relevant order details
-//     makerOrderHash: string;
-//     makerParameters: OrderWithCounter["parameters"];
-//     takerOrderHash: string;
-//     takerParameters: OrderWithCounter["parameters"];
-//     matchingHash: string;
-
-//     // Verification
-//     chainId: number;
-//     to: string;
-//     value: number;
-//     data: string;
-//     blockDeadline: number;
-
-//     // Vanity
-//     maker: string;
-//     inputToken: string;
-//     inputAmount: string;
-//     outputToken: string;
-//     outputAmount: string;
-// }
-
 export interface QuoteRequested {
     inputToken: string;
     outputToken: string;
@@ -85,13 +60,14 @@ export interface AoriOrder {
     inputToken: string;
     inputAmount: string;
     inputChainId: number;
+    inputZone: string;
     outputToken: string;
     outputAmount: string;
     outputChainId: number;
+    outputZone: string;
     startTime: string;
     endTime: string;
     salt: string;
     counter: number;
-    zone: string;
     toWithdraw: boolean;
 }

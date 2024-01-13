@@ -155,15 +155,16 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async createLimitOrder({
         offerer = (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-        zone = AORI_ZONE_ADDRESS,
         startTime = Math.floor(Date.now() / 1000),
         endTime = startTime + defaultDuration,
         inputToken,
         inputAmount,
         inputChainId = this.defaultChainId,
+        inputZone = AORI_ZONE_ADDRESS,
         outputToken,
         outputAmount,
         outputChainId = this.defaultChainId,
+        outputZone = AORI_ZONE_ADDRESS,
     }: {
         offerer?: string;
         zone?: string;
@@ -172,22 +173,25 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputToken: string;
         inputAmount: bigint | string;
         inputChainId?: number;
+        inputZone?: string;
         outputToken: string;
         outputAmount: bigint | string;
         outputChainId?: number;
+        outputZone?: string;
         chainId?: string | number;
     }) {
         const limitOrder = await formatIntoLimitOrder({
             offerer,
-            zone,
             startTime,
             endTime,
             inputToken,
             inputAmount: BigInt(inputAmount),
             inputChainId,
+            inputZone,
             outputToken,
             outputAmount: BigInt(outputAmount),
             outputChainId,
+            outputZone,
             counter: this.cancelIndex
         });
         const signature = await this.signOrder(limitOrder);
@@ -199,20 +203,21 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async createMatchingOrder({
-        order: { zone, inputToken, inputAmount, inputChainId, outputToken, outputAmount, outputChainId },
+        order: { inputToken, inputAmount, inputChainId, inputZone, outputToken, outputAmount, outputChainId, outputZone },
     }: {
         order: AoriOrder,
         chainId: number
     }, feeInBips = 3n) {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-            zone,
             inputToken: outputToken,
             inputAmount: BigInt(inputAmount) * (10000n + feeInBips) / 10000n,
             inputChainId: outputChainId,
+            inputZone: outputZone,
             outputToken: inputToken,
             outputAmount: BigInt(outputAmount),
             outputChainId: inputChainId,
+            outputZone: inputZone,
             counter: this.cancelIndex
         });
         const signature = await this.signOrder(matchingOrder);
@@ -540,7 +545,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             `> [${formatEther(order.inputAmount)} ${order.inputToken} -> ` +
             `${formatEther(order.outputAmount)} ${order.outputToken}]\n` +
             `> Creator: ${order.offerer}\n` +
-            `> Zone: ${order.zone}\n` +
+            `> Zone: ${order.inputZone}\n` +
             `> Start Time: ${new Date(Math.min(parseInt(order.startTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
             `> End Time: ${new Date(Math.min(parseInt(order.endTime.toString()) * 1000, 8640000000000000)).toUTCString()}\n` +
             `> Cancel Index: ${order.counter}\n` +

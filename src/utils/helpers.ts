@@ -12,9 +12,11 @@ export async function formatIntoLimitOrder({
     inputToken,
     inputAmount,
     inputChainId,
+    inputZone = AORI_ZONE_ADDRESS,
     outputToken,
     outputAmount,
     outputChainId,
+    outputZone = AORI_ZONE_ADDRESS,
     counter
 }: {
     offerer: string;
@@ -25,9 +27,11 @@ export async function formatIntoLimitOrder({
     inputToken: string;
     inputAmount: bigint;
     inputChainId: number;
+    inputZone: string;
     outputToken: string;
     outputAmount: bigint;
     outputChainId: number;
+    outputZone: string;
     counter: number;
 }): Promise<AoriOrder> {
 
@@ -36,14 +40,15 @@ export async function formatIntoLimitOrder({
         inputToken,
         inputAmount: inputAmount.toString(),
         inputChainId,
+        inputZone,
         outputToken,
         outputAmount: outputAmount.toString(),
         outputChainId,
+        outputZone,
         startTime: `${startTime}`,
         endTime: `${endTime}`,
         salt: `${Math.floor(Math.random() * maxSalt)}`,
         counter,
-        zone,
         toWithdraw: true
     }
 
