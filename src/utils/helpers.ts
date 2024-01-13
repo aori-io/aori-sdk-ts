@@ -112,7 +112,17 @@ export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getOrderHash(order), signature);
 }
 
-export function toOrderView(order: AoriOrder, signature?: string, isPublic: boolean = true): OrderView {
+export function toOrderView({
+    order,
+    signature,
+    isActive = true,
+    isPublic = true
+}: {
+    order: AoriOrder,
+    signature?: string,
+    isActive?: boolean,
+    isPublic?: boolean
+}): OrderView {
     return {
         orderHash: getOrderHash(order),
         order,
@@ -129,6 +139,7 @@ export function toOrderView(order: AoriOrder, signature?: string, isPublic: bool
         rate: parseFloat(order.outputAmount) / parseFloat(order.inputAmount),
         createdAt: Date.now(),
         lastUpdatedAt: Date.now(),
+        isActive,
         isPublic
     }
 }

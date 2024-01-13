@@ -67,6 +67,8 @@ export interface OrderView {
     cancelledAt?: number;
     fulfilledAt?: number;
     systemCancelled?: boolean;
+
+    isActive: boolean;
     isPublic: boolean;
     tag?: string;
 }
