@@ -1,4 +1,3 @@
-export * from "../utils/interfaces";
 export * from "./AoriDataProvider";
 export * from "./AoriHttpProvider";
 export * from "./AoriMempoolProvider";

@@ -1,6 +1,6 @@
 import { Quoter } from "@aori-io/adapters";
 import { Wallet } from "ethers";
-import { SubscriptionEvents } from "../providers";
+import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
 
 export function QuoteMaker({

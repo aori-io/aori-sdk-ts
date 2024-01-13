@@ -1,8 +1,8 @@
 import { parseEther } from "ethers";
-import { AoriHttpProvider, SubscriptionEvents } from "../providers";
+import { AoriHttpProvider } from "../providers";
 import { AoriVault__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
-import { SEAPORT_ADDRESS } from "../utils";
+import { SEAPORT_ADDRESS, SubscriptionEvents } from "../utils";
 
 export class BatchMaker extends AoriHttpProvider {
 

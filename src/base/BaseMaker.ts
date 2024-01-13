@@ -1,8 +1,8 @@
 import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore, SubscriptionEvents } from "../providers";
+import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
 import { AoriVault__factory } from "../types";
-import { SEAPORT_ADDRESS } from "../utils";
+import { SEAPORT_ADDRESS, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 

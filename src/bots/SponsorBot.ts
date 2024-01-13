@@ -1,4 +1,5 @@
-import { AoriHttpProvider, SubscriptionEvents } from "../providers";
+import { AoriHttpProvider } from "../providers";
+import { SubscriptionEvents } from "../utils";
 
 export class SponsorBot extends AoriHttpProvider {
     async initialise({ getGasData }: {

@@ -1,5 +1,5 @@
 import { solidityPackedKeccak256 } from "ethers";
-import { AoriMatchingDetails, AoriOrder } from "../providers";
+import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
 
 export async function formatIntoLimitOrder({
