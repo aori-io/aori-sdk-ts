@@ -1,4 +1,5 @@
 import { solidityPackedKeccak256 } from "ethers";
+import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
 
@@ -122,4 +123,26 @@ export function getMatchingHash({
         seatHolder,
         seatPercentOfFees
     ])
+}
+
+export function calldataToSettleOrders({
+    makerOrder,
+    takerOrder,
+    makerSignature,
+    takerSignature,
+    blockDeadline,
+    seatNumber,
+    seatHolder,
+    seatPercentOfFees
+}: AoriMatchingDetails, signature: string) {
+    return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
+        makerOrder,
+        takerOrder,
+        makerSignature,
+        takerSignature,
+        blockDeadline,
+        seatNumber,
+        seatHolder,
+        seatPercentOfFees
+    }, signature]);
 }
