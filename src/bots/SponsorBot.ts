@@ -9,7 +9,7 @@ export class SponsorBot extends AoriHttpProvider {
     }): Promise<void> {
         console.log("Initialising sponsor bot...");
 
-        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash, takerOrderHash, to, value, data, chainId }) => {
+        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash, takerOrderHash, to, value, data, maker, chainId }) => {
             console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
             const { gasPrice, gasLimit } = await getGasData({ to, value, data, chainId });
 

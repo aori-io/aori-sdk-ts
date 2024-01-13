@@ -1,13 +1,13 @@
 import axios from "axios";
 import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_MEMPOOL_PROVIDER_API } from "../utils";
-import { AoriMempoolProviderMethods, MatchingDetails } from "../utils/interfaces";
+import { AoriMempoolProviderMethods, DetailsToExecute } from "../utils/interfaces";
 
 export class AoriMempoolProvider {
 
     async getMatchDetails({
         matchingHash
-    }: { matchingHash: string }): Promise<MatchingDetails> {
+    }: { matchingHash: string }): Promise<DetailsToExecute> {
 
         const data = await this.rawCall({
             method: AoriMempoolProviderMethods.AoriGetMatchDetails,
@@ -16,7 +16,7 @@ export class AoriMempoolProvider {
         return data;
     }
 
-    async matchHistory(): Promise<MatchingDetails[]> {
+    async matchHistory(): Promise<DetailsToExecute[]> {
         const data = await this.rawCall({
             method: AoriMempoolProviderMethods.AoriMatchHistory,
             params: []

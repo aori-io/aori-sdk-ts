@@ -50,11 +50,18 @@ export interface OrderView {
     inputToken: string;
     inputAmount: string;
     inputChainId: number;
+    inputZone: string;
     outputToken: string;
     outputAmount: string;
     outputChainId: number;
+    outputZone: string;
     rate: number;
     createdAt: number;
+    lastUpdatedAt: number;
+    takenAt?: number;
+    cancelledAt?: number;
+    fulfilledAt?: number;
+    systemCancelled?: boolean;
     isPublic: boolean;
 }
 
@@ -72,14 +79,20 @@ export interface ViewOrderbookQuery {
     outputAmount?: string;
 }
 
-export interface MatchingDetails {
+export interface DetailsToExecute {
     matchingHash: string;
+
     makerOrder: AoriOrder;
     makerOrderHash: string;
+    makerChainId: number;
+    makerZone: string;
+
     takerOrder: AoriOrder;
     takerOrderHash: string;
+    takerChainId: number;
+    takerZone: string;
 
-    chainId: number;
+    chainId: number; // this is generally just takerChainId
     to: string;
     value: number;
     data: string;
@@ -87,6 +100,7 @@ export interface MatchingDetails {
 
     maker: string;
     taker: string;
+
     inputToken: string;
     inputAmount: string;
     outputToken: string;
@@ -180,7 +194,7 @@ export type AoriMethodsEvents = {
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [orderHash: string],
     [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
-    [SubscriptionEvents.OrderToExecute]: [orderToExecute: MatchingDetails],
+    [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
 
     // 
     [_: string]: any
