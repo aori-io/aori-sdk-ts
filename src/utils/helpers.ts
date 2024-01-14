@@ -80,8 +80,8 @@ export function getOrderHash({
         "uint256", // inputChainId
         "address", // inputZone
         // Output
-        "uint256", // outputToken
-        "address", // outputAmount
+        "address", // outputToken
+        "uint256", // outputAmount
         "uint256", // outputChainId
         "address", // outputZone
         // Other details
