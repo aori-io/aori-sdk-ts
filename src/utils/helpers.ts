@@ -156,6 +156,7 @@ export function toOrderView({
 export function getMatchingHash({
     makerSignature,
     takerSignature,
+    blockDeadline,
     seatNumber,
     seatHolder,
     seatPercentOfFees
@@ -164,11 +165,13 @@ export function getMatchingHash({
         "bytes",
         "bytes",
         "uint256",
+        "uint256",
         "address",
         "uint256"
     ], [
         makerSignature,
         takerSignature,
+        blockDeadline,
         seatNumber,
         seatHolder,
         seatPercentOfFees
