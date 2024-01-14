@@ -1,4 +1,4 @@
-import { solidityPackedKeccak256, verifyMessage } from "ethers";
+import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
@@ -108,6 +108,11 @@ export function getOrderHash({
     ]);
 }
 
+export function signOrderSync(wallet: Wallet, order: AoriOrder) {
+    const orderHash = getOrderHash(order);
+    return wallet.signMessageSync(getBytes(orderHash));
+}
+
 export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getOrderHash(order), signature);
 }
@@ -168,6 +173,11 @@ export function getMatchingHash({
         seatHolder,
         seatPercentOfFees
     ])
+}
+
+export function signMatchingSync(wallet: Wallet, matching: AoriMatchingDetails) {
+    const matchingHash = getMatchingHash(matching);
+    return wallet.signMessageSync(getBytes(matchingHash));
 }
 
 export function getMatchingSigner(matching: AoriMatchingDetails, signature: string) {
