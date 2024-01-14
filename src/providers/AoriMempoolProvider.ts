@@ -24,6 +24,16 @@ export class AoriMempoolProvider {
         return data;
     }
 
+    async outstandingMatches(maker: string): Promise<DetailsToExecute[]> {
+        const data = await this.rawCall({
+            method: AoriMempoolProviderMethods.AoriOutstandingMatches,
+            params: [{
+                maker
+            }]
+        });
+        return data;
+    }
+
     async rawCall<T>({
         method,
         params

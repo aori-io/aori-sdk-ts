@@ -167,6 +167,7 @@ export enum AoriMempoolProviderMethods {
     AoriSupportedChains = "aori_supportedChains",
     AoriMatchHistory = "aori_matchHistory",
     AoriGetMatchDetails = "aori_getMatchDetails",
+    AoriOutstandingMatches = "aori_outstandingMatches",
 }
 
 export enum SubscriptionEvents {
