@@ -1,5 +1,5 @@
 import axios from "axios";
-import { JsonRpcError, JsonRpcResult } from "ethers";
+import { BytesLike, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
 import { AORI_DATA_PROVIDER_API } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
@@ -176,4 +176,36 @@ export class AoriDataProvider {
         const { result: data } = axiosResponseData;
         return data;
     }
+}
+
+/*//////////////////////////////////////////////////////////////
+                            HELPERS
+//////////////////////////////////////////////////////////////*/
+
+const dataProvider = new AoriDataProvider();
+
+export function getBlockNumber(chainId: number) { return dataProvider.getBlockNumber({ chainId }) }
+
+export function isValidSignature(chainId: number, address: string, hash: BytesLike, signature: string): Promise<boolean> {
+    return dataProvider.isValidSignature({ chainId, vault: address, hash: hash.toString(), signature });
+}
+
+export function hasOrderSettled(chainId: number, orderHash: string): Promise<boolean> {
+    return dataProvider.hasOrderSettled({ chainId, orderHash });
+}
+
+export function getTokenBalance(chainId: number, address: string, token: string): Promise<bigint> {
+    return dataProvider.getTokenBalance({ chainId, address, token });
+}
+
+export function getTokenAllowance(chainId: number, address: string, token: string, spender: string): Promise<bigint> {
+    return dataProvider.getTokenAllowance({ chainId, address, token, spender });
+}
+
+export function getSeatDetails(seatId: number): Promise<{ seatOwner: string, seatScore: number }> {
+    return dataProvider.getSeatDetails({ seatId });
+}
+
+export function verifySignature(message: string, signature: string): string {
+    return verifyMessage(message, signature);
 }
