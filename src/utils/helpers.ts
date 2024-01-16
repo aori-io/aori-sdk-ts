@@ -1,7 +1,7 @@
 import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
 import { OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -15,11 +15,11 @@ export async function formatIntoLimitOrder({
     inputToken,
     inputAmount,
     inputChainId = 1,
-    inputZone = AORI_ZONE_ADDRESS,
+    inputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
     outputToken,
     outputAmount,
     outputChainId = 1,
-    outputZone = AORI_ZONE_ADDRESS,
+    outputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
     counter
 }: {
     offerer: string;

@@ -43,11 +43,7 @@ export const AORI_MEMPOOL_PROVIDER_API: string = "https://mempool.aori.io";
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/
 
-export const AORI_ZONE_ADDRESS = "0xEF3137050f3a49ECAe2D2Bae0154B895310D9Dc4";
-export const SEAPORT_ADDRESS = "0x00000000000000adc04c56bf30ac9d3c0aaf14dc";
-export const SEAPORT_VERSION = "1.5";
+export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS = "0x8558eCbA75DB19df2Fb1B70fe8661D296F68dFE7";
 
-export const defaultZoneHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const defaultDuration = 24 * 60 * 60;
-export const defaultConduitKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const maxSalt = 10_000_000;

@@ -236,7 +236,7 @@ await provider.takeOrder({ orderHash: makerOrderHash, order: takerOrder, chainId
 
 As a market maker (or a market taker if the market maker has chosen not to make the settlement transaction), you will need to execute to settle the orders on-chain and process the non-custodial exchange of assets.
 
-This requires interaction with the on-chain smart settlement contract at `AORI_ZONE_ADDRESS`.
+This requires interaction with the on-chain smart settlement contract at `AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS`.
 
 ```typescript
 import { SubscriptionEvents } from "@aori-io/sdk";

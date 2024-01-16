@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, connectTo, defaultDuration, getOrderHash } from "../utils";
 import { formatIntoLimitOrder } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, SubscriptionEvents, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
@@ -159,11 +159,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputToken,
         inputAmount,
         inputChainId = this.defaultChainId,
-        inputZone = AORI_ZONE_ADDRESS,
+        inputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
         outputToken,
         outputAmount,
         outputChainId = this.defaultChainId,
-        outputZone = AORI_ZONE_ADDRESS,
+        outputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
     }: {
         offerer?: string;
         zone?: string;
