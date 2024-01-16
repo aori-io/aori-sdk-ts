@@ -1,8 +1,26 @@
-import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
+import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
+
+/*//////////////////////////////////////////////////////////////
+                        RPC RESPONSE
+//////////////////////////////////////////////////////////////*/
+
+export function toRpcResponse<T = any>(id: number | null, result: T): JsonRpcResult {
+    return {
+        id,
+        result
+    } as JsonRpcResult
+}
+
+export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcError {
+    return {
+        id,
+        error
+    }
+}
 
 /*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
