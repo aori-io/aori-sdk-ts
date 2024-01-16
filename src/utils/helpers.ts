@@ -2,7 +2,7 @@ import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
-import { OrderView } from "./interfaces";
+import { DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
@@ -195,8 +195,8 @@ export function calldataToSettleOrders({
     blockDeadline,
     seatNumber,
     seatHolder,
-    seatPercentOfFees
-}: AoriMatchingDetails, signature: string) {
+    seatPercentOfFees,
+}: AoriMatchingDetails, signature: string, options: string = "") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         makerOrder,
         takerOrder,
@@ -206,5 +206,34 @@ export function calldataToSettleOrders({
         seatNumber,
         seatHolder,
         seatPercentOfFees
-    }, signature, ""]);
+    }, signature, options]);
+}
+
+export function toDetailsToExecute(matching: AoriMatchingDetails, to: string, value: number, data: string): DetailsToExecute {
+    return {
+        ...matching,
+        matchingHash: getMatchingHash(matching),
+        makerOrderHash: getOrderHash(matching.makerOrder),
+        makerChainId: matching.makerOrder.inputChainId,
+        makerZone: matching.makerOrder.inputZone,
+
+        takerOrderHash: getOrderHash(matching.takerOrder),
+        takerChainId: matching.takerOrder.inputChainId,
+        takerZone: matching.takerOrder.inputZone,
+
+        chainId: matching.takerOrder.inputChainId,
+
+        to,
+        value,
+        data,
+        blockDeadline: matching.blockDeadline,
+
+        maker: matching.makerOrder.offerer,
+        taker: matching.takerOrder.offerer,
+
+        inputToken: matching.makerOrder.inputToken,
+        inputAmount: matching.makerOrder.inputAmount,
+        outputToken: matching.takerOrder.inputToken,
+        outputAmount: matching.takerOrder.inputAmount
+    }
 }
