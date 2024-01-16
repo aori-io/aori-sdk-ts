@@ -22,6 +22,8 @@ export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcErr
     }
 }
 
+export { JsonRpcError, JsonRpcPayload, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
+
 /*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////*/
