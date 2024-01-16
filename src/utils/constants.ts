@@ -57,3 +57,14 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS = "0x8558eCbA75DB19df2Fb1B70fe866
 
 export const defaultDuration = 24 * 60 * 60;
 export const maxSalt = 10_000_000;
+
+/*//////////////////////////////////////////////////////////////
+                            SEATS
+//////////////////////////////////////////////////////////////*/
+
+export const DEFAULT_SEAT_ID = 0;
+export const DEFAULT_SEAT_SCORE = 1;
+export const DEFAULT_SEAT_HOLDER = "0x2EDEB6E06E81020F48d930FA7444a592ebE9FaB6";
+
+export const SEATS_NFT_ADDRESS = "0xD539e71371414F027Af025fd1EfFb6e11b5C902A";
+export const SEATS_DAO_ADDRESS = "0x6E0Fd80bA37EC02855E4A8D7574f685984d83a5E";
