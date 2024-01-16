@@ -735,6 +735,11 @@ const _abi = [
         name: "serverSignature",
         type: "bytes",
       },
+      {
+        internalType: "bytes",
+        name: "options",
+        type: "bytes",
+      },
     ],
     name: "settleOrders",
     outputs: [],
@@ -768,6 +773,19 @@ const _abi = [
       },
     ],
     stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "version",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

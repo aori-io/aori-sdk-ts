@@ -119,6 +119,7 @@ export interface AoriV2Interface extends Interface {
       | "setTakerFee"
       | "settleOrders"
       | "signatureIntoComponents"
+      | "version"
       | "withdraw"
   ): FunctionFragment;
 
@@ -162,12 +163,13 @@ export interface AoriV2Interface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "settleOrders",
-    values: [IAoriV2.MatchingDetailsStruct, BytesLike]
+    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "signatureIntoComponents",
     values: [BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "version", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdraw",
     values: [AddressLike, BigNumberish]
@@ -205,6 +207,7 @@ export interface AoriV2Interface extends Interface {
     functionFragment: "signatureIntoComponents",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
@@ -338,7 +341,11 @@ export interface AoriV2 extends BaseContract {
   >;
 
   settleOrders: TypedContractMethod<
-    [matching: IAoriV2.MatchingDetailsStruct, serverSignature: BytesLike],
+    [
+      matching: IAoriV2.MatchingDetailsStruct,
+      serverSignature: BytesLike,
+      options: BytesLike
+    ],
     [void],
     "payable"
   >;
@@ -348,6 +355,8 @@ export interface AoriV2 extends BaseContract {
     [[bigint, string, string] & { v: bigint; r: string; s: string }],
     "view"
   >;
+
+  version: TypedContractMethod<[], [string], "view">;
 
   withdraw: TypedContractMethod<
     [_token: AddressLike, _amount: BigNumberish],
@@ -415,7 +424,11 @@ export interface AoriV2 extends BaseContract {
   getFunction(
     nameOrSignature: "settleOrders"
   ): TypedContractMethod<
-    [matching: IAoriV2.MatchingDetailsStruct, serverSignature: BytesLike],
+    [
+      matching: IAoriV2.MatchingDetailsStruct,
+      serverSignature: BytesLike,
+      options: BytesLike
+    ],
     [void],
     "payable"
   >;
@@ -426,6 +439,9 @@ export interface AoriV2 extends BaseContract {
     [[bigint, string, string] & { v: bigint; r: string; s: string }],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "version"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<

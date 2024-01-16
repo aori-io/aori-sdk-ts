@@ -727,6 +727,11 @@
                 "internalType": "bytes",
                 "name": "serverSignature",
                 "type": "bytes"
+            },
+            {
+                "internalType": "bytes",
+                "name": "options",
+                "type": "bytes"
             }
         ],
         "name": "settleOrders",
@@ -761,6 +766,19 @@
             }
         ],
         "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "version",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {

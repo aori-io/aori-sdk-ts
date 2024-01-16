@@ -4,6 +4,4 @@
 export { AoriProtocol__factory } from "./AoriProtocol__factory";
 export { AoriV2__factory } from "./AoriV2__factory";
 export { AoriVault__factory } from "./AoriVault__factory";
-export { BatchExecutor__factory } from "./BatchExecutor__factory";
 export { ERC20__factory } from "./ERC20__factory";
-export { FlashExecutor__factory } from "./FlashExecutor__factory";
