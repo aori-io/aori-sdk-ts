@@ -255,3 +255,11 @@ export function toDetailsToExecute(matching: AoriMatchingDetails, to: string, va
         outputAmount: matching.takerOrder.inputAmount
     }
 }
+
+/*//////////////////////////////////////////////////////////////
+                    SEAT-RELATED FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
+export function getSeatPercentageOfFees(seatScore: number): number {
+    return [0, 40, 45, 50, 55, 60][seatScore];
+}
