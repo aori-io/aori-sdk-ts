@@ -60,3 +60,13 @@ export class AoriPricingProvider {
         return data;
     }
 }
+
+/*//////////////////////////////////////////////////////////////
+                            HELPERS
+//////////////////////////////////////////////////////////////*/
+
+const pricingProvider = new AoriPricingProvider();
+
+export function getAssetPrice(chainId: number, token: string, amount: string): Promise<number> {
+    return pricingProvider.getAssetPrice({ chainId, token, amount });
+}
