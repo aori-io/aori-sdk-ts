@@ -2,7 +2,7 @@ import { ERC20__factory } from "@opensea/seaport-js/lib/typechain-types";
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
 import { AoriVault__factory } from "../types";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, SubscriptionEvents } from "../utils";
+import { getDefaultZone, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
@@ -141,24 +141,25 @@ export class BaseMaker extends AoriHttpProvider {
         //////////////////////////////////////////////////////////////*/
 
         // if we don't have enough allowance, approve
+        const defaultZone = getDefaultZone(this.defaultChainId);
         if (this.protocolAllowances[outputToken] == undefined) {
-            console.log(`👮 Checking approval for ${this.vaultContract} by spender ${AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS} on chain ${this.defaultChainId}`);
+            console.log(`👮 Checking approval for ${this.vaultContract} by spender ${defaultZone} on chain ${this.defaultChainId}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
                 address: this.vaultContract || "",
-                spender: AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
+                spender: defaultZone,
                 token: outputToken
             }) < amountForUser) {
-                console.log(`✍️ Approving ${this.vaultContract} for ${AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS} on chain ${this.defaultChainId}`);
+                console.log(`✍️ Approving ${this.vaultContract} for ${defaultZone} on chain ${this.defaultChainId}`);
                 preCalldata.push({
                     to: outputToken,
                     value: 0,
                     data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                        AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, parseEther("100000")
+                        defaultZone, parseEther("100000")
                     ])
                 });
             } else {
-                console.log(`☑️ Already approved ${this.vaultContract} for ${AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS} on chain ${this.defaultChainId}`);
+                console.log(`☑️ Already approved ${this.vaultContract} for ${defaultZone} on chain ${this.defaultChainId}`);
             }
 
             this.protocolAllowances[outputToken] = true;

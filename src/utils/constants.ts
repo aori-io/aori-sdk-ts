@@ -2,11 +2,14 @@
                             GENERAL
 //////////////////////////////////////////////////////////////*/
 
-export const SUPPORTED_AORI_CHAINS = new Set([
-    1, // Ethereum
-    5, // Goerli
-    42161, // Arbitrum One
+export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>([
+    // Ethereum Goerli
+    [5, new Set([
+        "0x8558eCbA75DB19df2Fb1B70fe8661D296F68dFE7"
+    ])]
 ]);
+
+export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
@@ -52,8 +55,6 @@ export const AORI_MEMPOOL_PROVIDER_API: string = "https://mempool.aori.io";
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/
-
-export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS = "0x8558eCbA75DB19df2Fb1B70fe8661D296F68dFE7";
 
 export const defaultDuration = 24 * 60 * 60;
 export const maxSalt = 10_000_000;

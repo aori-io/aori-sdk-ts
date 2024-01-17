@@ -1,7 +1,7 @@
 import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriV2__factory } from "../types";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, defaultDuration, maxSalt } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -25,6 +25,18 @@ export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcErr
 export { JsonRpcError, JsonRpcPayload, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
 
 /*//////////////////////////////////////////////////////////////
+                            ZONE
+//////////////////////////////////////////////////////////////*/
+
+export function getDefaultZone(chainId: number) {
+    const zonesOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
+    if (!zonesOnChain) {
+        throw new Error(`Chain ${chainId} is not supported yet!`);
+    }
+    return [...zonesOnChain][0];
+}
+
+/*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
@@ -35,11 +47,11 @@ export async function formatIntoLimitOrder({
     inputToken,
     inputAmount,
     inputChainId = 1,
-    inputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
+    inputZone = getDefaultZone(inputChainId),
     outputToken,
     outputAmount,
     outputChainId = 1,
-    outputZone = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS,
+    outputZone = getDefaultZone(outputChainId),
     counter
 }: {
     offerer: string;

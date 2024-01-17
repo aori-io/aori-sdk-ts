@@ -2,7 +2,7 @@ import { parseEther } from "ethers";
 import { AoriHttpProvider } from "../providers";
 import { AoriVault__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, SubscriptionEvents } from "../utils";
+import { getDefaultZone, SubscriptionEvents } from "../utils";
 
 export class BatchMaker extends AoriHttpProvider {
 
@@ -115,7 +115,7 @@ export class BatchMaker extends AoriHttpProvider {
                 to: outputToken,
                 value: 0,
                 data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                    AORI_V2_SINGLE_CHAIN_ZONE_ADDRESS, parseEther("100000")
+                    getDefaultZone(this.defaultChainId), parseEther("100000")
                 ])
             }, ...preCalldata];
 
