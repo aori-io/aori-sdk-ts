@@ -91,6 +91,20 @@ export class AoriDataProvider {
         return BigInt(tokenBalance);
     }
 
+    async getNativeBalance({
+        chainId,
+        address
+    }: {
+        chainId: number;
+        address: string;
+    }): Promise<bigint> {
+        const { nativeBalance } = await this.rawCall({
+            method: AoriDataMethods.GetNativeBalance,
+            params: [{ address, chainId }]
+        });
+        return BigInt(nativeBalance);
+    }
+
     async hasOrderSettled({
         chainId,
         orderHash

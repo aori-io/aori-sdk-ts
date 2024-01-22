@@ -144,6 +144,7 @@ export enum AoriDataMethods {
     GetSeaportCounter = "aori_getSeaportCounter",
     GetSeatDetails = "aori_getSeatDetails",
     GetTokenAllowance = "aori_getTokenAllowance",
+    GetNativeBalance = "aori_getNativeBalance",
     GetTokenBalance = "aori_getTokenBalance",
     HasOrderSettled = "aori_hasOrderSettled",
     IsValidSignature = "aori_isValidSignature",
