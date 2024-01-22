@@ -163,7 +163,7 @@ export interface AoriV2Interface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "settleOrders",
-    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike]
+    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "signatureIntoComponents",
@@ -344,6 +344,7 @@ export interface AoriV2 extends BaseContract {
     [
       matching: IAoriV2.MatchingDetailsStruct,
       serverSignature: BytesLike,
+      hookData: BytesLike,
       options: BytesLike
     ],
     [void],
@@ -427,6 +428,7 @@ export interface AoriV2 extends BaseContract {
     [
       matching: IAoriV2.MatchingDetailsStruct,
       serverSignature: BytesLike,
+      hookData: BytesLike,
       options: BytesLike
     ],
     [void],

@@ -1,7 +1,7 @@
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
-import { AoriVault__factory, ERC20__factory } from "../types";
-import { getDefaultZone, SubscriptionEvents } from "../utils";
+import { AoriV2__factory, ERC20__factory } from "../types";
+import { encodeInstructions, getDefaultZone, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
@@ -45,36 +45,23 @@ export class BaseMaker extends AoriHttpProvider {
             }
         }
 
-        this.on(SubscriptionEvents.OrderToExecute, async ({ makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
+        this.on(SubscriptionEvents.OrderToExecute, async ({ matching, matchingSignature, makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
             if (!this.preCalldata[orderHash]) return;
             console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
             /*//////////////////////////////////////////////////////////////
                                      SET TX DETAILS
             //////////////////////////////////////////////////////////////*/
 
-            const to = this.vaultContract || "";
+            const to = aoriTo;
             const value = 0;
 
-            /*//////////////////////////////////////////////////////////////
-                                   CONSTRUCT CALLDATA
-            //////////////////////////////////////////////////////////////*/
-
-            const data = this.flashAmount[orderHash].length != 0 ?
-                // Rely on a balancer flash loan
-                AoriVault__factory.createInterface().encodeFunctionData("flashExecute", [{
-                    tokens: this.flashAmount[orderHash].map(({ token }) => token),
-                    amounts: this.flashAmount[orderHash].map(({ amount }) => amount),
-                }, [
-                    ...(this.preCalldata[orderHash] || []),
-                    { to: aoriTo, value: aoriValue, data: aoriData },
-                    ...(this.postCalldata[orderHash] || [])
-                ]]) :
-                // Use own liquidity / programmatic pull liquidity
-                AoriVault__factory.createInterface().encodeFunctionData("execute", [[
-                    ...(this.preCalldata[orderHash] || []),
-                    { to: aoriTo, value: aoriValue, data: aoriData },
-                    ...(this.postCalldata[orderHash] || [])
-                ]]);
+            const data = AoriV2__factory
+                .createInterface()
+                .encodeFunctionData("settleOrders", [
+                    matching,
+                    matchingSignature,
+                    encodeInstructions(this.preCalldata[orderHash] || [], this.postCalldata[orderHash] || []),
+                    ""]);
 
             const { gasPrice, gasLimit } = await getGasData({ to, value, data, chainId });
 

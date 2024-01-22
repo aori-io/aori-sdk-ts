@@ -35,42 +35,114 @@ export type InstructionStructOutput = [
   data: string
 ] & { to: string; value: bigint; data: string };
 
-export type FlashLoanStruct = {
-  tokens: AddressLike[];
-  amounts: BigNumberish[];
-};
+export declare namespace IAoriV2 {
+  export type OrderStruct = {
+    offerer: AddressLike;
+    inputToken: AddressLike;
+    inputAmount: BigNumberish;
+    inputChainId: BigNumberish;
+    inputZone: AddressLike;
+    outputToken: AddressLike;
+    outputAmount: BigNumberish;
+    outputChainId: BigNumberish;
+    outputZone: AddressLike;
+    startTime: BigNumberish;
+    endTime: BigNumberish;
+    salt: BigNumberish;
+    counter: BigNumberish;
+    toWithdraw: boolean;
+  };
 
-export type FlashLoanStructOutput = [tokens: string[], amounts: bigint[]] & {
-  tokens: string[];
-  amounts: bigint[];
-};
+  export type OrderStructOutput = [
+    offerer: string,
+    inputToken: string,
+    inputAmount: bigint,
+    inputChainId: bigint,
+    inputZone: string,
+    outputToken: string,
+    outputAmount: bigint,
+    outputChainId: bigint,
+    outputZone: string,
+    startTime: bigint,
+    endTime: bigint,
+    salt: bigint,
+    counter: bigint,
+    toWithdraw: boolean
+  ] & {
+    offerer: string;
+    inputToken: string;
+    inputAmount: bigint;
+    inputChainId: bigint;
+    inputZone: string;
+    outputToken: string;
+    outputAmount: bigint;
+    outputChainId: bigint;
+    outputZone: string;
+    startTime: bigint;
+    endTime: bigint;
+    salt: bigint;
+    counter: bigint;
+    toWithdraw: boolean;
+  };
+
+  export type MatchingDetailsStruct = {
+    makerOrder: IAoriV2.OrderStruct;
+    takerOrder: IAoriV2.OrderStruct;
+    makerSignature: BytesLike;
+    takerSignature: BytesLike;
+    blockDeadline: BigNumberish;
+    seatNumber: BigNumberish;
+    seatHolder: AddressLike;
+    seatPercentOfFees: BigNumberish;
+  };
+
+  export type MatchingDetailsStructOutput = [
+    makerOrder: IAoriV2.OrderStructOutput,
+    takerOrder: IAoriV2.OrderStructOutput,
+    makerSignature: string,
+    takerSignature: string,
+    blockDeadline: bigint,
+    seatNumber: bigint,
+    seatHolder: string,
+    seatPercentOfFees: bigint
+  ] & {
+    makerOrder: IAoriV2.OrderStructOutput;
+    takerOrder: IAoriV2.OrderStructOutput;
+    makerSignature: string;
+    takerSignature: string;
+    blockDeadline: bigint;
+    seatNumber: bigint;
+    seatHolder: string;
+    seatPercentOfFees: bigint;
+  };
+}
 
 export interface AoriVaultInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "aoriProtocol"
+      | "afterAoriTrade"
+      | "beforeAoriTrade"
       | "execute"
-      | "flashExecute"
       | "isValidSignature"
       | "managers"
-      | "receiveFlashLoan"
       | "setManager"
+      | "supportsInterface"
       | "withdrawAll"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "Call"): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "aoriProtocol",
-    values?: undefined
+    functionFragment: "afterAoriTrade",
+    values: [IAoriV2.MatchingDetailsStruct, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "beforeAoriTrade",
+    values: [IAoriV2.MatchingDetailsStruct, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [InstructionStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashExecute",
-    values: [FlashLoanStruct, InstructionStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "isValidSignature",
@@ -81,12 +153,12 @@ export interface AoriVaultInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "receiveFlashLoan",
-    values: [AddressLike[], BigNumberish[], BigNumberish[], BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setManager",
     values: [AddressLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawAll",
@@ -94,24 +166,24 @@ export interface AoriVaultInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "aoriProtocol",
+    functionFragment: "afterAoriTrade",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "beforeAoriTrade",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "flashExecute",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "isValidSignature",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "managers", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setManager", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "receiveFlashLoan",
+    functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setManager", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawAll",
     data: BytesLike
@@ -179,16 +251,20 @@ export interface AoriVault extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  aoriProtocol: TypedContractMethod<[], [string], "view">;
+  afterAoriTrade: TypedContractMethod<
+    [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+
+  beforeAoriTrade: TypedContractMethod<
+    [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
 
   execute: TypedContractMethod<
     [instructions: InstructionStruct[]],
-    [void],
-    "payable"
-  >;
-
-  flashExecute: TypedContractMethod<
-    [loan: FlashLoanStruct, instructions: InstructionStruct[]],
     [void],
     "payable"
   >;
@@ -201,21 +277,16 @@ export interface AoriVault extends BaseContract {
 
   managers: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
-  receiveFlashLoan: TypedContractMethod<
-    [
-      tokens: AddressLike[],
-      amounts: BigNumberish[],
-      arg2: BigNumberish[],
-      data: BytesLike
-    ],
-    [void],
-    "nonpayable"
-  >;
-
   setManager: TypedContractMethod<
     [_manager: AddressLike, _isManager: boolean],
     [void],
     "nonpayable"
+  >;
+
+  supportsInterface: TypedContractMethod<
+    [_interfaceId: BytesLike],
+    [boolean],
+    "view"
   >;
 
   withdrawAll: TypedContractMethod<
@@ -229,19 +300,23 @@ export interface AoriVault extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "aoriProtocol"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "afterAoriTrade"
+  ): TypedContractMethod<
+    [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "beforeAoriTrade"
+  ): TypedContractMethod<
+    [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "execute"
   ): TypedContractMethod<
     [instructions: InstructionStruct[]],
-    [void],
-    "payable"
-  >;
-  getFunction(
-    nameOrSignature: "flashExecute"
-  ): TypedContractMethod<
-    [loan: FlashLoanStruct, instructions: InstructionStruct[]],
     [void],
     "payable"
   >;
@@ -256,24 +331,15 @@ export interface AoriVault extends BaseContract {
     nameOrSignature: "managers"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "receiveFlashLoan"
-  ): TypedContractMethod<
-    [
-      tokens: AddressLike[],
-      amounts: BigNumberish[],
-      arg2: BigNumberish[],
-      data: BytesLike
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "setManager"
   ): TypedContractMethod<
     [_manager: AddressLike, _isManager: boolean],
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[_interfaceId: BytesLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "withdrawAll"
   ): TypedContractMethod<

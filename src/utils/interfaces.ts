@@ -89,13 +89,13 @@ export interface ViewOrderbookQuery {
 
 export interface DetailsToExecute {
     matchingHash: string;
+    matching: AoriMatchingDetails;
+    matchingSignature: string;
 
-    makerOrder: AoriOrder;
     makerOrderHash: string;
     makerChainId: number;
     makerZone: string;
 
-    takerOrder: AoriOrder;
     takerOrderHash: string;
     takerChainId: number;
     takerZone: string;
@@ -103,8 +103,7 @@ export interface DetailsToExecute {
     chainId: number; // this is generally just takerChainId
     to: string;
     value: number;
-    data: string;
-    blockDeadline: number;
+    data: string; // Default calldata if no hookdata or options being submitted
 
     maker: string;
     taker: string;

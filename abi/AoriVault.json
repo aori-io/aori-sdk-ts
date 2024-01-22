@@ -10,11 +10,6 @@
                 "internalType": "address",
                 "name": "_aoriProtocol",
                 "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_balancerAddress",
-                "type": "address"
             }
         ],
         "stateMutability": "nonpayable",
@@ -50,16 +45,423 @@
         "type": "fallback"
     },
     {
-        "inputs": [],
-        "name": "aoriProtocol",
-        "outputs": [
+        "inputs": [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                "components": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "offerer",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "startTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "endTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "salt",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "counter",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "toWithdraw",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IAoriV2.Order",
+                        "name": "makerOrder",
+                        "type": "tuple"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "offerer",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "startTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "endTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "salt",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "counter",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "toWithdraw",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IAoriV2.Order",
+                        "name": "takerOrder",
+                        "type": "tuple"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "makerSignature",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "takerSignature",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "blockDeadline",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "seatNumber",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "seatHolder",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "seatPercentOfFees",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct IAoriV2.MatchingDetails",
+                "name": "matching",
+                "type": "tuple"
+            },
+            {
+                "internalType": "bytes",
+                "name": "hookData",
+                "type": "bytes"
             }
         ],
-        "stateMutability": "view",
+        "name": "afterAoriTrade",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "offerer",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "startTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "endTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "salt",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "counter",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "toWithdraw",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IAoriV2.Order",
+                        "name": "makerOrder",
+                        "type": "tuple"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "offerer",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "inputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "inputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputToken",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputAmount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "outputChainId",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "outputZone",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "startTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "endTime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "salt",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "counter",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "toWithdraw",
+                                "type": "bool"
+                            }
+                        ],
+                        "internalType": "struct IAoriV2.Order",
+                        "name": "takerOrder",
+                        "type": "tuple"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "makerSignature",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "takerSignature",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "blockDeadline",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "seatNumber",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "seatHolder",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "seatPercentOfFees",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct IAoriV2.MatchingDetails",
+                "name": "matching",
+                "type": "tuple"
+            },
+            {
+                "internalType": "bytes",
+                "name": "hookData",
+                "type": "bytes"
+            }
+        ],
+        "name": "beforeAoriTrade",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -88,53 +490,6 @@
             }
         ],
         "name": "execute",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "address[]",
-                        "name": "tokens",
-                        "type": "address[]"
-                    },
-                    {
-                        "internalType": "uint256[]",
-                        "name": "amounts",
-                        "type": "uint256[]"
-                    }
-                ],
-                "internalType": "struct FlashLoan",
-                "name": "loan",
-                "type": "tuple"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "value",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bytes",
-                        "name": "data",
-                        "type": "bytes"
-                    }
-                ],
-                "internalType": "struct Instruction[]",
-                "name": "instructions",
-                "type": "tuple[]"
-            }
-        ],
-        "name": "flashExecute",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
@@ -185,34 +540,6 @@
     {
         "inputs": [
             {
-                "internalType": "contract IERC20[]",
-                "name": "tokens",
-                "type": "address[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "amounts",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            }
-        ],
-        "name": "receiveFlashLoan",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "address",
                 "name": "_manager",
                 "type": "address"
@@ -226,6 +553,25 @@
         "name": "setManager",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "_interfaceId",
+                "type": "bytes4"
+            }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {

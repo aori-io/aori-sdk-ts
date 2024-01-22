@@ -1,5 +1,6 @@
-import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriV2__factory } from "../types";
+import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
@@ -234,7 +235,7 @@ export function calldataToSettleOrders({
     seatNumber,
     seatHolder,
     seatPercentOfFees,
-}: AoriMatchingDetails, signature: string, options: string = "") {
+}: AoriMatchingDetails, signature: string, hookData: string = "", options: string = "") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         makerOrder,
         takerOrder,
@@ -244,13 +245,15 @@ export function calldataToSettleOrders({
         seatNumber,
         seatHolder,
         seatPercentOfFees
-    }, signature, options]);
+    }, signature, hookData, options]);
 }
 
-export function toDetailsToExecute(matching: AoriMatchingDetails, to: string, value: number, data: string): DetailsToExecute {
+export function toDetailsToExecute(matching: AoriMatchingDetails, matchingSignature: string, to: string, value: number, data: string): DetailsToExecute {
     return {
-        ...matching,
         matchingHash: getMatchingHash(matching),
+        matching,
+        matchingSignature,
+
         makerOrderHash: getOrderHash(matching.makerOrder),
         makerChainId: matching.makerOrder.inputChainId,
         makerZone: matching.makerOrder.inputZone,
@@ -264,7 +267,6 @@ export function toDetailsToExecute(matching: AoriMatchingDetails, to: string, va
         to,
         value,
         data,
-        blockDeadline: matching.blockDeadline,
 
         maker: matching.makerOrder.offerer,
         taker: matching.takerOrder.offerer,
@@ -283,3 +285,39 @@ export function toDetailsToExecute(matching: AoriMatchingDetails, to: string, va
 export function getSeatPercentageOfFees(seatScore: number): number {
     return [0, 40, 45, 50, 55, 60][seatScore];
 }
+
+/*//////////////////////////////////////////////////////////////
+                    VAULT-RELATED FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
+export function encodeInstructions(
+    preSwapInstructions: InstructionStruct[],
+    postSwapInstructions: InstructionStruct[]
+) {
+    return AbiCoder.defaultAbiCoder().encode(
+        ["((address, uint256, bytes)[]), (address, uint256, bytes)[])"],
+        [preSwapInstructions, postSwapInstructions]
+    )
+}
+
+export function encodePreSwapInstructions(preSwapInstructions: InstructionStruct[]) {
+    return AbiCoder.defaultAbiCoder().encode(
+        ["((address, uint256, bytes)[], (address, uint256, bytes)[])"],
+        [preSwapInstructions, []]
+    )
+}
+
+export function encodePostSwapCalldata(postSwapInstructions: InstructionStruct[]) {
+    return AbiCoder.defaultAbiCoder().encode(
+        ["((address, uint256, bytes)[], (address, uint256, bytes)[])"],
+        [[], postSwapInstructions]
+    )
+}
+
+export function decodeInstructions(encoded: string) {
+    return AbiCoder.defaultAbiCoder().decode(
+        ["((address, uint256, bytes)[]), (address, uint256, bytes)[])"],
+        encoded
+    )
+}
+

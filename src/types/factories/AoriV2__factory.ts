@@ -737,6 +737,11 @@ const _abi = [
       },
       {
         internalType: "bytes",
+        name: "hookData",
+        type: "bytes",
+      },
+      {
+        internalType: "bytes",
         name: "options",
         type: "bytes",
       },
