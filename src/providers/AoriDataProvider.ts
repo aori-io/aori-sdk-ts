@@ -208,6 +208,10 @@ export function hasOrderSettled(chainId: number, orderHash: string): Promise<boo
     return dataProvider.hasOrderSettled({ chainId, orderHash });
 }
 
+export function getNativeBalance(chainId: number, address: string): Promise<bigint> {
+    return dataProvider.getNativeBalance({ chainId, address });
+}
+
 export function getTokenBalance(chainId: number, address: string, token: string): Promise<bigint> {
     return dataProvider.getTokenBalance({ chainId, address, token });
 }
