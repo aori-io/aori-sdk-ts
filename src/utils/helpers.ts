@@ -1,5 +1,6 @@
 import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
-import { AoriV2__factory } from "../types";
+import { sendRawTransaction } from "../providers";
+import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt } from "./constants";
@@ -235,7 +236,7 @@ export function calldataToSettleOrders({
     seatNumber,
     seatHolder,
     seatPercentOfFees,
-}: AoriMatchingDetails, signature: string, hookData: string = "", options: string = "") {
+}: AoriMatchingDetails, signature: string, hookData: string = "0x", options: string = "0x") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         makerOrder,
         takerOrder,
@@ -321,3 +322,23 @@ export function decodeInstructions(encoded: string) {
     )
 }
 
+/*//////////////////////////////////////////////////////////////
+                            WALLET
+//////////////////////////////////////////////////////////////*/
+
+export async function approveToken(
+    wallet: Wallet,
+    chainId: number,
+    token: string,
+    spender: string,
+    amount: bigint
+) {
+    const signedTx = await wallet.signTransaction({
+        to: spender,
+        value: 0,
+        data: ERC20__factory.createInterface().encodeFunctionData("approve", [token, amount]),
+        chainId
+    });
+
+    return sendRawTransaction(signedTx, chainId);
+}

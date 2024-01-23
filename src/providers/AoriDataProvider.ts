@@ -227,3 +227,7 @@ export function getSeatDetails(seatId: number): Promise<{ seatOwner: string, sea
 export function verifySignature(message: string, signature: string): string {
     return verifyMessage(message, signature);
 }
+
+export function sendRawTransaction(signedTx: string, chainId: number): Promise<string> {
+    return dataProvider.sendTransaction({ signedTx, chainId });
+}
