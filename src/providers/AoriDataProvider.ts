@@ -156,29 +156,25 @@ export class AoriDataProvider {
     }
 
     async sendTransaction({
-        signedTx,
-        chainId
+        signedTx
     }: {
         signedTx: string
-        chainId: number
     }) {
         const data = await this.rawCall({
             method: AoriDataMethods.SendTransaction,
-            params: [{ signedTx, chainId }]
+            params: [{ signedTx }]
         });
         return data;
     }
 
     async simulateTransaction({
-        signedTx,
-        chainId
+        signedTx
     }: {
         signedTx: string
-        chainId: number
     }) {
         const data = await this.rawCall({
             method: AoriDataMethods.SimulateTransaction,
-            params: [{ signedTx, chainId }]
+            params: [{ signedTx }]
         });
         return data;
     }
@@ -246,10 +242,10 @@ export function verifySignature(message: string, signature: string): string {
     return verifyMessage(message, signature);
 }
 
-export function sendTransaction(signedTx: string, chainId: number): Promise<string> {
-    return dataProvider.sendTransaction({ signedTx, chainId });
+export function sendTransaction(signedTx: string): Promise<string> {
+    return dataProvider.sendTransaction({ signedTx });
 }
 
-export function simulateTransaction(signedTx: string, chainId: number): Promise<string> {
-    return dataProvider.simulateTransaction({ signedTx, chainId });
+export function simulateTransaction(signedTx: string): Promise<string> {
+    return dataProvider.simulateTransaction({ signedTx });
 }

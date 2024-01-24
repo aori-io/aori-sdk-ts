@@ -342,5 +342,5 @@ export async function approveToken(
         nonce: await getNonce(chainId, wallet.address)
     });
 
-    return sendTransaction(signedTx, chainId);
+    return sendTransaction(signedTx);
 }
