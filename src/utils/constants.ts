@@ -5,7 +5,7 @@
 export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>([
     // Ethereum Goerli
     [5, new Set([
-        "0xCB93Ed64a1b4C61b809F556532Ff36EA25DaD473"
+        "0xCB93Ed64a1b4C61b809F556532Ff36EA25DaD473".toLowerCase()
     ])]
 ]);
 

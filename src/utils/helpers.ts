@@ -41,7 +41,7 @@ export function getDefaultZone(chainId: number) {
 export function isZoneSupported(chainId: number, address: string) {
     const zonesOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
     if (!zonesOnChain) return false;
-    return zonesOnChain.has(address);
+    return zonesOnChain.has(address.toLowerCase());
 }
 
 /*//////////////////////////////////////////////////////////////
