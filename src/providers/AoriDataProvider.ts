@@ -169,6 +169,20 @@ export class AoriDataProvider {
         return data;
     }
 
+    async simulateTransaction({
+        signedTx,
+        chainId
+    }: {
+        signedTx: string
+        chainId: number
+    }) {
+        const data = await this.rawCall({
+            method: AoriDataMethods.SimulateTransaction,
+            params: [{ signedTx, chainId }]
+        });
+        return data;
+    }
+
     async rawCall<T>({
         method,
         params
@@ -200,6 +214,10 @@ const dataProvider = new AoriDataProvider();
 
 export function getBlockNumber(chainId: number) { return dataProvider.getBlockNumber({ chainId }) }
 
+export function getNonce(chainId: number, address: string): Promise<number> {
+    return dataProvider.getNonce({ chainId, address });
+}
+
 export function isValidSignature(chainId: number, address: string, hash: BytesLike, signature: string): Promise<boolean> {
     return dataProvider.isValidSignature({ chainId, vault: address, hash: hash.toString(), signature });
 }
@@ -228,6 +246,10 @@ export function verifySignature(message: string, signature: string): string {
     return verifyMessage(message, signature);
 }
 
-export function sendRawTransaction(signedTx: string, chainId: number): Promise<string> {
+export function sendTransaction(signedTx: string, chainId: number): Promise<string> {
     return dataProvider.sendTransaction({ signedTx, chainId });
+}
+
+export function simulateTransaction(signedTx: string, chainId: number): Promise<string> {
+    return dataProvider.simulateTransaction({ signedTx, chainId });
 }

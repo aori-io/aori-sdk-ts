@@ -1,5 +1,5 @@
 import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
-import { sendRawTransaction } from "../providers";
+import { getNonce, sendRawTransaction } from "../providers";
 import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
@@ -337,7 +337,9 @@ export async function approveToken(
         to: spender,
         value: 0,
         data: ERC20__factory.createInterface().encodeFunctionData("approve", [token, amount]),
-        chainId
+        chainId,
+        gasLimit: 100_000,
+        nonce: await getNonce(chainId, wallet.address)
     });
 
     return sendRawTransaction(signedTx, chainId);

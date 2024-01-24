@@ -155,6 +155,7 @@ export enum AoriDataMethods {
     IsValidSignature = "aori_isValidSignature",
     GetGasData = "aori_getGasData",
     SendTransaction = "aori_sendTransaction",
+    SimulateTransaction = "aori_simulateTransaction",
 }
 
 export enum AoriPricingMethods {
