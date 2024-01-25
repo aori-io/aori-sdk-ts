@@ -198,7 +198,7 @@ export type AoriMethodsEvents = {
     [AoriMethods.MakeOrder]: [order: OrderView],
     [AoriMethods.CancelOrder]: [orderHash: string],
     [AoriMethods.CancelAllOrders]: [],
-    [AoriMethods.TakeOrder]: [orderHash: string],
+    [AoriMethods.TakeOrder]: [orderToExecute: DetailsToExecute],
     [AoriMethods.AccountOrders]: [orders: OrderView[]],
     [AoriMethods.AccountCredit]: [{ address: string, credit: string }],
     [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
