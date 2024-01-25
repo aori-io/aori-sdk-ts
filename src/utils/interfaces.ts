@@ -204,6 +204,14 @@ export type AoriMethodsEvents = {
     [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
     [AoriMethods.OrderStatus]: [order: OrderView],
     [AoriMethods.GetCounter]: [{ cancelIndex: number, address: string, chainId: number }],
+
+    // 
+    [_: string]: any
+};
+
+export type AoriFeedEvents = {
+    ["ready"]: [],
+    ["error"]: [error: any],
     [SubscriptionEvents.OrderCreated]: [order: OrderView],
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
@@ -213,4 +221,4 @@ export type AoriMethodsEvents = {
 
     // 
     [_: string]: any
-};
+}

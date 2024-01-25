@@ -103,7 +103,7 @@ export function QuoteMaker({
             await new Promise((resolve) => setTimeout(resolve, cancelAfter));
         }
 
-        baseMaker.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
+        baseMaker.feed.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
             if (chainId == baseMaker.defaultChainId) {
                 if (inputAmount == undefined) return;
                 await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });

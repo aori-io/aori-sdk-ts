@@ -1,17 +1,13 @@
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
-import { WebSocket } from "ws";
-import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_HTTP_API, AORI_TAKER_API, defaultDuration, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, SubscriptionEvents, ViewOrderbookQuery } from "../utils/interfaces";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
-    feedUrl: string;
     takerUrl: string;
-
-    feed: WebSocket = null as any;
 
     wallet: Wallet;
     apiKey: string = "";
@@ -21,8 +17,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     seatId: number = 0;
 
     messages: { [counter: number]: AoriMethods | string }
-    keepAlive: boolean;
-    keepAliveTimer: NodeJS.Timeout;
     defaultChainId: number;
 
     /*//////////////////////////////////////////////////////////////
@@ -32,21 +26,17 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     constructor({
         wallet,
         apiUrl = AORI_HTTP_API,
-        feedUrl = AORI_FEED,
         takerUrl = AORI_TAKER_API,
         vaultContract,
         apiKey,
-        keepAlive = true,
         defaultChainId = 5,
         seatId = 0,
     }: {
         wallet: Wallet,
         apiUrl?: string,
-        feedUrl?: string,
         takerUrl?: string,
         vaultContract?: string,
         apiKey?: string,
-        keepAlive?: boolean,
         defaultChainId?: number
         seatId?: number
     }) {
@@ -54,7 +44,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         this.wallet = wallet;
         this.apiUrl = apiUrl;
-        this.feedUrl = feedUrl;
         this.takerUrl = takerUrl;
         this.seatId = seatId;
         this.defaultChainId = defaultChainId;
@@ -63,78 +52,20 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         if (vaultContract) this.vaultContract = vaultContract;
         if (apiKey) this.apiKey = apiKey;
 
-        this.keepAlive = keepAlive;
-        this.keepAliveTimer = null as any;
-
         console.log("🤖 Creating an Aori Provider Instance");
         console.log("==================================================================");
         console.log(`> Executor Wallet: ${wallet.address}`);
         if (vaultContract) console.log(`> Vault Contract: ${vaultContract}`);
         console.log(`> API URL: ${apiUrl}`);
-        console.log(`> Feed URL: ${feedUrl}`);
         console.log(`> Seat Id: ${seatId} (read more about seats at seats.aori.io)`);
         console.log(`> Default Chain ID: ${defaultChainId}`);
         console.log("==================================================================");
 
         console.log(`🔌 Connected via HTTP to ${apiUrl}...`);
-        this.connect();
     }
 
     static default({ wallet }: { wallet: Wallet }): AoriHttpProvider {
         return new AoriHttpProvider({ wallet })
-    }
-
-    async connect() {
-        if (this.feed) this.feed.close();
-        this.feed = connectTo(this.feedUrl);
-
-        this.feed.on("open", () => {
-            console.log(`⚡ Connected to ${this.feedUrl}`);
-            if (this.keepAlive) {
-                this.keepAliveTimer = setInterval(() => {
-                    this.feed.ping();
-                }, 10_000);
-            }
-            this.emit("ready");
-            console.log(`🫡  Provider ready to send requests`);
-        });
-
-        this.feed.on("message", (msg) => {
-            const { id, result } = JSON.parse(msg.toString());
-            const { type, data } = result;
-
-            switch (type) {
-                case AoriMethods.Ping:
-                    console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
-                    break;
-                case SubscriptionEvents.OrderCreated:
-                    this.emit(SubscriptionEvents.OrderCreated, data);
-                    break;
-                case SubscriptionEvents.OrderCancelled:
-                    this.emit(SubscriptionEvents.OrderCancelled, data);
-                    break;
-                case SubscriptionEvents.OrderTaken:
-                    this.emit(SubscriptionEvents.OrderTaken, data);
-                    break;
-                case SubscriptionEvents.OrderFulfilled:
-                    this.emit(SubscriptionEvents.OrderFulfilled, data);
-                    break;
-                case SubscriptionEvents.OrderToExecute:
-                    this.emit(SubscriptionEvents.OrderToExecute, data);
-                    break;
-                case SubscriptionEvents.QuoteRequested:
-                    this.emit(SubscriptionEvents.QuoteRequested, data);
-                    break;
-            }
-        });
-
-        this.feed.on("close", () => {
-            console.log(`Got disconnected...`);
-            setTimeout(() => {
-                console.log(`Reconnecting...`);
-                this.connect();
-            }, 5_000);
-        });
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -142,11 +73,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     //////////////////////////////////////////////////////////////*/
 
     async initialise(...any: any[]): Promise<void> { }
-
-    terminate() {
-        if (this.keepAliveTimer) { clearInterval(this.keepAliveTimer); }
-        this.feed.close();
-    }
 
     setDefaultChainId(chainId: number) {
         this.defaultChainId = chainId;
@@ -475,15 +401,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         this.counter++;
         return data;
-    }
-
-    async subscribe() {
-        await this.feed.send(JSON.stringify({
-            id: 1,
-            jsonrpc: "2.0",
-            method: "aori_subscribeOrderbook",
-            params: []
-        }));
     }
 
     async marketOrder({

@@ -1,11 +1,13 @@
-import { parseEther } from "ethers";
+import { parseEther, Wallet } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
+import { AoriFeedProvider } from "../providers/AoriFeedProvider";
 import { AoriV2__factory, ERC20__factory } from "../types";
-import { encodeInstructions, getDefaultZone, SubscriptionEvents } from "../utils";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, encodeInstructions, getDefaultZone, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
     initialised = false;
+    feed: AoriFeedProvider = null as any;
     dataProvider = new AoriDataProvider();
     pricingProvider = new AoriPricingProvider();
     solutionStore = new AoriSolutionStore();
@@ -24,12 +26,42 @@ export class BaseMaker extends AoriHttpProvider {
                                INITIALISE
     //////////////////////////////////////////////////////////////*/
 
+    constructor({
+        wallet,
+        apiUrl = AORI_HTTP_API,
+        takerUrl = AORI_TAKER_API,
+        feedUrl = AORI_FEED,
+        vaultContract,
+        apiKey,
+        defaultChainId = 5,
+        seatId = 0,
+    }: {
+        wallet: Wallet,
+        apiUrl?: string,
+        takerUrl?: string,
+        feedUrl?: string,
+        vaultContract?: string,
+        apiKey?: string,
+        defaultChainId?: number
+        seatId?: number
+    }) {
+        super({ wallet, apiUrl, takerUrl, vaultContract, apiKey, defaultChainId, seatId });
+
+        this.feed = new AoriFeedProvider({ feedUrl });
+        this.feed.connect();
+
+        this.feed.on("ready", () => {
+            this.emit("ready");
+        });
+    }
+
     async initialise({ getGasData, cancelAllFirst = false }: {
         getGasData: ({ to, value, data, chainId }:
             { to: string, value: number, data: string, chainId: number })
             => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
         cancelAllFirst?: boolean
     }) {
+
         if (this.vaultContract == undefined) {
             console.log(`No aori vault contract provided`);
             return;
@@ -182,5 +214,13 @@ export class BaseMaker extends AoriHttpProvider {
         }
 
         return { order, orderHash }
+    }
+
+    async subscribe() {
+        await this.feed.subscribe();
+    }
+
+    async terminate() {
+        await this.feed.terminate();
     }
 }

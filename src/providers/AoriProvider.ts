@@ -1,14 +1,13 @@
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_DATA_PROVIDER_API, AORI_FEED, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
+import { AORI_API, AORI_DATA_PROVIDER_API, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, SubscriptionEvents, ViewOrderbookQuery } from "../utils/interfaces";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
-    feedUrl: string;
     takerUrl: string;
 
     api: WebSocket = null as any;
@@ -34,7 +33,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     constructor({
         wallet,
         apiUrl = AORI_API,
-        feedUrl = AORI_FEED,
         takerUrl = AORI_TAKER_API,
         vaultContract,
         apiKey,
@@ -44,7 +42,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }: {
         wallet: Wallet,
         apiUrl?: string,
-        feedUrl?: string,
         takerUrl?: string,
         vaultContract?: string,
         apiKey?: string,
@@ -56,7 +53,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         this.wallet = wallet;
         this.apiUrl = apiUrl;
-        this.feedUrl = feedUrl;
         this.takerUrl = takerUrl;
         this.seatId = seatId;
         this.defaultChainId = defaultChainId;
@@ -73,7 +69,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         console.log(`> Executor Wallet: ${wallet.address}`);
         if (vaultContract) console.log(`> Vault Contract: ${vaultContract}`);
         console.log(`> API URL: ${apiUrl}`);
-        console.log(`> Feed URL: ${feedUrl}`);
         console.log(`> Seat Id: ${seatId} (read more about seats at seats.aori.io)`);
         console.log(`> Default Chain ID: ${defaultChainId}`);
         console.log("==================================================================");
@@ -88,10 +83,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async connect() {
         if (this.api) this.api.close();
-        if (this.feed) this.feed.close();
 
         this.api = connectTo(this.apiUrl);
-        this.feed = connectTo(this.feedUrl);
 
         this.readyLatch = false;
 
@@ -169,54 +162,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
 
         this.api.on("close", () => {
-            console.log(`Got disconnected...`);
-            setTimeout(() => {
-                console.log(`Reconnecting...`);
-                this.connect();
-            }, 5_000);
-            this.readyLatch = false;
-        });
-
-        this.feed.on("open", () => {
-            console.log(`⚡ Connected to ${this.feedUrl}`);
-
-            if (!this.readyLatch) {
-                this.readyLatch = true;
-            } else {
-                this.emit("ready");
-                console.log(`🫡 Provider ready to send requests`);
-            }
-        });
-
-        this.feed.on("message", (msg) => {
-            const { id, result } = JSON.parse(msg.toString());
-            const { type, data } = result;
-
-            switch (type) {
-                case AoriMethods.Ping:
-                    console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
-                    break;
-                case SubscriptionEvents.OrderCreated:
-                    this.emit(SubscriptionEvents.OrderCreated, data);
-                    break;
-                case SubscriptionEvents.OrderCancelled:
-                    this.emit(SubscriptionEvents.OrderCancelled, data);
-                    break;
-                case SubscriptionEvents.OrderTaken:
-                    this.emit(SubscriptionEvents.OrderTaken, data);
-                    break;
-                case SubscriptionEvents.OrderFulfilled:
-                    this.emit(SubscriptionEvents.OrderFulfilled, data);
-                    break;
-                case SubscriptionEvents.OrderToExecute:
-                    this.emit(SubscriptionEvents.OrderToExecute, data);
-                    break;
-                case SubscriptionEvents.QuoteRequested:
-                    this.emit(SubscriptionEvents.QuoteRequested, data);
-            }
-        });
-
-        this.feed.on("close", () => {
             console.log(`Got disconnected...`);
             setTimeout(() => {
                 console.log(`Reconnecting...`);
