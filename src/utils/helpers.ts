@@ -154,7 +154,7 @@ export function signOrderSync(wallet: Wallet, order: AoriOrder) {
 }
 
 export function getOrderSigner(order: AoriOrder, signature: string) {
-    return verifyMessage(getOrderHash(order), signature);
+    return verifyMessage(getBytes(getOrderHash(order)), signature);
 }
 
 export function toOrderView({
