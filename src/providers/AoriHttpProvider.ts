@@ -2,7 +2,7 @@ import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
 import { AORI_DATA_PROVIDER_API, AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
-import { formatIntoLimitOrder, getDefaultZone } from "../utils/helpers";
+import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, SubscriptionEvents, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
@@ -222,8 +222,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async signOrder(order: AoriOrder) {
-        const orderHash = getOrderHash(order);
-        return await this.wallet.signMessageSync(orderHash);
+        return await signOrderSync(this.wallet, order);
     }
 
     /*//////////////////////////////////////////////////////////////
