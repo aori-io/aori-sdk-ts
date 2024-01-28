@@ -50,7 +50,7 @@ export function isZoneSupported(chainId: number, address: string) {
 
 export async function formatIntoLimitOrder({
     offerer,
-    startTime = Math.floor(Date.now() / 1000),
+    startTime = Math.floor((Date.now() - 5 * 60 * 1000) / 1000), // Start 5 minutes in the past
     endTime = startTime + defaultDuration,
     inputToken,
     inputAmount,
