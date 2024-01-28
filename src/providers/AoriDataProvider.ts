@@ -57,6 +57,22 @@ export class AoriDataProvider {
         return data;
     }
 
+    async getCounter({
+        chainId,
+        zone,
+        address
+    }: {
+        chainId: number,
+        zone: string,
+        address: string
+    }): Promise<number> {
+        const { counter } = await this.rawCall({
+            method: AoriDataMethods.GetAoriCounter,
+            params: [{ chainId, zone, address }]
+        });
+        return counter;
+    }
+
     async getTokenAllowance({
         chainId,
         address,
@@ -262,6 +278,10 @@ export function isValidSignature(chainId: number, address: string, hash: BytesLi
 
 export function hasOrderSettled(chainId: number, orderHash: string): Promise<boolean> {
     return dataProvider.hasOrderSettled({ chainId, orderHash });
+}
+
+export function getAoriCounter(chainId: number, zone: string, address: string): Promise<number> {
+    return dataProvider.getCounter({ chainId, zone, address });
 }
 
 export function getNativeBalance(chainId: number, address: string): Promise<bigint> {
