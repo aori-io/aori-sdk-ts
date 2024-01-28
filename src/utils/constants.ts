@@ -19,8 +19,6 @@ export const AORI_API: string = "wss://api.aori.io";
 export const AORI_FEED: string = "wss://feed.aori.io";
 export const AORI_PRODUCTION_API: string = "wss://api.aori.io";
 export const AORI_PRODUCTION_FEED: string = "wss://feed.aori.io";
-export const AORI_STAGING_API: string = "wss://staging.api.aori.io";
-export const AORI_STAGING_FEED: string = "wss://staging.feed.aori.io";
 export const AORI_DEVELOPMENT_API: string = "wss://dev.api.aori.io";
 export const AORI_DEVELOPMENT_FEED: string = "wss://dev.feed.aori.io";
 
@@ -31,7 +29,6 @@ export const AORI_DEVELOPMENT_FEED: string = "wss://dev.feed.aori.io";
 // Main Aori API for facilitating CRUD operations
 export const AORI_HTTP_API: string = "https://api.aori.io";
 export const AORI_HTTP_PRODUCTION_API: string = "https://api.aori.io";
-export const AORI_HTTP_STAGING_API: string = "https://staging.api.aori.io";
 export const AORI_HTTP_DEVELOPMENT_API: string = "https://dev.api.aori.io";
 
 // Taker Service for facilitating UX-friendly Market Orders
