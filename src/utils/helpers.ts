@@ -1,9 +1,9 @@
 import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
-import { getNonce, sendTransaction } from "../providers";
+import { getNonce, isValidSignature, sendTransaction } from "../providers";
 import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -187,6 +187,48 @@ export function toOrderView({
         isActive,
         isPublic
     }
+}
+
+export async function validateOrder(order: AoriOrder, signature: string): Promise<string | null> {
+
+    // Check if chain is supported
+    if (!SUPPORTED_AORI_CHAINS.has(order.inputChainId)) return `Input chain ${order.inputChainId} not supported`;
+    if (!SUPPORTED_AORI_CHAINS.has(order.outputChainId)) return `Output chain ${order.outputChainId} not supported`;
+
+    if (signature == undefined || signature == "" || signature == null) return "No signature provided";
+
+    if (order.inputToken === order.outputToken && order.inputChainId === order.outputChainId)
+        return `Input (${order.inputToken}) and output (${order.outputToken}) tokens must be different if they are on the same chain`;
+
+    if (order.inputAmount == "0") return `Input amount cannot be zero`;
+    if (order.outputAmount == "0") return `Output amount cannot be zero`;
+
+    if (!isZoneSupported(order.inputChainId, order.inputZone)) return `Input zone ${order.inputZone} on ${order.inputChainId} not supported`;
+    if (!isZoneSupported(order.outputChainId, order.outputZone)) return `Output zone ${order.outputZone} on ${order.outputChainId} not supported`;
+
+    if (BigInt(order.startTime) > BigInt(order.endTime)) return `Start time (${order.startTime}) cannot be after end (${order.endTime}) time`;
+    if (BigInt(order.endTime) < BigInt(Math.floor(Date.now() / 1000))) return `End time (${order.endTime}) cannot be in the past`;
+
+    // Verify that the signature of the taker order is valid
+    let orderMessageSigner;
+    try {
+        orderMessageSigner = getOrderSigner(order, signature);
+    } catch (e: any) {
+        return `Signature signer could not be retrieved: ${e.message}`;
+    }
+
+    try {
+        // make isValidSignature call too
+        if (orderMessageSigner.toLowerCase() !== order.offerer.toLowerCase()) {
+            if (!(await isValidSignature(order.inputChainId, order.offerer, getOrderHash(order), signature))) {
+                return `Signature (${signature}) appears to be invalid via calling isValidSignature on ${order.offerer} on chain ${order.inputChainId} - order hash: ${getOrderHash(order)}`
+            }
+        }
+    } catch (e: any) {
+        return `isValidSignature call failed: ${e.message}`;
+    }
+
+    return null;
 }
 
 /*//////////////////////////////////////////////////////////////
