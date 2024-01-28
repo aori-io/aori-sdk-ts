@@ -17,6 +17,8 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
         this.keepAliveTimer = null as any;
 
         this.broadcastSecret = broadcastSecret;
+
+        this.connect();
     }
 
     static default(): AoriFeedProvider {
