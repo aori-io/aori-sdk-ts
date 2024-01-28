@@ -40,31 +40,35 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
         });
 
         this.feed.on("message", (msg) => {
-            const { id, result } = JSON.parse(msg.toString());
-            const { type, data } = result;
+            try {
+                const { id, result } = JSON.parse(msg.toString());
+                const { type, data } = result;
 
-            switch (type) {
-                case AoriMethods.Ping:
-                    console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
-                    break;
-                case SubscriptionEvents.OrderCreated:
-                    this.emit(SubscriptionEvents.OrderCreated, data);
-                    break;
-                case SubscriptionEvents.OrderCancelled:
-                    this.emit(SubscriptionEvents.OrderCancelled, data);
-                    break;
-                case SubscriptionEvents.OrderTaken:
-                    this.emit(SubscriptionEvents.OrderTaken, data);
-                    break;
-                case SubscriptionEvents.OrderFulfilled:
-                    this.emit(SubscriptionEvents.OrderFulfilled, data);
-                    break;
-                case SubscriptionEvents.OrderToExecute:
-                    this.emit(SubscriptionEvents.OrderToExecute, data);
-                    break;
-                case SubscriptionEvents.QuoteRequested:
-                    this.emit(SubscriptionEvents.QuoteRequested, data);
-                    break;
+                switch (type) {
+                    case AoriMethods.Ping:
+                        console.log(`🏓 Sent ping, got pong from ${this.feedUrl}`);
+                        break;
+                    case SubscriptionEvents.OrderCreated:
+                        this.emit(SubscriptionEvents.OrderCreated, data);
+                        break;
+                    case SubscriptionEvents.OrderCancelled:
+                        this.emit(SubscriptionEvents.OrderCancelled, data);
+                        break;
+                    case SubscriptionEvents.OrderTaken:
+                        this.emit(SubscriptionEvents.OrderTaken, data);
+                        break;
+                    case SubscriptionEvents.OrderFulfilled:
+                        this.emit(SubscriptionEvents.OrderFulfilled, data);
+                        break;
+                    case SubscriptionEvents.OrderToExecute:
+                        this.emit(SubscriptionEvents.OrderToExecute, data);
+                        break;
+                    case SubscriptionEvents.QuoteRequested:
+                        this.emit(SubscriptionEvents.QuoteRequested, data);
+                        break;
+                }
+            } catch (e: any) {
+                console.log(e);
             }
         });
 
