@@ -1,10 +1,11 @@
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_DATA_PROVIDER_API, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
+import { AORI_API, AORI_TAKER_API, connectTo, defaultDuration, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
+import { getNonce, sendTransaction } from "./AoriDataProvider";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
@@ -312,53 +313,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async accountOrders() {
-        const offerer = this.wallet.address;
-        await this.rawCall({
-            method: AoriMethods.AccountOrders,
-            params: [{
-                offerer,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(this.vaultContract)) : this.wallet.signMessageSync(offerer)
-            }]
-        });
-    }
-
-    async accountBalance(token: string, chainId: number = this.defaultChainId) {
-        const { address } = this.wallet;
-        await this.rawCall({
-            method: AoriMethods.AccountBalance,
-            params: [{
-                address,
-                token,
-                chainId,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(this.vaultContract)) : this.wallet.signMessageSync(address)
-            }]
-        })
-    }
-
-    async accountCredit() {
-        const { address } = this.wallet;
-        await this.rawCall({
-            method: AoriMethods.AccountCredit,
-            params: [{
-                address,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(this.vaultContract)) : this.wallet.signMessageSync(address)
-            }]
-        })
-    }
-
-    async orderStatus(orderHash: string) {
-        await this.rawCall({
-            method: AoriMethods.OrderStatus,
-            params: [{
-                orderHash
-            }]
-        });
-    }
-
     async makeOrder({ order, chainId = this.defaultChainId, isPrivate = false }: { order: AoriOrder, chainId?: number, isPrivate?: boolean }) {
         console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
         console.log(this.formatOrder(order));
@@ -424,17 +378,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         })
     }
 
-    async getCounter({ address, chainId = this.defaultChainId }: { address: string, chainId?: number }) {
-        await this.rawCall({
-            method: AoriMethods.GetCounter,
-            params: [{
-                address,
-                chainId
-            }]
-        })
-    }
-
-    async sendTransaction(tx: TransactionRequest): Promise<AoriMethodsEvents[AoriMethods.SendTransaction][0]> {
+    async sendTransaction(tx: TransactionRequest): Promise<string> {
         if (tx.chainId == undefined) tx.chainId = this.defaultChainId;
         const signedTx = await this.wallet.signTransaction(tx);
 
@@ -451,13 +395,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         console.log(`> Nonce: ${tx.nonce || 0}`);
         console.log(`==================================================================`);
 
-        return await this.rawCall({
-            method: AoriMethods.SendTransaction,
-            params: [{
-                signedTx,
-                chainId: tx.chainId
-            }]
-        });
+        return await sendTransaction(signedTx);
     }
 
     async rawCall<T>({ method, params }: { method: AoriMethods | string, params: [T] | [] }) {
@@ -505,17 +443,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     }
 
     async getNonce(chainId: number = this.defaultChainId): Promise<number> {
-        const { data } = await axios.post(AORI_DATA_PROVIDER_API, {
-            id: 1,
-            jsonrpc: "2.0",
-            method: "aori_getNonce",
-            params: [{
-                address: this.wallet.address,
-                chainId,
-                tag: "pending"
-            }]
-        });
-        return data.result.nonce;
+        return await getNonce(chainId, this.wallet.address);
     }
 
     formatOrder(order: AoriOrder) {
