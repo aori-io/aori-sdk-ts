@@ -141,18 +141,21 @@ export class AoriDataProvider {
         chainId,
         to,
         value,
-        data: _data
+        data: _data,
+        from
     }: {
         chainId: number;
         to: string;
         value: number;
         data: string;
-    }) {
-        const data = await this.rawCall({
+        from?: string
+    }): Promise<string> {
+        const { gasData } = await this.rawCall({
             method: AoriDataMethods.GetGasData,
-            params: [{ chainId, to, value, data: _data }]
+            params: [{ chainId, to, value, data: _data, from }]
         });
-        return data;
+
+        return gasData;
     }
 
     async sendTransaction({
