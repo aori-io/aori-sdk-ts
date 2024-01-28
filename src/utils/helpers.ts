@@ -1,6 +1,6 @@
 import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { getNonce, isValidSignature, sendTransaction } from "../providers";
-import { AoriV2__factory, ERC20__factory } from "../types";
+import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
@@ -332,6 +332,10 @@ export function getSeatPercentageOfFees(seatScore: number): number {
 /*//////////////////////////////////////////////////////////////
                     VAULT-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
+
+export function prepareVaultDeployment(owner: string, chainId: number, aoriProtocol: string = getDefaultZone(chainId)) {
+    return AoriVault__factory.createInterface().encodeDeploy([owner, aoriProtocol]);
+}
 
 export function encodeInstructions(
     preSwapInstructions: InstructionStruct[],
