@@ -4,16 +4,19 @@ import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 
 export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
 
+    broadcastSecret?: string;
     feedUrl: string;
     feed: WebSocket = null as any;
 
     keepAliveTimer: NodeJS.Timeout;
 
-    constructor({ feedUrl }: { feedUrl: string }) {
+    constructor({ feedUrl, broadcastSecret }: { feedUrl: string, broadcastSecret?: string }) {
         super();
 
         this.feedUrl = feedUrl;
         this.keepAliveTimer = null as any;
+
+        this.broadcastSecret = broadcastSecret;
     }
 
     static default(): AoriFeedProvider {
@@ -78,6 +81,26 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
             jsonrpc: "2.0",
             method: "aori_subscribeOrderbook",
             params: []
+        }));
+    }
+
+    async broadcast(event: SubscriptionEvents, data: AoriFeedEvents[SubscriptionEvents][0]) {
+        if (this.broadcastSecret === undefined) {
+            throw new Error("No broadcast secret provided");
+        }
+
+        console.log(`Broadcasting ${event} with data ${JSON.stringify(data)} to websocket`);
+        await this.feed.send(JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            method: "aori_broadcast",
+            params: [{
+                secret: this.broadcastSecret,
+                data: {
+                    type: event,
+                    data
+                }
+            }]
         }));
     }
 
