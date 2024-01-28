@@ -120,21 +120,22 @@ export interface DetailsToExecute {
 
 export enum AoriMethods {
     Ping = "aori_ping",
-    AuthWallet = "aori_authWallet",
-    CheckAuth = "aori_checkAuth",
+    Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     ViewOrderbook = "aori_viewOrderbook",
+    AuthWallet = "aori_authWallet",
+    CheckAuth = "aori_checkAuth",
     MakeOrder = "aori_makeOrder",
     CancelOrder = "aori_cancelOrder",
+    CancelAllOrders = "aori_cancelAllOrders",
     TakeOrder = "aori_takeOrder",
     AccountOrders = "aori_accountOrders",
     AccountCredit = "aori_accountCredit",
     AccountBalance = "aori_accountBalance",
     OrderStatus = "aori_orderStatus",
+    Quote = "aori_quote",
     RequestQuote = "aori_requestQuote",
-    GetCounter = "aori_getCounter",
-    SendTransaction = "aori_sendTransaction",
-    CancelAllOrders = "aori_cancelAllOrders",
+    GetCounter = "aori_getCounter"
 }
 
 export enum AoriDataMethods {
