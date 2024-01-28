@@ -153,7 +153,8 @@ export enum AoriDataMethods {
     GetNativeBalance = "aori_getNativeBalance",
     HasOrderSettled = "aori_hasOrderSettled",
     IsValidSignature = "aori_isValidSignature",
-    GetGasData = "aori_getGasData",
+    GetFeeData = "aori_getFeeData",
+    EstimateGas = "aori_estimateGas",
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
 }

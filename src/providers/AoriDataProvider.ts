@@ -137,7 +137,7 @@ export class AoriDataProvider {
         return isValidSignature;
     }
 
-    async getGasData({
+    async estimateGas({
         chainId,
         to,
         value,
@@ -151,11 +151,26 @@ export class AoriDataProvider {
         from?: string
     }): Promise<string> {
         const { gasData } = await this.rawCall({
-            method: AoriDataMethods.GetGasData,
+            method: AoriDataMethods.EstimateGas,
             params: [{ chainId, to, value, data: _data, from }]
         });
 
         return gasData;
+    }
+
+    async getFeeData({
+        chainId
+    }: { chainId: number }): Promise<{
+        gasPrice: string,
+        maxFeePerGas: string,
+        maxPriorityFeePerGas: string,
+    }> {
+        const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.rawCall({
+            method: AoriDataMethods.GetFeeData,
+            params: [{ chainId }]
+        })
+
+        return { gasPrice, maxFeePerGas, maxPriorityFeePerGas };
     }
 
     async sendTransaction({
@@ -215,6 +230,30 @@ export function getBlockNumber(chainId: number) { return dataProvider.getBlockNu
 
 export function getNonce(chainId: number, address: string): Promise<number> {
     return dataProvider.getNonce({ chainId, address });
+}
+
+export function getFeeData(chainId: number): Promise<{
+    gasPrice: string,
+    maxFeePerGas: string,
+    maxPriorityFeePerGas: string,
+}> {
+    return dataProvider.getFeeData({ chainId });
+}
+
+export function estimateGas({
+    chainId,
+    to,
+    value,
+    data: _data,
+    from
+}: {
+    chainId: number;
+    to: string;
+    value: number;
+    data: string;
+    from?: string
+}): Promise<string> {
+    return dataProvider.estimateGas({ chainId, to, value, data: _data, from });
 }
 
 export function isValidSignature(chainId: number, address: string, hash: BytesLike, signature: string): Promise<boolean> {
