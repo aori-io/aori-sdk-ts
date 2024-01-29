@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
-import { AORI_HTTP_API, AORI_TAKER_API, defaultDuration, getOrderHash } from "../utils";
+import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
@@ -81,8 +81,8 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     async createLimitOrder({
         offerer = (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-        startTime = Math.floor(Date.now() / 1000),
-        endTime = startTime + defaultDuration,
+        startTime,
+        endTime,
         inputToken,
         inputAmount,
         inputChainId = this.defaultChainId,
