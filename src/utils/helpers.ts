@@ -404,8 +404,8 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, maxFeePerGas, maxPriorityFeePerGas });
             await sendTransaction(signedTx);
             success = true;
-        } catch (e: any) {
-            console.log(e);
-        }
+        } catch (e: any) { }
     }
+
+    return success;
 }
