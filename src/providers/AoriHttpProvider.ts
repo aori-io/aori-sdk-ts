@@ -131,11 +131,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         const matchingOrder = await formatIntoLimitOrder({
             offerer: (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
             inputToken: outputToken,
-            inputAmount: BigInt(inputAmount) * (10000n + feeInBips) / 10000n,
+            inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
             inputChainId: outputChainId,
             inputZone: outputZone,
             outputToken: inputToken,
-            outputAmount: BigInt(outputAmount),
+            outputAmount: BigInt(inputAmount),
             outputChainId: inputChainId,
             outputZone: inputZone,
             counter: this.cancelIndex
