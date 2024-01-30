@@ -1,5 +1,6 @@
 import { Quoter } from "@aori-io/adapters";
 import { Wallet } from "ethers";
+import { getFeeData } from "../providers";
 import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
 
@@ -15,8 +16,8 @@ export function QuoteMaker({
     cancelAfter = 12_000,
     cancelAllFirst = false,
     quoter,
-    getGasData,
     sponsorGas = true,
+    gasLimit = 5_000_000n,
     generatePassiveQuotes,
     settleTx
 }: {
@@ -31,8 +32,8 @@ export function QuoteMaker({
     cancelAfter?: number;
     cancelAllFirst?: boolean;
     quoter: Quoter;
-    getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
     generatePassiveQuotes?: { generateEveryMs: number, quotes: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }[] },
+    gasLimit?: bigint;
     sponsorGas?: boolean;
     settleTx?: boolean;
 }) {
@@ -47,7 +48,7 @@ export function QuoteMaker({
     });
 
     baseMaker.on("ready", () => {
-        baseMaker.initialise({ getGasData, cancelAllFirst });
+        baseMaker.initialise({ cancelAllFirst });
         baseMaker.subscribe();
 
         async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
@@ -70,18 +71,10 @@ export function QuoteMaker({
             }
 
             try {
-
-                const { gasLimit, gasPrice } = await getGasData({
-                    // TODO: Make more accurate
-                    to: baseMaker.vaultContract || "",
-                    value: 0,
-                    data: "0x",
-                    chainId
-                });
-
+                const { gasPrice } = await getFeeData(chainId);
                 const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
                     chainId,
-                    gas: Number(gasLimit * gasPrice),
+                    gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
                     token: inputToken
                 });
 

@@ -1,8 +1,8 @@
 import { parseEther, Wallet } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
 import { AoriFeedProvider } from "../providers/AoriFeedProvider";
-import { AoriV2__factory, ERC20__factory } from "../types";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, encodeInstructions, getDefaultZone, SubscriptionEvents } from "../utils";
+import { ERC20__factory } from "../types";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, calldataToSettleOrders, encodeInstructions, getDefaultZone, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
@@ -19,7 +19,6 @@ export class BaseMaker extends AoriHttpProvider {
     //////////////////////////////////////////////////////////////*/
 
     preCalldata: { [orderHash: string]: { to: string, value: number, data: string }[] } = {};
-    flashAmount: { [orderHash: string]: { token: string, amount: bigint }[] } = {};
     postCalldata: { [orderHash: string]: { to: string, value: number, data: string }[] } = {};
 
     /*//////////////////////////////////////////////////////////////
@@ -48,18 +47,15 @@ export class BaseMaker extends AoriHttpProvider {
         super({ wallet, apiUrl, takerUrl, vaultContract, apiKey, defaultChainId, seatId });
 
         this.feed = new AoriFeedProvider({ feedUrl });
-        this.feed.connect();
 
         this.feed.on("ready", () => {
             this.emit("ready");
         });
     }
 
-    async initialise({ getGasData, cancelAllFirst = false }: {
-        getGasData: ({ to, value, data, chainId }:
-            { to: string, value: number, data: string, chainId: number })
-            => Promise<{ gasPrice: bigint, gasLimit: bigint }>,
-        cancelAllFirst?: boolean
+    async initialise({ cancelAllFirst = false, gasLimit = 5_000_000n }: {
+        cancelAllFirst?: boolean,
+        gasLimit?: bigint
     }) {
 
         if (this.vaultContract == undefined) {
@@ -77,41 +73,31 @@ export class BaseMaker extends AoriHttpProvider {
             }
         }
 
-        this.on(SubscriptionEvents.OrderToExecute, async ({ matching, matchingSignature, makerOrderHash: orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId }) => {
-            if (!this.preCalldata[orderHash]) return;
-            console.log(`📦 Received an Order-To-Execute:`, { orderHash, takerOrderHash, to: aoriTo, value: aoriValue, data: aoriData, chainId });
-            /*//////////////////////////////////////////////////////////////
-                                     SET TX DETAILS
-            //////////////////////////////////////////////////////////////*/
+        this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
+            const { matching, matchingSignature, makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
 
-            const to = aoriTo;
-            const value = 0;
-
-            const data = AoriV2__factory
-                .createInterface()
-                .encodeFunctionData("settleOrders", [
-                    matching,
-                    matchingSignature,
-                    encodeInstructions(this.preCalldata[orderHash] || [], this.postCalldata[orderHash] || []),
-                    ""]);
-
-            const { gasPrice, gasLimit } = await getGasData({ to, value, data, chainId });
+            if (!this.preCalldata[makerOrderHash]) return;
+            console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
 
             /*//////////////////////////////////////////////////////////////
                                         SEND TX
             //////////////////////////////////////////////////////////////*/
 
             try {
-                const response = await this.sendTransaction({
+                if (await sendOrRetryTransaction(this.wallet, {
                     to,
                     value,
-                    data,
-                    gasPrice,
+                    data: calldataToSettleOrders(matching, matchingSignature, encodeInstructions(
+                        this.preCalldata[makerOrderHash] || [],
+                        this.postCalldata[makerOrderHash] || []
+                    )),
                     gasLimit,
-                    chainId,
-                    nonce: await this.getNonce()
-                });
-                console.log(`Sent transaction: `, response);
+                    chainId
+                })) {
+                    console.log(`Successfully sent transaction`);
+                } else {
+                    console.log(`Failed to send transaction`);
+                }
             } catch (e: any) {
                 console.log(e);
             }
@@ -127,7 +113,6 @@ export class BaseMaker extends AoriHttpProvider {
         outputAmount: amountForUser, // this is for the user
         cancelAfter,
         preCalldata = [],
-        flashAmount = [],
         postCalldata = [],
         settleTx = true
     }: {
@@ -137,7 +122,6 @@ export class BaseMaker extends AoriHttpProvider {
         outputAmount: bigint;
         cancelAfter?: number,
         preCalldata?: { to: string, value: number, data: string }[],
-        flashAmount?: { token: string, amount: bigint }[],
         postCalldata?: { to: string, value: number, data: string }[],
         settleTx?: boolean
     }) {
@@ -193,12 +177,10 @@ export class BaseMaker extends AoriHttpProvider {
                 chainId: this.defaultChainId,
                 from: this.wallet.address,
                 to: this.vaultContract || "",
-                flashAmount,
                 preCalldata,
                 postCalldata
             });
         } else {
-            this.flashAmount[orderHash] = flashAmount;
             this.preCalldata[orderHash] = preCalldata;
             this.postCalldata[orderHash] = postCalldata;
         }

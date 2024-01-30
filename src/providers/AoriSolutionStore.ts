@@ -9,7 +9,6 @@ export class AoriSolutionStore {
         chainId,
         from,
         to,
-        flashAmount,
         preCalldata,
         postCalldata,
     }: {
@@ -17,13 +16,12 @@ export class AoriSolutionStore {
         chainId: number,
         from: string,
         to: string,
-        flashAmount: { token: string, amount: bigint }[],
         preCalldata: { to: string, value: number, data: string }[],
         postCalldata: { to: string, value: number, data: string }[],
     }) {
         const response = await this.rawCall({
             method: AoriSolutionStoreMethods.SaveSolution,
-            params: [{ orderHash, chainId, from, to, flashAmount: flashAmount.map(({ token, amount }) => ({ token, amount: amount.toString() })), preCalldata, postCalldata }],
+            params: [{ orderHash, chainId, from, to, flashAmount: [], preCalldata, postCalldata }],
         });
         return response;
     }

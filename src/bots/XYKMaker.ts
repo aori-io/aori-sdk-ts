@@ -76,8 +76,7 @@ export function XYKMaker({
 
                 return { outputAmount: newInputAmount - inputBalance, to: "", value: 0, data: "", price: 0 }
             }
-        },
-        getGasData
+        }
     });
 
     return xykMaker;
