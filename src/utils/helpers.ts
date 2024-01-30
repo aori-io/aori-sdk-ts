@@ -1,5 +1,5 @@
 import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
-import { getFeeData, getNonce, isValidSignature, sendTransaction } from "../providers";
+import { getFeeData, getNonce, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
@@ -429,6 +429,13 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const nonce = await getNonce(tx.chainId, wallet.address);
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
             const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, maxFeePerGas, maxPriorityFeePerGas });
+
+            try {
+                await simulateTransaction(signedTx);
+            } catch (e: any) {
+                console.log(e);
+            }
+
             await sendTransaction(signedTx);
             success = true;
         } catch (e: any) { }
