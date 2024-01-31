@@ -11,6 +11,8 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
+export const CREATE3FACTORY_DEPLOYED_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072D8b3F23183";
+
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
 //////////////////////////////////////////////////////////////*/
