@@ -333,7 +333,7 @@ export function getSeatPercentageOfFees(seatScore: number): number {
                     PROTOCOL-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
-export function prepareAoriV2Deployment(deployer: Wallet, saltPhrase: string, gasLimit: 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+export function prepareAoriV2Deployment(deployer: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
     return {
         to: CREATE3FACTORY_DEPLOYED_ADDRESS,
         data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
@@ -352,7 +352,7 @@ export function prepareAoriV2Deployment(deployer: Wallet, saltPhrase: string, ga
                     VAULT-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
-export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
     return {
         to: CREATE3FACTORY_DEPLOYED_ADDRESS,
         data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
