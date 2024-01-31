@@ -142,6 +142,7 @@ export enum AoriDataMethods {
     Ping = "aori_ping",
     SupportedChains = "aori_supportedChains",
     Create3Address = "aori_create3Address",
+    IsContract = "aori_isContract",
     GetAoriCounter = "aori_getAoriCounter",
     GetBlockNumber = "aori_getBlockNumber",
     GetNonce = "aori_getNonce",
