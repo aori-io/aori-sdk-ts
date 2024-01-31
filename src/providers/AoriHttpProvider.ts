@@ -284,7 +284,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 apiKey: this.apiKey,
                 inputToken,
-                inputAmount,
+                inputAmount: inputAmount.toString(),
                 outputToken,
                 chainId
             }]

@@ -371,7 +371,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 apiKey: this.apiKey,
                 inputToken,
-                inputAmount,
+                inputAmount: inputAmount.toString(),
                 outputToken,
                 chainId
             }]
