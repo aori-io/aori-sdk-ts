@@ -1,9 +1,9 @@
-import { AbiCoder, getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { getFeeData, getNonce, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
-import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
+import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -330,11 +330,41 @@ export function getSeatPercentageOfFees(seatScore: number): number {
 }
 
 /*//////////////////////////////////////////////////////////////
+                    PROTOCOL-RELATED FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
+export function prepareAoriV2Deployment(deployer: Wallet, saltPhrase: string, gasLimit: 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [AoriV2__factory.bytecode, AoriV2__factory.createInterface().encodeDeploy(
+                [deployer.address]
+            )]
+        )]),
+        gasLimit
+    }
+}
+
+/*//////////////////////////////////////////////////////////////
                     VAULT-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
-export function prepareVaultDeployment(owner: string, chainId: number, aoriProtocol: string = getDefaultZone(chainId)) {
-    return AoriVault__factory.createInterface().encodeDeploy([owner, aoriProtocol]);
+export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [AoriVault__factory.bytecode, AoriVault__factory.createInterface().encodeDeploy(
+                [deployer.address, aoriProtocol],
+            )])
+        ]),
+        gasLimit
+    }
 }
 
 const InstructionTypeABI = {
