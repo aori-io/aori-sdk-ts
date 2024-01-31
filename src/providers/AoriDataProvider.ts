@@ -213,6 +213,20 @@ export class AoriDataProvider {
         return data;
     }
 
+    async computeCREATE3Address({
+        deployer,
+        salt
+    }: {
+        deployer: string;
+        salt: string
+    }): Promise<string> {
+        const { computedAddress } = await this.rawCall({
+            method: AoriDataMethods.Create3Address,
+            params: [{ deployer, salt }]
+        });
+        return computedAddress;
+    }
+
     async rawCall<T>({
         method,
         params
@@ -310,4 +324,8 @@ export function sendTransaction(signedTx: string): Promise<string> {
 
 export function simulateTransaction(signedTx: string): Promise<string> {
     return dataProvider.simulateTransaction({ signedTx });
+}
+
+export function computeCREATE3Address(deployer: string, salt: string): Promise<string> {
+    return dataProvider.computeCREATE3Address({ deployer, salt });
 }
