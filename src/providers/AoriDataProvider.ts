@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BytesLike, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
+import { BytesLike, id, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
 import { AORI_DATA_PROVIDER_API } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
@@ -326,6 +326,6 @@ export function simulateTransaction(signedTx: string): Promise<string> {
     return dataProvider.simulateTransaction({ signedTx });
 }
 
-export function computeCREATE3Address(deployer: string, salt: string): Promise<string> {
-    return dataProvider.computeCREATE3Address({ deployer, salt });
+export function computeCREATE3Address(deployer: string, saltPhrase: string): Promise<string> {
+    return dataProvider.computeCREATE3Address({ deployer, salt: id(saltPhrase) });
 }
