@@ -36,11 +36,12 @@ export class BaseMaker extends AoriHttpProvider {
         seatId = 0,
     }: {
         wallet: Wallet,
+        apiKey: string,
         apiUrl?: string,
         takerUrl?: string,
         feedUrl?: string,
         vaultContract?: string,
-        apiKey?: string,
+
         defaultChainId?: number
         seatId?: number
     }) {

@@ -22,10 +22,10 @@ export function QuoteMaker({
     settleTx
 }: {
     wallet: Wallet;
+    apiKey: string;
     apiUrl: string;
     feedUrl: string;
     takerUrl?: string;
-    apiKey: string;
     aoriVaultContract: string;
     spreadPercentage?: bigint;
     chainId: number;

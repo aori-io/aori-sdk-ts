@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumberish, formatEther, getBytes, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
+import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
@@ -34,16 +34,17 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         seatId = 0,
     }: {
         wallet: Wallet,
+        apiKey: string,
         apiUrl?: string,
         takerUrl?: string,
         vaultContract?: string,
-        apiKey?: string,
         defaultChainId?: number
         seatId?: number
     }) {
         super();
 
         this.wallet = wallet;
+        this.apiKey = apiKey;
         this.apiUrl = apiUrl;
         this.takerUrl = takerUrl;
         this.seatId = seatId;
@@ -51,7 +52,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
         this.messages = {};
         if (vaultContract) this.vaultContract = vaultContract;
-        if (apiKey) this.apiKey = apiKey;
 
         console.log("🤖 Creating an Aori Provider Instance");
         console.log("==================================================================");
@@ -65,8 +65,8 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         console.log(`🔌 Connected via HTTP to ${apiUrl}...`);
     }
 
-    static default({ wallet }: { wallet: Wallet }): AoriHttpProvider {
-        return new AoriHttpProvider({ wallet })
+    static default({ wallet, apiKey }: { wallet: Wallet, apiKey: string }): AoriHttpProvider {
+        return new AoriHttpProvider({ wallet, apiKey })
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -163,28 +163,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async authWallet(): Promise<AoriMethodsEvents[AoriMethods.AuthWallet][0]> {
-        const { address } = this.wallet;
-
-        return await this.rawCall({
-            method: AoriMethods.AuthWallet,
-            params: [{
-                address,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(this.vaultContract)) : this.wallet.signMessageSync(address)
-            }]
-        })
-    }
-
-    async checkAuth({ auth }: { auth: string }): Promise<AoriMethodsEvents[AoriMethods.CheckAuth][0]> {
-        return await this.rawCall({
-            method: AoriMethods.CheckAuth,
-            params: [{
-                auth
-            }]
-        })
-    }
-
     async viewOrderbook(query?: ViewOrderbookQuery): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook][0]> {
         const { orders } = await this.rawCall({
             method: AoriMethods.ViewOrderbook,
@@ -211,9 +189,9 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 order,
                 signature,
-                apiKey: this.apiKey,
                 signer: ZeroAddress,
                 isPublic: !isPrivate,
+                apiKey: this.apiKey,
             }]
         });
     }
@@ -239,7 +217,8 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 order,
                 signature,
                 orderHash,
-                seatId
+                seatId,
+                apiKey: this.apiKey
             }]
         })
     }
@@ -250,19 +229,17 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: AoriMethods.CancelOrder,
             params: [{
                 orderHash: orderHash,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(orderHash)) : this.wallet.signMessageSync(orderHash)
+                apiKey: this.apiKey
             }]
         });
     }
 
-    async cancelAllOrders(): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
+    async cancelAllOrders(tag?: string): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
         return await this.rawCall({
             method: AoriMethods.CancelAllOrders,
             params: [{
-                offerer: this.wallet.address,
-                signature: this.vaultContract != undefined ?
-                    this.wallet.signMessageSync(getBytes(this.vaultContract)) : this.wallet.signMessageSync(this.wallet.address)
+                apiKey: this.apiKey,
+                ...(tag != undefined) ? { tag } : {}
             }]
         });
     }
@@ -282,11 +259,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         return await this.rawCall({
             method: AoriMethods.RequestQuote,
             params: [{
-                apiKey: this.apiKey,
                 inputToken,
                 inputAmount: inputAmount.toString(),
                 outputToken,
-                chainId
+                chainId,
+                apiKey: this.apiKey,
             }]
         })
     }
