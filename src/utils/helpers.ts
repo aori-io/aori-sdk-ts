@@ -278,7 +278,7 @@ export function calldataToSettleOrders({
     seatNumber,
     seatHolder,
     seatPercentOfFees,
-}: AoriMatchingDetails, signature: string, hookData: string = "", options: string = "") {
+}: AoriMatchingDetails, signature: string, hookData: string = "0x", options: string = "0x") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         makerOrder,
         takerOrder,
