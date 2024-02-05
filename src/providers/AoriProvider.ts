@@ -119,14 +119,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case AoriMethods.SupportedChains:
                     this.emit(AoriMethods.SupportedChains, result);
                     break;
-                case AoriMethods.GetCounter:
-                    this.cancelIndex = result.counter;
-                    this.emit(AoriMethods.GetCounter, {
-                        cancelIndex: result.counter,
-                        address: result.address,
-                        chainId: result.chainId
-                    });
-                    break;
                 case AoriMethods.ViewOrderbook:
                     this.emit(AoriMethods.ViewOrderbook, result.orders);
                     break;
@@ -139,12 +131,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case AoriMethods.TakeOrder:
                     this.emit(AoriMethods.TakeOrder, result.orderHash);
                     break;
-                case AoriMethods.AccountOrders:
-                    this.emit(AoriMethods.AccountOrders, result.orders);
-                    break;
-                case AoriMethods.OrderStatus:
-                    this.emit(AoriMethods.OrderStatus, result.order);
-                    break;
+                case AoriMethods.AccountDetails:
+                    this.emit(AoriMethods.AccountDetails, result);
                 case AoriMethods.CancelAllOrders:
                     this.emit(AoriMethods.CancelAllOrders);
                     break;
@@ -272,6 +260,15 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         await this.rawCall({
             method: AoriMethods.Ping,
             params: []
+        });
+    }
+
+    async accountDetails(): Promise<void> {
+        await this.rawCall({
+            method: AoriMethods.AccountDetails,
+            params: [{
+                apiKey: this.apiKey
+            }]
         });
     }
 

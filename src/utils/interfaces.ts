@@ -123,19 +123,14 @@ export enum AoriMethods {
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     ViewOrderbook = "aori_viewOrderbook",
-    AuthWallet = "aori_authWallet",
-    CheckAuth = "aori_checkAuth",
     MakeOrder = "aori_makeOrder",
     CancelOrder = "aori_cancelOrder",
     CancelAllOrders = "aori_cancelAllOrders",
     TakeOrder = "aori_takeOrder",
-    AccountOrders = "aori_accountOrders",
-    AccountCredit = "aori_accountCredit",
+    AccountDetails = "aori_accountDetails",
     AccountBalance = "aori_accountBalance",
-    OrderStatus = "aori_orderStatus",
     Quote = "aori_quote",
-    RequestQuote = "aori_requestQuote",
-    GetCounter = "aori_getCounter"
+    RequestQuote = "aori_requestQuote"
 }
 
 export enum AoriDataMethods {
@@ -196,18 +191,13 @@ export type AoriMethodsEvents = {
     ["error"]: [error: any],
     [AoriMethods.Ping]: ["aori_pong"],
     [AoriMethods.SupportedChains]: [chainIds: number[]],
-    [AoriMethods.AuthWallet]: [jwt: string],
-    [AoriMethods.CheckAuth]: [authed: boolean],
     [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
     [AoriMethods.MakeOrder]: [order: OrderView],
     [AoriMethods.CancelOrder]: [orderHash: string],
     [AoriMethods.CancelAllOrders]: [],
     [AoriMethods.TakeOrder]: [orderToExecute: DetailsToExecute],
-    [AoriMethods.AccountOrders]: [orders: OrderView[]],
-    [AoriMethods.AccountCredit]: [{ address: string, credit: string }],
+    [AoriMethods.AccountDetails]: [{ assignedAddress: string, credit: string, orders: OrderView[] }],
     [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
-    [AoriMethods.OrderStatus]: [order: OrderView],
-    [AoriMethods.GetCounter]: [{ cancelIndex: number, address: string, chainId: number }],
 
     // 
     [_: string]: any

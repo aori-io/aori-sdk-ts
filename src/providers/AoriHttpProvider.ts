@@ -163,6 +163,15 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
+    async accountDetails(): Promise<AoriMethodsEvents[AoriMethods.AccountDetails][0]> {
+        return await this.rawCall({
+            method: AoriMethods.AccountDetails,
+            params: [{
+                apiKey: this.apiKey
+            }]
+        })
+    }
+
     async viewOrderbook(query?: ViewOrderbookQuery): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook][0]> {
         const { orders } = await this.rawCall({
             method: AoriMethods.ViewOrderbook,
