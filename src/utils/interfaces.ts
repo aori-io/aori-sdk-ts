@@ -198,6 +198,8 @@ export type AoriMethodsEvents = {
     [AoriMethods.TakeOrder]: [orderToExecute: DetailsToExecute],
     [AoriMethods.AccountDetails]: [{ assignedAddress: string, credit: string, orders: OrderView[] }],
     [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
+    [AoriMethods.RequestQuote]: [],
+    [AoriMethods.Quote]: [orders: OrderView[]]
 
     // 
     [_: string]: any

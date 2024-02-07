@@ -135,6 +135,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                     this.emit(AoriMethods.AccountDetails, result);
                 case AoriMethods.CancelAllOrders:
                     this.emit(AoriMethods.CancelAllOrders);
+                case AoriMethods.Quote:
+                    this.emit(AoriMethods.Quote, result);
                     break;
                 default:
                     this.emit(this.messages[id], result);
@@ -342,6 +344,30 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             }]
         })
     }
+
+
+    async quote({
+        inputToken,
+        inputAmount,
+        outputToken,
+        chainId = this.defaultChainId
+    }: {
+        inputToken: string,
+        inputAmount: BigNumberish,
+        outputToken: string,
+        chainId?: number
+    }) {
+        await this.rawCall({
+            method: AoriMethods.Quote,
+            params: [{
+                inputToken,
+                inputAmount: inputAmount.toString(),
+                outputToken,
+                chainId,
+                apiKey: this.apiKey
+            }]
+        })
+    };
 
     async sendTransaction(tx: TransactionRequest): Promise<string> {
         if (tx.chainId == undefined) tx.chainId = this.defaultChainId;

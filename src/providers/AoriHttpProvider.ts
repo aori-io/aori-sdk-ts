@@ -263,7 +263,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputAmount: BigNumberish,
         outputToken: string,
         chainId?: number
-    }): Promise<AoriMethodsEvents[AoriMethods.RequestQuote][0]> {
+    }): Promise<void> {
         console.log(`🗨️ Requesting Quote to trade ${formatEther(inputAmount)} ${inputToken} for ${outputToken} on chain ${chainId}`);
         return await this.rawCall({
             method: AoriMethods.RequestQuote,
@@ -276,6 +276,29 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             }]
         })
     }
+
+    async quote({
+        inputToken,
+        inputAmount,
+        outputToken,
+        chainId = this.defaultChainId
+    }: {
+        inputToken: string,
+        inputAmount: BigNumberish,
+        outputToken: string,
+        chainId?: number
+    }): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
+        return await this.rawCall({
+            method: AoriMethods.Quote,
+            params: [{
+                inputToken,
+                inputAmount: inputAmount.toString(),
+                outputToken,
+                chainId,
+                apiKey: this.apiKey
+            }]
+        })
+    };
 
     async sendTransaction(tx: TransactionRequest): Promise<string> {
         if (tx.chainId == undefined) tx.chainId = this.defaultChainId;
