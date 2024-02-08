@@ -59,12 +59,7 @@ export class BaseMaker extends AoriHttpProvider {
         gasLimit?: bigint
     }) {
 
-        if (this.vaultContract == undefined) {
-            console.log(`No aori vault contract provided`);
-            return;
-        }
-
-        console.log("Initialising flash maker...");
+        console.log("Initialising maker...");
 
         if (cancelAllFirst) {
             try {
@@ -146,14 +141,14 @@ export class BaseMaker extends AoriHttpProvider {
         // if we don't have enough allowance, approve
         const defaultZone = getDefaultZone(this.defaultChainId);
         if (this.protocolAllowances[outputToken] == undefined) {
-            console.log(`👮 Checking approval for ${this.vaultContract} by spender ${defaultZone} on chain ${this.defaultChainId}`);
+            console.log(`👮 Checking approval for ${this.vaultContract || this.wallet.address} by spender ${defaultZone} on chain ${this.defaultChainId}`);
             if (await this.dataProvider.getTokenAllowance({
                 chainId: this.defaultChainId,
-                address: this.vaultContract || "",
+                address: this.vaultContract || this.wallet.address,
                 spender: defaultZone,
                 token: outputToken
             }) < amountForUser) {
-                console.log(`✍️ Approving ${this.vaultContract} for ${defaultZone} on chain ${this.defaultChainId}`);
+                console.log(`✍️ Approving ${this.vaultContract || this.wallet.address} for ${defaultZone} on chain ${this.defaultChainId}`);
                 preCalldata.push({
                     to: outputToken,
                     value: 0,
@@ -162,7 +157,7 @@ export class BaseMaker extends AoriHttpProvider {
                     ])
                 });
             } else {
-                console.log(`☑️ Already approved ${this.vaultContract} for ${defaultZone} on chain ${this.defaultChainId}`);
+                console.log(`☑️ Already approved ${this.vaultContract || this.wallet.address} for ${defaultZone} on chain ${this.defaultChainId}`);
             }
 
             this.protocolAllowances[outputToken] = true;
@@ -172,19 +167,19 @@ export class BaseMaker extends AoriHttpProvider {
                                 SAVE SOLUTION
         //////////////////////////////////////////////////////////////*/
 
-        if (!settleTx) {
-            await this.solutionStore.saveSolution({
-                orderHash,
-                chainId: this.defaultChainId,
-                from: this.wallet.address,
-                to: this.vaultContract || "",
-                preCalldata,
-                postCalldata
-            });
-        } else {
+        if (this.vaultContract) {
             this.preCalldata[orderHash] = preCalldata;
             this.postCalldata[orderHash] = postCalldata;
+        } else {
+            // Just approve now
+            for (const preCalls of preCalldata) {
+                await sendOrRetryTransaction(this.wallet, { ...preCalls, chainId: this.defaultChainId });
+            }
         }
+
+        /*//////////////////////////////////////////////////////////////
+                                  EXPIRE ORDER
+        //////////////////////////////////////////////////////////////*/
 
         if (cancelAfter != undefined) {
             setTimeout(async () => {

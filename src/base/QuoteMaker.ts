@@ -26,7 +26,7 @@ export function QuoteMaker({
     apiUrl: string;
     feedUrl: string;
     takerUrl?: string;
-    aoriVaultContract: string;
+    aoriVaultContract?: string;
     spreadPercentage?: bigint;
     chainId: number;
     cancelAfter?: number;
@@ -56,13 +56,13 @@ export function QuoteMaker({
                 inputToken,
                 outputToken,
                 inputAmount,
-                fromAddress: baseMaker.vaultContract || "",
+                fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
                 chainId
             });
 
             // Construct preCalldata
             const preCalldata = [];
-            if (quoterTo != baseMaker.vaultContract || quoterTo != "") {
+            if (quoterTo != baseMaker.vaultContract || quoterTo != baseMaker.wallet.address || quoterTo != "") {
                 preCalldata.push({
                     to: quoterTo,
                     value: quoterValue,
