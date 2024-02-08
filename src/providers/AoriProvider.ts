@@ -136,7 +136,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 case AoriMethods.CancelAllOrders:
                     this.emit(AoriMethods.CancelAllOrders);
                 case AoriMethods.Quote:
-                    this.emit(AoriMethods.Quote, result);
+                    this.emit(AoriMethods.Quote, result.orders);
                     break;
                 default:
                     this.emit(this.messages[id], result);

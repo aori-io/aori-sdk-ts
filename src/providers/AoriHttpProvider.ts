@@ -288,7 +288,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         outputToken: string,
         chainId?: number
     }): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
-        return await this.rawCall({
+        const { orders } = await this.rawCall({
             method: AoriMethods.Quote,
             params: [{
                 inputToken,
@@ -297,7 +297,9 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 chainId,
                 apiKey: this.apiKey
             }]
-        })
+        });
+
+        return orders;
     };
 
     async sendTransaction(tx: TransactionRequest): Promise<string> {
