@@ -176,8 +176,10 @@ export class BaseMaker extends AoriHttpProvider {
                 await sendOrRetryTransaction(this.wallet, { ...preCalls, chainId: this.defaultChainId });
             }
 
-            this.preCalldata[orderHash] = [];
-            this.postCalldata[orderHash] = [];
+            if (settleTx) {
+                this.preCalldata[orderHash] = [];
+                this.postCalldata[orderHash] = [];
+            }
         }
 
         /*//////////////////////////////////////////////////////////////
