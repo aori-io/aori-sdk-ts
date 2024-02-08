@@ -97,6 +97,15 @@ export class BaseMaker extends AoriHttpProvider {
             } catch (e: any) {
                 console.log(e);
             }
+
+            /*//////////////////////////////////////////////////////////////
+                                        CLEAN UP
+            //////////////////////////////////////////////////////////////*/
+
+            // @ts-ignore
+            this.preCalldata[makerOrderHash] = undefined;
+            // @ts-ignore
+            this.postCalldata[makerOrderHash] = undefined;
         });
 
         this.initialised = true;
@@ -189,7 +198,12 @@ export class BaseMaker extends AoriHttpProvider {
         if (cancelAfter != undefined) {
             setTimeout(async () => {
                 try {
-                    await this.cancelOrder(orderHash);
+                    if (this.preCalldata[orderHash] == undefined) {
+                        console.log(`Already cancelled ${orderHash}`);
+                    } else {
+                        console.log(`Cancelling order ${orderHash}`);
+                        await this.cancelOrder(orderHash);
+                    }
                 } catch (e: any) {
                     console.log(e);
                 }
