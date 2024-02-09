@@ -7,6 +7,12 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
     [5, new Set([
         "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
     ])],
+    [42161, new Set([
+        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
+    ])],
+    [421614, new Set([
+        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
+    ])],
     [11155111, new Set([
         "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
     ])]
