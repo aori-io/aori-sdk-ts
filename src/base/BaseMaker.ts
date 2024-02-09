@@ -198,9 +198,7 @@ export class BaseMaker extends AoriHttpProvider {
         if (cancelAfter != undefined) {
             setTimeout(async () => {
                 try {
-                    if (this.preCalldata[orderHash] == undefined) {
-                        console.log(`Already cancelled ${orderHash}`);
-                    } else {
+                    if (this.preCalldata[orderHash] != undefined) {
                         console.log(`Cancelling order ${orderHash}`);
                         await this.cancelOrder(orderHash);
                     }
