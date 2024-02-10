@@ -150,6 +150,10 @@ export function getOrderHash({
 
 export function signOrderSync(wallet: Wallet, order: AoriOrder) {
     const orderHash = getOrderHash(order);
+    return signOrderHashSync(wallet, orderHash);
+}
+
+export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
 }
 
