@@ -278,29 +278,35 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         });
     }
 
-    async makeOrder({ order, chainId = this.defaultChainId, isPrivate = false }: { order: AoriOrder, chainId?: number, isPrivate?: boolean }) {
+    async makeOrder({
+        order,
+        signature,
+        isPrivate = false
+    }: { order: AoriOrder, signature?: string, isPrivate?: boolean }) {
         console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
         console.log(this.formatOrder(order));
         await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
                 order,
+                signature,
                 signer: ZeroAddress,
                 isPublic: !isPrivate,
-                chainId,
                 apiKey: this.apiKey,
             }]
         });
     }
 
-    async takeOrder({ orderHash, order, chainId = this.defaultChainId, seatId = this.seatId }: { orderHash: string, order: AoriOrder, chainId?: number, seatId?: number }) {
+    async takeOrder({ orderHash, order, signature, seatId = this.seatId }: { orderHash: string, order: AoriOrder, signature?: string, seatId?: number }) {
         console.log(`💹 Attempting to Take ${orderHash} on ${this.apiUrl}`);
         console.log(this.formatOrder(order));
+
+        if (signature == undefined) signature = await signOrderSync(this.wallet, order);
         await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
                 order,
-                chainId,
+                signature,
                 orderId: orderHash,
                 seatId,
                 apiKey: this.apiKey,
