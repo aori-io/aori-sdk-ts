@@ -2,10 +2,10 @@ import axios from "axios";
 import { BigNumberish, formatEther, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
 import { AORI_API, AORI_TAKER_API, connectTo, getOrderHash } from "../utils";
-import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
+import { formatIntoLimitOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { getNonce, sendTransaction } from "./AoriDataProvider";
+import { sendTransaction } from "./AoriDataProvider";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
@@ -209,7 +209,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputZone,
             counter: this.cancelIndex
         });
-        const signature = await this.signOrder(limitOrder);
+        const signature = await signOrderSync(this.wallet, limitOrder);
         return {
             signature,
             orderHash: getOrderHash(limitOrder)
@@ -244,16 +244,13 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             counter: this.cancelIndex
         });
 
-        const signature = await this.signOrder(matchingOrder);
+        const signature = await signOrderSync(this.wallet, matchingOrder);
         return {
             signature,
             order: matchingOrder,
         };
     }
 
-    async signOrder(order: AoriOrder) {
-        return await signOrderSync(this.wallet, order);
-    }
     /*//////////////////////////////////////////////////////////////
                                 ACTIONS
     //////////////////////////////////////////////////////////////*/
@@ -317,6 +314,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             params: [{
                 orderHash: orderHash,
                 apiKey: this.apiKey,
+                signature: signOrderHashSync(this.wallet, orderHash)
             }]
         });
     }
@@ -326,6 +324,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: AoriMethods.CancelAllOrders,
             params: [{
                 apiKey: this.apiKey,
+                signature: signAddressSync(this.wallet, this.vaultContract || this.wallet.address),
                 ...(tag != undefined) ? { tag } : {}
             }]
         });
@@ -422,10 +421,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 seatId
             }]
         });
-    }
-
-    async getNonce(chainId: number = this.defaultChainId): Promise<number> {
-        return await getNonce(chainId, this.wallet.address);
     }
 
     formatOrder(order: AoriOrder) {

@@ -1,10 +1,10 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { formatIntoLimitOrder, getDefaultZone, signOrderSync } from "../utils/helpers";
+import { formatIntoLimitOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { getNonce, sendTransaction } from "./AoriDataProvider";
+import { sendTransaction } from "./AoriDataProvider";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
     apiUrl: string;
@@ -119,7 +119,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputZone,
             counter: this.cancelIndex
         });
-        const signature = await this.signOrder(limitOrder);
+        const signature = await signOrderSync(this.wallet, limitOrder);
         return {
             signature,
             order: limitOrder,
@@ -140,16 +140,12 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputZone: inputZone,
             counter: this.cancelIndex
         });
-        const signature = await this.signOrder(matchingOrder);
+        const signature = await signOrderSync(this.wallet, matchingOrder);
         return {
             signature,
             order: matchingOrder,
             orderHash: getOrderHash(matchingOrder)
         };
-    }
-
-    async signOrder(order: AoriOrder) {
-        return await signOrderSync(this.wallet, order);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -192,7 +188,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         console.log(`💹 Placing Limit Order to ${this.apiUrl}`);
         console.log(this.formatOrder(order));
 
-        if (signature == undefined) signature = await this.signOrder(order);
+        if (signature == undefined) signature = await signOrderSync(this.wallet, order);
         return await this.rawCall({
             method: AoriMethods.MakeOrder,
             params: [{
@@ -219,7 +215,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         console.log(`💹 Attempting to Take ${orderHash} on ${this.apiUrl}`);
         console.log(this.formatOrder(order));
 
-        if (signature == undefined) signature = await this.signOrder(order);
+        if (signature == undefined) signature = await signOrderSync(this.wallet, order);
         return await this.rawCall({
             method: AoriMethods.TakeOrder,
             params: [{
@@ -238,7 +234,8 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: AoriMethods.CancelOrder,
             params: [{
                 orderHash: orderHash,
-                apiKey: this.apiKey
+                apiKey: this.apiKey,
+                signature: signOrderHashSync(this.wallet, orderHash)
             }]
         });
     }
@@ -248,6 +245,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: AoriMethods.CancelAllOrders,
             params: [{
                 apiKey: this.apiKey,
+                signature: signAddressSync(this.wallet, this.vaultContract || this.wallet.address),
                 ...(tag != undefined) ? { tag } : {}
             }]
         });
@@ -362,14 +360,10 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             method: "aori_takeOrder",
             params: [{
                 order,
-                signature: this.signOrder(order),
+                signature: signOrderSync(this.wallet, order),
                 seatId
             }]
         });
-    }
-
-    async getNonce(chainId: number = this.defaultChainId): Promise<number> {
-        return await getNonce(chainId, this.wallet.address);
     }
 
     formatOrder(order: AoriOrder) {

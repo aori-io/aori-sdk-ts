@@ -157,6 +157,10 @@ export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
 }
 
+export function signAddressSync(wallet: Wallet, address: string) {
+    return wallet.signMessageSync(getBytes(address));
+}
+
 export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getBytes(getOrderHash(order)), signature);
 }
