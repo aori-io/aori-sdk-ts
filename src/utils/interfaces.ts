@@ -155,6 +155,7 @@ export enum AoriDataMethods {
     EstimateGas = "aori_estimateGas",
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
+    StaticCall = "aori_staticCall"
 }
 
 export enum AoriPricingMethods {

@@ -213,6 +213,22 @@ export class AoriDataProvider {
         return data;
     }
 
+    async staticCall({
+        to,
+        data,
+        chainId
+    }: {
+        to: string;
+        data: string,
+        chainId: number
+    }): Promise<string> {
+        const { response } = await this.rawCall({
+            method: AoriDataMethods.StaticCall,
+            params: [{ to, data, chainId }]
+        });
+        return response;
+    }
+
     async isContract({
         chainId,
         address
@@ -338,6 +354,18 @@ export function sendTransaction(signedTx: string): Promise<string> {
 
 export function simulateTransaction(signedTx: string): Promise<string> {
     return dataProvider.simulateTransaction({ signedTx });
+}
+
+export function staticCall({
+    chainId,
+    to,
+    data
+}: {
+    chainId: number;
+    to: string;
+    data: string
+}): Promise<string> {
+    return dataProvider.staticCall({ chainId, to, data });
 }
 
 export function computeCREATE3Address(deployer: string, saltPhrase: string): Promise<string> {
