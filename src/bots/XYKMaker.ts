@@ -56,7 +56,7 @@ export function XYKMaker({
 
                 const newOutputAmount = (BigInt(inputBalance) * BigInt(outputBalance)) / (inputBalance - BigInt(inputAmount));
 
-                return { outputAmount: newOutputAmount - outputBalance, to: "", value: 0, data: "", price: 0 }
+                return { outputAmount: newOutputAmount - outputBalance, to: "", value: 0, data: "", price: 0, gas: 0n }
             },
             getInputAmountQuote: async ({ inputToken, outputToken, outputAmount, fromAddress, chainId }) => {
 
@@ -74,7 +74,7 @@ export function XYKMaker({
 
                 const newInputAmount = (BigInt(inputBalance) * BigInt(outputBalance)) / (outputBalance - BigInt(outputAmount));
 
-                return { outputAmount: newInputAmount - inputBalance, to: "", value: 0, data: "", price: 0 }
+                return { outputAmount: newInputAmount - inputBalance, to: "", value: 0, data: "", price: 0, gas: 0n }
             }
         }
     });
