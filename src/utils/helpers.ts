@@ -101,8 +101,34 @@ export async function formatIntoLimitOrder({
 export const createLimitOrder = formatIntoLimitOrder;
 export const newLimitOrder = formatIntoLimitOrder;
 
-export function createMatchingOrder() {
-    // TODO:
+export async function createMatchingOrder({
+    inputToken,
+    inputAmount,
+    inputChainId,
+    inputZone,
+    outputToken,
+    outputAmount,
+    outputChainId,
+    outputZone
+}: AoriOrder, {
+    offerer,
+    feeInBips = 3n
+}: {
+    offerer: string
+    feeInBips?: bigint,
+}): Promise<AoriOrder> {
+    return await formatIntoLimitOrder({
+        offerer,
+        inputToken: outputToken,
+        inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
+        inputChainId: outputChainId,
+        inputZone: outputZone,
+        outputToken: inputToken,
+        outputAmount: BigInt(inputAmount),
+        outputChainId: inputChainId,
+        outputZone: inputZone,
+        counter: 0
+    });
 }
 
 export function getOrderHash({

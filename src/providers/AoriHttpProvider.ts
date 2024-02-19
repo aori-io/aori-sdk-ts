@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { formatIntoLimitOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
+import { createLimitOrder, createMatchingOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { sendTransaction } from "./AoriDataProvider";
@@ -105,7 +105,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         outputChainId?: number;
         outputZone?: string;
     }) {
-        const limitOrder = await formatIntoLimitOrder({
+        const limitOrder = await createLimitOrder({
             offerer,
             startTime,
             endTime,
@@ -127,19 +127,12 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         };
     }
 
-    async createMatchingOrder({ inputToken, inputAmount, inputChainId, inputZone, outputToken, outputAmount, outputChainId, outputZone }: AoriOrder, feeInBips = 3n) {
-        const matchingOrder = await formatIntoLimitOrder({
+    async createMatchingOrder(order: AoriOrder, feeInBips = 3n) {
+        const matchingOrder = await createMatchingOrder(order, {
             offerer: (this.vaultContract != undefined) ? this.vaultContract : this.wallet.address,
-            inputToken: outputToken,
-            inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
-            inputChainId: outputChainId,
-            inputZone: outputZone,
-            outputToken: inputToken,
-            outputAmount: BigInt(inputAmount),
-            outputChainId: inputChainId,
-            outputZone: inputZone,
-            counter: this.cancelIndex
+            feeInBips
         });
+
         const signature = await signOrderSync(this.wallet, matchingOrder);
         return {
             signature,
