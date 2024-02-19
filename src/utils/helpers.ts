@@ -60,7 +60,8 @@ export async function formatIntoLimitOrder({
     outputAmount,
     outputChainId = 1,
     outputZone = getDefaultZone(outputChainId),
-    counter
+    counter = 0,
+    toWithdraw = true
 }: {
     offerer: string;
     chainId?: number;
@@ -75,7 +76,8 @@ export async function formatIntoLimitOrder({
     outputAmount: bigint;
     outputChainId: number;
     outputZone: string;
-    counter: number;
+    counter?: number;
+    toWithdraw?: boolean;
 }): Promise<AoriOrder> {
 
     return {
@@ -92,9 +94,12 @@ export async function formatIntoLimitOrder({
         endTime: `${endTime}`,
         salt: `${Math.floor(Math.random() * maxSalt)}`,
         counter,
-        toWithdraw: true
+        toWithdraw
     }
 }
+
+export const createLimitOrder = formatIntoLimitOrder;
+export const newLimitOrder = formatIntoLimitOrder;
 
 export function getOrderHash({
     offerer,
@@ -152,6 +157,7 @@ export function signOrderSync(wallet: Wallet, order: AoriOrder) {
     const orderHash = getOrderHash(order);
     return signOrderHashSync(wallet, orderHash);
 }
+export const signOrder = signOrderSync;
 
 export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
