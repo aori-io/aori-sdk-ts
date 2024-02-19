@@ -101,6 +101,10 @@ export async function formatIntoLimitOrder({
 export const createLimitOrder = formatIntoLimitOrder;
 export const newLimitOrder = formatIntoLimitOrder;
 
+export function createMatchingOrder() {
+    // TODO:
+}
+
 export function getOrderHash({
     offerer,
     inputToken,
