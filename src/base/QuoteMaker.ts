@@ -1,5 +1,6 @@
-import { Wallet } from "ethers";
+import { parseEther, Wallet } from "ethers";
 import { getFeeData } from "../providers";
+import { ERC20__factory } from "../types";
 import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
 
@@ -95,6 +96,27 @@ export function QuoteMaker({
             // Construct preCalldata
             const preCalldata = [];
             if (quoterTo != baseMaker.vaultContract || quoterTo != baseMaker.wallet.address || quoterTo != "") {
+
+                // Approve quoter
+                if (await baseMaker.dataProvider.getTokenAllowance({
+                    chainId: baseMaker.defaultChainId,
+                    address: baseMaker.vaultContract || baseMaker.wallet.address,
+                    spender: quoterTo,
+                    token: inputToken
+                }) < BigInt(inputAmount)) {
+                    console.log(`✍️ Approving ${baseMaker.vaultContract || baseMaker.wallet.address} for ${quoterTo} on chain ${baseMaker.defaultChainId}`);
+                    preCalldata.push({
+                        to: inputToken,
+                        value: 0,
+                        data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                            quoterTo, parseEther("100000")
+                        ])
+                    });
+                } else {
+                    console.log(`☑️ Already approved ${baseMaker.vaultContract || baseMaker.wallet.address} for ${quoterTo} on chain ${baseMaker.defaultChainId}`);
+                }
+
+                // Perform swap
                 preCalldata.push({
                     to: quoterTo,
                     value: quoterValue,
