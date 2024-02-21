@@ -335,7 +335,14 @@ export function calldataToSettleOrders({
     }, signature, hookData, options]);
 }
 
-export function toDetailsToExecute(matching: AoriMatchingDetails, matchingSignature: string, to: string, value: number, data: string): DetailsToExecute {
+export function toDetailsToExecute(
+    matching: AoriMatchingDetails,
+    matchingSignature: string,
+    to: string,
+    value: number,
+    data: string,
+    permitSignature?: string
+): DetailsToExecute {
     return {
         matchingHash: getMatchingHash(matching),
         matching,
@@ -354,6 +361,8 @@ export function toDetailsToExecute(matching: AoriMatchingDetails, matchingSignat
         to,
         value,
         data,
+
+        permitSignature, // In case the taker would like to make use of a gasless permit
 
         maker: matching.makerOrder.offerer,
         taker: matching.takerOrder.offerer,

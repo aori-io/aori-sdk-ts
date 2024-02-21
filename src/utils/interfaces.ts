@@ -104,6 +104,7 @@ export interface DetailsToExecute {
     to: string;
     value: number;
     data: string; // Default calldata if no hookdata or options being submitted
+    permitSignature?: string;
 
     maker: string;
     taker: string;
@@ -174,6 +175,7 @@ export enum AoriMempoolProviderMethods {
     AoriMatchHistory = "aori_matchHistory",
     AoriGetMatchDetails = "aori_getMatchDetails",
     AoriOutstandingMatches = "aori_outstandingMatches",
+    AoriSubmitMatch = "aori_submitMatch",
 }
 
 export enum SubscriptionEvents {
