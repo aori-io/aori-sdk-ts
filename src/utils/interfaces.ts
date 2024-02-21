@@ -104,7 +104,7 @@ export interface DetailsToExecute {
     to: string;
     value: number;
     data: string; // Default calldata if no hookdata or options being submitted
-    permitSignature?: string;
+    takerPermitSignature?: string;
 
     maker: string;
     taker: string;

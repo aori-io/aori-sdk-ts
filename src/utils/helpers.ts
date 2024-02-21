@@ -341,7 +341,7 @@ export function toDetailsToExecute(
     to: string,
     value: number,
     data: string,
-    permitSignature?: string
+    takerPermitSignature?: string
 ): DetailsToExecute {
     return {
         matchingHash: getMatchingHash(matching),
@@ -362,7 +362,7 @@ export function toDetailsToExecute(
         value,
         data,
 
-        permitSignature, // In case the taker would like to make use of a gasless permit
+        takerPermitSignature, // In case the taker would like to make use of a gasless permit
 
         maker: matching.makerOrder.offerer,
         taker: matching.takerOrder.offerer,
