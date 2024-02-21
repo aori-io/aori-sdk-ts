@@ -1,6 +1,6 @@
-import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { getFeeData, getNonce, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
-import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
+import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
@@ -525,4 +525,52 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
     }
 
     return success;
+}
+
+/*//////////////////////////////////////////////////////////////
+                    TOKEN-RELATED FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
+export function prepareYinTokenDeployment(saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [Yin__factory.bytecode, Yin__factory.createInterface().encodeDeploy([])]
+        )]),
+        gasLimit
+    }
+}
+
+export function prepareYangTokenDeployment(saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [Yang__factory.bytecode, Yang__factory.createInterface().encodeDeploy([])]
+        )]),
+        gasLimit
+    }
+}
+
+export function mintYinToken(wallet: Wallet, chainId: number, address: string) {
+    return sendOrRetryTransaction(wallet, {
+        to: address,
+        value: 0,
+        data: Yin__factory.createInterface().encodeFunctionData("mint", [parseEther("50")]),
+        chainId
+    });
+}
+
+export function mintYangToken(wallet: Wallet, chainId: number, address: string) {
+    return sendOrRetryTransaction(wallet, {
+        to: address,
+        value: 0,
+        data: Yang__factory.createInterface().encodeFunctionData("mint", [parseEther("50")]),
+        chainId
+    });
 }
