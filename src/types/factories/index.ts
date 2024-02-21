@@ -5,3 +5,5 @@ export { AoriV2__factory } from "./AoriV2__factory";
 export { AoriVault__factory } from "./AoriVault__factory";
 export { CREATE3Factory__factory } from "./CREATE3Factory__factory";
 export { ERC20__factory } from "./ERC20__factory";
+export { Yang__factory } from "./Yang__factory";
+export { Yin__factory } from "./Yin__factory";

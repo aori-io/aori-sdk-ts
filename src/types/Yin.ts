@@ -23,16 +23,19 @@ import type {
   TypedContractMethod,
 } from "./common";
 
-export interface ERC20Interface extends Interface {
+export interface YinInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "DOMAIN_SEPARATOR"
       | "allowance"
       | "approve"
       | "balanceOf"
+      | "burn"
       | "decimals"
+      | "mint"
       | "name"
       | "nonces"
+      | "owner"
       | "permit"
       | "symbol"
       | "totalSupply"
@@ -58,9 +61,12 @@ export interface ERC20Interface extends Interface {
     functionFragment: "balanceOf",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(functionFragment: "mint", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "permit",
     values: [
@@ -94,9 +100,12 @@ export interface ERC20Interface extends Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
@@ -146,11 +155,11 @@ export namespace TransferEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface ERC20 extends BaseContract {
-  connect(runner?: ContractRunner | null): ERC20;
+export interface Yin extends BaseContract {
+  connect(runner?: ContractRunner | null): Yin;
   waitForDeployment(): Promise<this>;
 
-  interface: ERC20Interface;
+  interface: YinInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -205,11 +214,17 @@ export interface ERC20 extends BaseContract {
 
   balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
+  burn: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
   decimals: TypedContractMethod<[], [bigint], "view">;
+
+  mint: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   name: TypedContractMethod<[], [string], "view">;
 
   nonces: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
 
   permit: TypedContractMethod<
     [
@@ -266,14 +281,23 @@ export interface ERC20 extends BaseContract {
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "burn"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "mint"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "nonces"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "permit"
   ): TypedContractMethod<
