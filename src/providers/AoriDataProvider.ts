@@ -107,6 +107,20 @@ export class AoriDataProvider {
         return BigInt(tokenBalance);
     }
 
+    async getTokenDetails({
+        chainId,
+        token
+    }: {
+        chainId: number;
+        token: string;
+    }): Promise<{ name: string, symbol: string, decimals: number }> {
+        const { name, symbol, decimals } = await this.rawCall({
+            method: AoriDataMethods.GetTokenDetails,
+            params: [{ chainId, token }]
+        });
+        return { name, symbol, decimals };
+    }
+
     async getNativeBalance({
         chainId,
         address
@@ -338,6 +352,10 @@ export function getTokenBalance(chainId: number, address: string, token: string)
 
 export function getTokenAllowance(chainId: number, address: string, token: string, spender: string): Promise<bigint> {
     return dataProvider.getTokenAllowance({ chainId, address, token, spender });
+}
+
+export function getTokenDetails(chainId: number, token: string): Promise<{ name: string, symbol: string, decimals: number }> {
+    return dataProvider.getTokenDetails({ chainId, token });
 }
 
 export function getSeatDetails(seatId: number): Promise<{ seatOwner: string, seatScore: number }> {
