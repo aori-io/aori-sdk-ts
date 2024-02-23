@@ -32,11 +32,13 @@ export class AoriMempoolProvider {
     async viewMatches({
         matchingHash,
         maker,
-        outstanding
+        outstanding,
+        orderHash
     }: {
         matchingHash?: string,
         maker?: string,
-        outstanding?: boolean
+        outstanding?: boolean,
+        orderHash?: string,
     }): Promise<AoriMempoolMatch[]> {
 
         const matches = await this.rawCall({
@@ -44,7 +46,8 @@ export class AoriMempoolProvider {
             params: [{
                 matchingHash,
                 maker,
-                outstanding
+                outstanding,
+                orderHash
             }]
         });
         return matches;
