@@ -3,35 +3,51 @@ import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_MEMPOOL_PROVIDER_API } from "../utils";
 import { AoriMempoolProviderMethods, DetailsToExecute } from "../utils/interfaces";
 
+export type AoriMempoolMatch = DetailsToExecute & {
+    outstanding: boolean,
+    submittedAt: number,
+    settledAt?: number,
+};
+
 export class AoriMempoolProvider {
 
-    async getMatchDetails({
-        matchingHash
-    }: { matchingHash: string }): Promise<DetailsToExecute> {
+    async submitMatch({
+        matching,
+        secret
+    }: {
+        matching: DetailsToExecute,
+        secret: string
+    }) {
 
         const data = await this.rawCall({
-            method: AoriMempoolProviderMethods.AoriGetMatchDetails,
-            params: [{ matchingHash }]
-        });
-        return data;
-    }
-
-    async matchHistory(): Promise<DetailsToExecute[]> {
-        const data = await this.rawCall({
-            method: AoriMempoolProviderMethods.AoriMatchHistory,
-            params: []
-        });
-        return data;
-    }
-
-    async outstandingMatches(maker: string): Promise<DetailsToExecute[]> {
-        const data = await this.rawCall({
-            method: AoriMempoolProviderMethods.AoriOutstandingMatches,
+            method: AoriMempoolProviderMethods.AoriSubmitMatch,
             params: [{
-                maker
+                matching,
+                secret
             }]
         });
         return data;
+    }
+
+    async viewMatches({
+        matchingHash,
+        maker,
+        outstanding
+    }: {
+        matchingHash?: string,
+        maker?: string,
+        outstanding?: boolean
+    }): Promise<AoriMempoolMatch[]> {
+
+        const matches = await this.rawCall({
+            method: AoriMempoolProviderMethods.AoriViewMatches,
+            params: [{
+                matchingHash,
+                maker,
+                outstanding
+            }]
+        });
+        return matches;
     }
 
     async rawCall<T>({

@@ -172,9 +172,7 @@ export enum AoriSolutionStoreMethods {
 export enum AoriMempoolProviderMethods {
     AoriPing = "aori_ping",
     AoriSupportedChains = "aori_supportedChains",
-    AoriMatchHistory = "aori_matchHistory",
-    AoriGetMatchDetails = "aori_getMatchDetails",
-    AoriOutstandingMatches = "aori_outstandingMatches",
+    AoriViewMatches = "aori_viewMatches",
     AoriSubmitMatch = "aori_submitMatch",
 }
 

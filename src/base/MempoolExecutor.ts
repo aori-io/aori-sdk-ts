@@ -11,7 +11,7 @@ export class MempoolExecutor extends AoriHttpProvider {
 
         setInterval(async () => {
             console.log(`Checking for outstanding matches...`);
-            const outstandingMatches = await mempoolProvider.outstandingMatches(this.wallet.address);
+            const outstandingMatches = await mempoolProvider.viewMatches({ maker: this.wallet.address, outstanding: true });
             console.log(`Found ${outstandingMatches.length} outstanding matches...`);
             outstandingMatches.forEach((details) => onOrderToExecute({ executor: this, details }));
         }, 5_000);
