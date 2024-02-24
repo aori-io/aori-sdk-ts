@@ -489,16 +489,13 @@ export async function approveToken(
     spender: string,
     amount: bigint
 ) {
-    const signedTx = await wallet.signTransaction({
+    return sendOrRetryTransaction(wallet, {
         to: spender,
         value: 0,
         data: ERC20__factory.createInterface().encodeFunctionData("approve", [token, amount]),
         chainId,
         gasLimit: 100_000,
-        nonce: await getNonce(chainId, wallet.address)
     });
-
-    return sendTransaction(signedTx);
 }
 
 export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, retries = 3) {
