@@ -184,6 +184,7 @@ export enum SubscriptionEvents {
     OrderToExecute = "OrderToExecute",
     QuoteRequested = "QuoteRequested",
 }
+export type FeedEvents = SubscriptionEvents;
 
 export const ResponseEvents = { AoriMethods, SubscriptionEvents };
 
