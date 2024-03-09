@@ -490,11 +490,11 @@ export async function approveToken(
     amount: bigint
 ) {
     return sendOrRetryTransaction(wallet, {
-        to: spender,
+        to: token,
         value: 0,
-        data: ERC20__factory.createInterface().encodeFunctionData("approve", [token, amount]),
+        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
         chainId,
-        gasLimit: 100_000,
+        gasLimit: 1_000_000,
     });
 }
 
