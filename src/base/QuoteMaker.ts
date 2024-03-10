@@ -95,7 +95,7 @@ export function QuoteMaker({
 
             // Construct preCalldata
             const preCalldata = [];
-            if (quoterTo != baseMaker.vaultContract || quoterTo != baseMaker.wallet.address || quoterTo != "") {
+            if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
                 // Approve quoter
                 if (await baseMaker.dataProvider.getTokenAllowance({
