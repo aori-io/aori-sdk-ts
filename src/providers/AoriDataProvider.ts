@@ -308,8 +308,8 @@ export function getNonce(chainId: number, address: string): Promise<number> {
 
 export function getFeeData(chainId: number): Promise<{
     gasPrice: string,
-    maxFeePerGas: string,
-    maxPriorityFeePerGas: string,
+    maxFeePerGas: string | null,
+    maxPriorityFeePerGas: string | null,
 }> {
     return dataProvider.getFeeData({ chainId });
 }

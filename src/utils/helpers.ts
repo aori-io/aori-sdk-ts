@@ -508,7 +508,7 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
         try {
             const nonce = await getNonce(tx.chainId, wallet.address);
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
-            const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, maxFeePerGas, maxPriorityFeePerGas });
+            const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n }) });
 
             try {
                 await simulateTransaction(signedTx);
