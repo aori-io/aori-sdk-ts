@@ -2,20 +2,39 @@
                             GENERAL
 //////////////////////////////////////////////////////////////*/
 
+export enum ChainId {
+    ETHEREUM_MAINNET = 1,
+    OPTIMISM_MAINNET = 10,
+    CRONOS_MAINNET = 25,
+    BINANCE_SMART_CHAIN = 56,
+    GNOSIS_MAINNET = 100,
+    POLYGON_MAINNET = 137,
+    MANTA_PACIFIC_MAINNET = 169,
+    FANTOM_MAINNET = 250,
+    MANTLE_MAINNET = 5000,
+    CANTO_MAINNET = 7700,
+    BASE_MAINNET = 8453,
+    ARBITRUM_MAINNET = 42161,
+    CELO_MAINNET = 42220,
+    AVAX_MAINNET = 43114,
+    LINEA_MAINNET = 59144,
+    BASE_SEPOLIA = 84532,
+    ARBITRUM_SEPOLIA = 421614,
+    SCROLL_SEPOLIA = 534351,
+    MANTA_PACIFIC_SEPOLIA = 3441006,
+    SEPOLIA = 11155111,
+    BLAST_SEPOLIA = 168587773
+}
+
 export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>([
-    // Ethereum Goerli
-    [5, new Set([
+    [ChainId.ARBITRUM_MAINNET, new Set([
+        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
+    ])],
+    [ChainId.ARBITRUM_SEPOLIA, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
         "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
     ])],
-    [42161, new Set([
-        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
-    ])],
-    [421614, new Set([
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
-    ])],
-    [11155111, new Set([
+    [ChainId.SEPOLIA, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
         "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
     ])]
