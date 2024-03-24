@@ -92,7 +92,6 @@ export const AORI_MEMPOOL_PROVIDER_API: string = "https://data.aori.io";
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/
 
-export const defaultDuration = 24 * 60 * 60;
 export const maxSalt = 10_000_000;
 
 /*//////////////////////////////////////////////////////////////

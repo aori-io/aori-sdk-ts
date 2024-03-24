@@ -3,7 +3,7 @@ import { getFeeData, getNonce, isValidSignature, sendTransaction, simulateTransa
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, defaultDuration, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ export function isZoneSupported(chainId: number, address: string) {
 export async function formatIntoLimitOrder({
     offerer,
     startTime = Math.floor((Date.now() - 5 * 60 * 1000) / 1000), // Start 5 minutes in the past
-    endTime = startTime + defaultDuration,
+    endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000), // End 5 minutes in the future
     inputToken,
     inputAmount,
     inputChainId = 1,
