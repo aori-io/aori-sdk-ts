@@ -48,6 +48,7 @@ export type AoriOrderWithIntegerTimes = Omit<AoriOrder, "startTime" | "endTime">
 
 export interface OrderView {
     orderHash: string;
+    offerer: string;
 
     order: AoriOrder;
     signature?: string;

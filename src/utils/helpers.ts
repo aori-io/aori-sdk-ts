@@ -222,6 +222,7 @@ export function toOrderView({
 }): OrderView {
     return {
         orderHash: getOrderHash(order),
+        offerer: order.offerer.toLowerCase(),
         order,
         signature,
         inputToken: order.inputToken.toLowerCase(),
