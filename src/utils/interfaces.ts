@@ -47,7 +47,7 @@ export interface QuoteRequested {
 export interface OrderView {
     orderHash: string;
 
-    order: AoriOrder;
+    order: Omit<AoriOrder, "startTime" | "endTime"> & { startTime: number, endTime: number };
     signature?: string;
 
     inputToken: string;

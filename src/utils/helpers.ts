@@ -214,7 +214,7 @@ export function toOrderView({
 }): OrderView {
     return {
         orderHash: getOrderHash(order),
-        order,
+        order: { ...order, startTime: parseInt(order.startTime), endTime: parseInt(order.endTime) }, // Make times be integers
         signature,
         inputToken: order.inputToken,
         inputAmount: order.inputAmount,
