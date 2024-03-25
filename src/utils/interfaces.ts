@@ -44,10 +44,12 @@ export interface QuoteRequested {
     chainId: number;
 }
 
+export type AoriOrderWithIntegerTimes = Omit<AoriOrder, "startTime" | "endTime"> & { startTime: number, endTime: number };
+
 export interface OrderView {
     orderHash: string;
 
-    order: Omit<AoriOrder, "startTime" | "endTime"> & { startTime: number, endTime: number };
+    order: AoriOrder;
     signature?: string;
 
     inputToken: string;

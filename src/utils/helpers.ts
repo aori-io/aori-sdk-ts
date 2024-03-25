@@ -4,7 +4,7 @@ import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__fa
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
-import { DetailsToExecute, OrderView } from "./interfaces";
+import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -201,6 +201,14 @@ export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getBytes(getOrderHash(order)), signature);
 }
 
+export function withIntegerTimes(order: AoriOrder): AoriOrderWithIntegerTimes {
+    return { ...order, startTime: parseInt(order.startTime), endTime: parseInt(order.endTime) };
+}
+
+export function withStringifiedTimes(order: AoriOrderWithIntegerTimes): AoriOrder {
+    return { ...order, startTime: `${order.startTime}`, endTime: `${order.endTime}` };
+}
+
 export function toOrderView({
     order,
     signature,
@@ -214,7 +222,7 @@ export function toOrderView({
 }): OrderView {
     return {
         orderHash: getOrderHash(order),
-        order: { ...order, startTime: parseInt(order.startTime), endTime: parseInt(order.endTime) }, // Make times be integers
+        order,
         signature,
         inputToken: order.inputToken,
         inputAmount: order.inputAmount,
