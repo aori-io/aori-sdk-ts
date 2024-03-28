@@ -12,4 +12,4 @@ This SDK is released under the [MIT License](LICENSE).
 
 ## Documentation
 
-You can find up-to-date documentation at https://docs.aori.io/developers that details all information on our SDKs and how to use them.
+You can find up-to-date documentation at https://docs.aori.io that details all information on our SDKs and how to use them.
