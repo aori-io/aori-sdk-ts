@@ -104,7 +104,7 @@ export function QuoteMaker({
                     spender: quoterTo,
                     token: inputToken
                 }) < BigInt(inputAmount)) {
-                    console.log(`✍️ Approving ${baseMaker.vaultContract || baseMaker.wallet.address} for ${quoterTo} on chain ${baseMaker.defaultChainId}`);
+                    console.log(`✍️ Approving ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
                     preCalldata.push({
                         to: inputToken,
                         value: 0,
@@ -113,7 +113,7 @@ export function QuoteMaker({
                         ])
                     });
                 } else {
-                    console.log(`☑️ Already approved ${baseMaker.vaultContract || baseMaker.wallet.address} for ${quoterTo} on chain ${baseMaker.defaultChainId}`);
+                    console.log(`☑️ Already approved ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
                 }
 
                 // Perform swap
