@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BytesLike, id, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
-import { AORI_DATA_PROVIDER_API } from "../utils";
+import { AORI_DATA_PROVIDER_APIS } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
 export class AoriDataProvider {
@@ -278,12 +278,15 @@ export class AoriDataProvider {
         method: AoriMethods | string,
         params: [T] | []
     }) {
-        const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(AORI_DATA_PROVIDER_API, {
-            id: 1,
-            jsonrpc: "2.0",
-            method,
-            params
-        });
+        const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(
+            // Pick randomly from AORI_DATA_PROVIDER_APIS
+            AORI_DATA_PROVIDER_APIS[Math.floor(Math.random() * AORI_DATA_PROVIDER_APIS.length)],
+            {
+                id: 1,
+                jsonrpc: "2.0",
+                method,
+                params
+            });
 
         if ("error" in axiosResponseData) {
             throw new Error(axiosResponseData.error.message);
