@@ -253,6 +253,7 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     if (order.inputToken === order.outputToken && order.inputChainId === order.outputChainId)
         return `Input (${order.inputToken}) and output (${order.outputToken}) tokens must be different if they are on the same chain`;
 
+    // TODO: reconsider this
     if (order.inputAmount == "0") return `Input amount cannot be zero`;
     if (order.outputAmount == "0") return `Output amount cannot be zero`;
 

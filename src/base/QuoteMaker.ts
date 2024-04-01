@@ -124,6 +124,11 @@ export function QuoteMaker({
                 });
             }
 
+            if (outputAmount == 0n) {
+                console.log(`✍️ Quote for ${inputToken} -> ${outputToken} is 0`);
+                return;
+            }
+
             try {
                 const { gasPrice } = await getFeeData(chainId);
                 const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
