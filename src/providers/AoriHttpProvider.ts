@@ -423,29 +423,43 @@ export async function marketOrder({
 export async function cancelOrder({
     orderHash,
     signature,
-    apiKey
+    apiKey,
+    privyAuth
 }: {
     orderHash: string,
     signature: string,
-    apiKey?: string
+    apiKey?: string,
+    privyAuth?: string
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
     return await rawCall({
         method: AoriMethods.CancelOrder,
         params: [{
             orderHash: orderHash,
             signature,
-            apiKey
+            apiKey,
+            privyAuth
         }]
     }, apiUrl);
 }
 
-export async function cancelAllOrders({ apiKey, signature, tag }: { apiKey?: string, signature: string, tag?: string }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
+export async function cancelAllOrders({
+    signature,
+    tag,
+    apiKey,
+    privyAuth
+}: {
+    apiKey?: string,
+    signature: string,
+    tag?: string,
+    privyAuth?: string
+}, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
     return await rawCall({
         method: AoriMethods.CancelAllOrders,
         params: [{
-            apiKey,
             signature,
-            ...(tag != undefined) ? { tag } : {}
+            ...(tag != undefined) ? { tag } : {},
+            apiKey,
+            privyAuth
         }]
     }, apiUrl);
 }
