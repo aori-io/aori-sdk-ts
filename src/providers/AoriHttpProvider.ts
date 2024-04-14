@@ -1,7 +1,8 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
+import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { createLimitOrder, createMatchingOrder, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
+import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { sendTransaction } from "./AoriDataProvider";
@@ -562,6 +563,31 @@ export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToEx
         to: detailsToExecute.to,
         value: detailsToExecute.value,
         data: detailsToExecute.data,
+        gasLimit: gasLimit,
+        chainId: detailsToExecute.chainId
+    });
+}
+
+export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute, {
+    gasLimit = 2_000_000n,
+    preSwapInstructions = [],
+    postSwapInstructions = []
+}: {
+    gasLimit?: bigint,
+    preSwapInstructions?: InstructionStruct[],
+    postSwapInstructions?: InstructionStruct[]
+}) {
+    return await sendOrRetryTransaction(wallet, {
+        to: detailsToExecute.to,
+        value: detailsToExecute.value,
+        data: calldataToSettleOrders(
+            detailsToExecute.matching,
+            detailsToExecute.matchingSignature,
+            encodeInstructions(
+                preSwapInstructions,
+                postSwapInstructions
+            ), "0x"
+        ),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
     });
