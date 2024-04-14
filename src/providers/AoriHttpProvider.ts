@@ -557,12 +557,12 @@ export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parame
     }
 }
 
-export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute) {
+export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, gasLimit = 2_000_000n) {
     return await sendOrRetryTransaction(wallet, {
         to: detailsToExecute.to,
         value: detailsToExecute.value,
         data: detailsToExecute.data,
-        gasLimit: 2_000_000n,
+        gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
     });
 }
