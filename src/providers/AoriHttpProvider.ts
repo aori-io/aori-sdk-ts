@@ -523,3 +523,24 @@ export async function quote({
 
     return orders;
 };
+
+/*//////////////////////////////////////////////////////////////
+                        COMBINED FUNCTIONS
+//////////////////////////////////////////////////////////////*/
+
+export async function createAndMakeOrder(makerWallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0], apiUrl: string = AORI_HTTP_API) {
+    const limitOrder = await createLimitOrder(orderParams);
+    return await makeOrder({
+        order: limitOrder,
+        signature: await signOrderSync(makerWallet, limitOrder)
+    }, apiUrl);
+}
+
+export async function matchAndTakeOrder(takerWallet: Wallet, makerOrder: AoriOrder, apiUrl: string = AORI_HTTP_API) {
+    const takerOrder = await createMatchingOrder(makerOrder, { offerer: takerWallet.address || "" });
+    return await takeOrder({
+        orderHash: getOrderHash(makerOrder),
+        order: takerOrder,
+        signature: signOrderSync(takerWallet, takerOrder)
+    }, apiUrl);
+}
