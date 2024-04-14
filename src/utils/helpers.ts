@@ -54,12 +54,14 @@ export async function formatIntoLimitOrder({
     endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000), // End 5 minutes in the future
     inputToken,
     inputAmount,
-    inputChainId = 1,
-    inputZone = getDefaultZone(inputChainId),
+    chainId = 1,
+    zone,
+    inputChainId = chainId,
+    inputZone = zone || getDefaultZone(inputChainId),
     outputToken,
     outputAmount,
-    outputChainId = 1,
-    outputZone = getDefaultZone(outputChainId),
+    outputChainId = chainId,
+    outputZone = zone || getDefaultZone(outputChainId),
     counter = 0,
     toWithdraw = true
 }: {
@@ -70,12 +72,12 @@ export async function formatIntoLimitOrder({
     endTime?: number;
     inputToken: string;
     inputAmount: bigint;
-    inputChainId: number;
-    inputZone: string;
+    inputChainId?: number;
+    inputZone?: string;
     outputToken: string;
     outputAmount: bigint;
-    outputChainId: number;
-    outputZone: string;
+    outputChainId?: number;
+    outputZone?: string;
     counter?: number;
     toWithdraw?: boolean;
 }): Promise<AoriOrder> {
