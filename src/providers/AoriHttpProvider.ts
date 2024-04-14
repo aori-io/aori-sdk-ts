@@ -1,8 +1,8 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { createLimitOrder, createMatchingOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
+import { createLimitOrder, createMatchingOrder, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { sendTransaction } from "./AoriDataProvider";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
@@ -543,4 +543,26 @@ export async function matchAndTakeOrder(takerWallet: Wallet, makerOrder: AoriOrd
         order: takerOrder,
         signature: signOrderSync(takerWallet, takerOrder)
     }, apiUrl);
+}
+
+export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | undefined> {
+    const quoteOrders = await quote(quoteParams);
+    while (quoteOrders.length != 0) {
+        const orderView = quoteOrders.shift();
+        if (orderView == undefined) {
+            return undefined;
+        }
+
+        return await matchAndTakeOrder(takerWallet, orderView.order, apiUrl)
+    }
+}
+
+export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute) {
+    return await sendOrRetryTransaction(wallet, {
+        to: detailsToExecute.to,
+        value: detailsToExecute.value,
+        data: detailsToExecute.data,
+        gasLimit: 2_000_000n,
+        chainId: detailsToExecute.chainId
+    });
 }
