@@ -10,6 +10,7 @@ export enum ChainId {
     GNOSIS_MAINNET = 100,
     POLYGON_MAINNET = 137,
     MANTA_PACIFIC_MAINNET = 169,
+    BLAST_MAINNET = 238,
     FANTOM_MAINNET = 250,
     MODE_SEPOLIA = 919,
     MANTLE_MAINNET = 5000,
@@ -41,6 +42,10 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
     ])],
 
     [ChainId.POLYGON_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.BLAST_MAINNET, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
