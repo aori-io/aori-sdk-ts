@@ -13,8 +13,8 @@ import type {
   ContractDeployTransaction,
   ContractRunner,
 } from "ethers";
-import type { NonPayableOverrides } from "../common";
-import type { ERC20, ERC20Interface } from "../ERC20";
+import type { NonPayableOverrides } from "../../common";
+import type { ERC20, ERC20Interface } from "../../core/ERC20";
 
 const _abi = [
   {

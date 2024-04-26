@@ -18,7 +18,7 @@ import type {
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "./common";
+} from "../common";
 
 export interface CREATE3FactoryInterface extends Interface {
   getFunction(nameOrSignature: "deploy" | "getDeployed"): FunctionFragment;

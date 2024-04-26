@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "types": "typechain --target=ethers-v6 abi/*.json --out-dir src/types",
+    "types": "typechain --target=ethers-v6 abi/**/*.json --out-dir src/types",
     "test": "",
     "build": "tsc",
     "clean": "rm -rf out",
