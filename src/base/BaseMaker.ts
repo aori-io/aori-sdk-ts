@@ -1,5 +1,5 @@
 import { parseEther, Wallet } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore } from "../providers";
+import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore, createAndMakeOrder, getTokenAllowance, settleOrdersViaVault } from "../providers";
 import { AoriFeedProvider } from "../providers/AoriFeedProvider";
 import { ERC20__factory } from "../types";
 import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, calldataToSettleOrders, encodeInstructions, getDefaultZone, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
@@ -34,16 +34,8 @@ export class BaseMaker extends AoriHttpProvider {
         apiKey,
         defaultChainId = 5,
         seatId = 0,
-    }: {
-        wallet: Wallet,
-        apiKey: string,
-        apiUrl?: string,
-        takerUrl?: string,
+    }: ConstructorParameters<typeof AoriHttpProvider>[0] & {
         feedUrl?: string,
-        vaultContract?: string,
-
-        defaultChainId?: number
-        seatId?: number
     }) {
         super({ wallet, apiUrl, takerUrl, vaultContract, apiKey, defaultChainId, seatId });
 
@@ -70,7 +62,7 @@ export class BaseMaker extends AoriHttpProvider {
         }
 
         this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
-            const { matching, matchingSignature, makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
+            const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
 
             if (!this.preCalldata[makerOrderHash]) return;
             console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
@@ -79,23 +71,14 @@ export class BaseMaker extends AoriHttpProvider {
                                         SEND TX
             //////////////////////////////////////////////////////////////*/
 
-            try {
-                if (await sendOrRetryTransaction(this.wallet, {
-                    to,
-                    value,
-                    data: calldataToSettleOrders(matching, matchingSignature, encodeInstructions(
-                        this.preCalldata[makerOrderHash] || [],
-                        this.postCalldata[makerOrderHash] || []
-                    )),
-                    gasLimit,
-                    chainId
-                })) {
-                    console.log(`Successfully sent transaction`);
-                } else {
-                    console.log(`Failed to send transaction`);
-                }
-            } catch (e: any) {
-                console.log(e);
+            if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
+                gasLimit,
+                preSwapInstructions: this.preCalldata[makerOrderHash] || [],
+                postSwapInstructions: this.postCalldata[makerOrderHash] || []
+            })) {
+                console.log(`Successfully sent transaction`);
+            } else {
+                console.log(`Failed to send transaction`);
             }
 
             /*//////////////////////////////////////////////////////////////
@@ -134,39 +117,33 @@ export class BaseMaker extends AoriHttpProvider {
             throw new Error(`Maker not initialised - please call initialise() first`);
         }
 
-        const { order, orderHash } = await this.createLimitOrder({
+        const createdLimitOrder = await createAndMakeOrder(this.wallet, {
+            offerer: this.vaultContract || this.wallet.address,
             inputToken: outputToken,
-            inputAmount: inputAmount, // give less
             outputToken: inputToken,
-            outputAmount: amountForUser
+            inputAmount,
+            outputAmount: amountForUser,
+            ...(cancelAfter != undefined) ? { endTime: (Date.now() + cancelAfter) / 1000 } : {},
         });
-
-        await this.makeOrder({ order });
 
         /*//////////////////////////////////////////////////////////////
                                 SET PRECALLDATA
         //////////////////////////////////////////////////////////////*/
 
         // if we don't have enough allowance, approve
-        const defaultZone = getDefaultZone(this.defaultChainId);
         if (this.protocolAllowances[outputToken] == undefined) {
-            console.log(`👮 Checking approval for ${this.vaultContract || this.wallet.address} by spender ${defaultZone} on chain ${this.defaultChainId}`);
-            if (await this.dataProvider.getTokenAllowance({
-                chainId: this.defaultChainId,
-                address: this.vaultContract || this.wallet.address,
-                spender: defaultZone,
-                token: outputToken
-            }) < amountForUser) {
-                console.log(`✍️ Approving ${this.vaultContract || this.wallet.address} for ${defaultZone} on chain ${this.defaultChainId}`);
+            console.log(`👮 Checking approval for ${createdLimitOrder.offerer} by spender ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
+            if (await getTokenAllowance(createdLimitOrder.inputChainId, createdLimitOrder.offerer, outputToken, createdLimitOrder.inputZone) < amountForUser) {
+                console.log(`✍️ Approving ${createdLimitOrder.offerer} for ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
                 preCalldata.push({
                     to: outputToken,
                     value: 0,
                     data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                        defaultZone, parseEther("100000")
+                        createdLimitOrder.inputZone, parseEther("100000")
                     ])
                 });
             } else {
-                console.log(`☑️ Already approved ${this.vaultContract || this.wallet.address} for ${defaultZone} on chain ${this.defaultChainId}`);
+                console.log(`☑️ Already approved ${createdLimitOrder.offerer} for ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
             }
 
             this.protocolAllowances[outputToken] = true;
@@ -177,8 +154,8 @@ export class BaseMaker extends AoriHttpProvider {
         //////////////////////////////////////////////////////////////*/
 
         if (this.vaultContract) {
-            this.preCalldata[orderHash] = preCalldata;
-            this.postCalldata[orderHash] = postCalldata;
+            this.preCalldata[createdLimitOrder.orderHash] = preCalldata;
+            this.postCalldata[createdLimitOrder.orderHash] = postCalldata;
         } else {
             // Just approve now
             for (const preCalls of preCalldata) {
@@ -186,29 +163,12 @@ export class BaseMaker extends AoriHttpProvider {
             }
 
             if (settleTx) {
-                this.preCalldata[orderHash] = [];
-                this.postCalldata[orderHash] = [];
+                this.preCalldata[createdLimitOrder.orderHash] = [];
+                this.postCalldata[createdLimitOrder.orderHash] = [];
             }
         }
 
-        /*//////////////////////////////////////////////////////////////
-                                  EXPIRE ORDER
-        //////////////////////////////////////////////////////////////*/
-
-        if (cancelAfter != undefined) {
-            setTimeout(async () => {
-                try {
-                    if (this.preCalldata[orderHash] != undefined) {
-                        console.log(`Cancelling order ${orderHash}`);
-                        await this.cancelOrder(orderHash);
-                    }
-                } catch (e: any) {
-                    console.log(e);
-                }
-            }, cancelAfter);
-        }
-
-        return { order, orderHash }
+        return { order: createdLimitOrder.order, orderHash: createdLimitOrder.orderHash }
     }
 
     async subscribe() {

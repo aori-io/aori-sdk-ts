@@ -1,5 +1,5 @@
 import { parseEther, Wallet } from "ethers";
-import { getFeeData } from "../providers";
+import { getFeeData, getTokenAllowance } from "../providers";
 import { ERC20__factory } from "../types";
 import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
@@ -19,15 +19,11 @@ export function QuoteMaker({
     quoter,
     sponsorGas = true,
     gasLimit = 5_000_000n,
-    generatePassiveQuotes,
     settleTx
-}:  ConstructorParameters<typeof BaseMaker>[0] & {
+}:  ConstructorParameters<typeof BaseMaker>[0] & Parameters<BaseMaker["initialise"]>[0] & {
     spreadPercentage?: bigint;
     cancelAfter?: number;
-    cancelAllFirst?: boolean;
     quoter: Quoter;
-    generatePassiveQuotes?: { generateEveryMs: number, quotes: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }[] },
-    gasLimit?: bigint;
     sponsorGas?: boolean;
     settleTx?: boolean;
 }) {
@@ -59,12 +55,7 @@ export function QuoteMaker({
             if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
                 // Approve quoter
-                if (await baseMaker.dataProvider.getTokenAllowance({
-                    chainId: baseMaker.defaultChainId,
-                    address: baseMaker.vaultContract || baseMaker.wallet.address,
-                    spender: quoterTo,
-                    token: inputToken
-                }) < BigInt(inputAmount)) {
+                if (await getTokenAllowance(chainId, baseMaker.vaultContract || baseMaker.wallet.address, inputToken, quoterTo) < BigInt(inputAmount)) { 
                     console.log(`✍️ Approving ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
                     preCalldata.push({
                         to: inputToken,
@@ -78,11 +69,7 @@ export function QuoteMaker({
                 }
 
                 // Perform swap
-                preCalldata.push({
-                    to: quoterTo,
-                    value: quoterValue,
-                    data: quoterData
-                });
+                preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
             }
 
             if (outputAmount == 0n) {
@@ -111,9 +98,6 @@ export function QuoteMaker({
             } catch (e: any) {
                 console.log(e);
             }
-
-            // Wait some seconds before trying again
-            await new Promise((resolve) => setTimeout(resolve, cancelAfter));
         }
 
         baseMaker.feed.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
@@ -122,22 +106,6 @@ export function QuoteMaker({
                 await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
             }
         });
-
-        if (generatePassiveQuotes != undefined) {
-            const { generateEveryMs, quotes } = generatePassiveQuotes;
-
-            // initial
-            for (const { inputToken, inputAmount, outputToken, chainId } of quotes) {
-                generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
-            }
-
-            // every generateEveryMs
-            setInterval(async () => {
-                for (const { inputToken, inputAmount, outputToken, chainId } of quotes) {
-                    await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
-                }
-            }, generateEveryMs);
-        }
     });
 
     return baseMaker;
