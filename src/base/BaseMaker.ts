@@ -123,6 +123,7 @@ export class BaseMaker extends AoriHttpProvider {
             outputToken: inputToken,
             inputAmount,
             outputAmount: amountForUser,
+            chainId: this.defaultChainId,
             ...(cancelAfter != undefined) ? { endTime: (Date.now() + cancelAfter) / 1000 } : {},
         });
 
