@@ -1,5 +1,5 @@
 import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
-import { getFeeData, getNonce, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
+import { getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/core/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
@@ -508,6 +508,19 @@ export async function approveToken(
         chainId,
         gasLimit: 1_000_000,
     });
+}
+
+export async function checkAndApproveToken(
+    wallet: Wallet,
+    chainId: number,
+    token: string,
+    spender: string,
+    amount: bigint
+) {
+    const allowance = await getTokenAllowance(chainId, wallet.address, token, spender);
+    if (allowance < amount) {
+        await approveToken(wallet, chainId, token, spender, amount);
+    }
 }
 
 export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, retries = 3) {
