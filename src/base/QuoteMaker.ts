@@ -11,9 +11,9 @@ export function QuoteMaker({
     feedUrl,
     takerUrl,
     apiKey,
-    aoriVaultContract,
+    vaultContract,
     spreadPercentage = 0n,
-    chainId,
+    defaultChainId,
     cancelAfter = 12_000,
     cancelAllFirst = false,
     quoter,
@@ -21,15 +21,8 @@ export function QuoteMaker({
     gasLimit = 5_000_000n,
     generatePassiveQuotes,
     settleTx
-}: {
-    wallet: Wallet;
-    apiKey: string;
-    apiUrl: string;
-    feedUrl: string;
-    takerUrl?: string;
-    aoriVaultContract?: string;
+}:  ConstructorParameters<typeof BaseMaker>[0] & {
     spreadPercentage?: bigint;
-    chainId: number;
     cancelAfter?: number;
     cancelAllFirst?: boolean;
     quoter: Quoter;
@@ -43,9 +36,9 @@ export function QuoteMaker({
         apiUrl,
         feedUrl,
         takerUrl,
-        vaultContract: aoriVaultContract,
+        vaultContract,
         apiKey,
-        defaultChainId: chainId
+        defaultChainId
     });
 
     baseMaker.on("ready", () => {

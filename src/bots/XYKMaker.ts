@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { xykQuoterFactory } from "../adapters";
 import { QuoteMaker } from "../base/QuoteMaker";
 
 export function XYKMaker({
@@ -7,76 +7,29 @@ export function XYKMaker({
     feedUrl,
     takerUrl,
     apiKey,
-    aoriVaultContract,
+    vaultContract,
     spreadPercentage = 0n,
-    chainId,
+    defaultChainId,
     cancelAfter = 12_000,
     cancelAllFirst = false,
-    getGasData
-
-}: {
-    wallet: Wallet;
-    apiUrl: string;
-    feedUrl: string;
-    takerUrl?: string;
-    apiKey: string;
-    aoriVaultContract: string;
-    spreadPercentage?: bigint;
-    chainId: number;
-    cancelAfter?: number;
-    cancelAllFirst?: boolean;
-    getGasData: ({ to, value, data, chainId }: { to: string, value: number, data: string, chainId: number }) => Promise<{ gasPrice: bigint, gasLimit: bigint }>
+    tokenA,
+    tokenB
+}: Parameters<typeof QuoteMaker>[0] & {
+    tokenA?: string,
+    tokenB?: string
 }) {
     const xykMaker = QuoteMaker({
         wallet,
         apiUrl,
         feedUrl,
         takerUrl,
-        aoriVaultContract: aoriVaultContract,
+        vaultContract,
         spreadPercentage,
         apiKey,
-        chainId,
+        defaultChainId,
         cancelAfter,
         cancelAllFirst,
-        quoter: {
-            name: () => "XYKMaker",
-            getOutputAmountQuote: async ({ inputToken, outputToken, inputAmount, fromAddress, chainId }) => {
-
-                const inputBalance = await xykMaker.dataProvider.getTokenBalance({
-                    token: inputToken,
-                    address: aoriVaultContract,
-                    chainId
-                });
-
-                const outputBalance = await xykMaker.dataProvider.getTokenBalance({
-                    token: outputToken,
-                    address: aoriVaultContract,
-                    chainId
-                });
-
-                const newOutputAmount = (BigInt(inputBalance) * BigInt(outputBalance)) / (inputBalance - BigInt(inputAmount));
-
-                return { outputAmount: newOutputAmount - outputBalance, to: "", value: 0, data: "", price: 0, gas: 0n }
-            },
-            getInputAmountQuote: async ({ inputToken, outputToken, outputAmount, fromAddress, chainId }) => {
-
-                const inputBalance = await xykMaker.dataProvider.getTokenBalance({
-                    token: inputToken,
-                    address: aoriVaultContract,
-                    chainId
-                });
-
-                const outputBalance = await xykMaker.dataProvider.getTokenBalance({
-                    token: outputToken,
-                    address: aoriVaultContract,
-                    chainId
-                });
-
-                const newInputAmount = (BigInt(inputBalance) * BigInt(outputBalance)) / (outputBalance - BigInt(outputAmount));
-
-                return { outputAmount: newInputAmount - inputBalance, to: "", value: 0, data: "", price: 0, gas: 0n }
-            }
-        }
+        quoter: xykQuoterFactory(vaultContract || wallet.address, defaultChainId, tokenA, tokenB)
     });
 
     return xykMaker;
