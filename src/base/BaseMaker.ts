@@ -125,7 +125,7 @@ export class BaseMaker extends AoriHttpProvider {
             outputAmount: amountForUser,
             chainId: this.defaultChainId,
             ...(cancelAfter != undefined) ? { endTime: Math.ceil((Date.now() + cancelAfter) / 1000) } : {},
-        });
+        }, this.apiUrl);
 
         /*//////////////////////////////////////////////////////////////
                                 SET PRECALLDATA
