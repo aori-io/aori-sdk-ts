@@ -547,7 +547,7 @@ export async function matchAndTakeOrder(takerWallet: Wallet, makerOrder: AoriOrd
 }
 
 export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | undefined> {
-    const quoteOrders = await quote(quoteParams);
+    const quoteOrders = await quote(quoteParams, apiUrl);
     while (quoteOrders.length != 0) {
         const orderView = quoteOrders.shift();
         if (orderView == undefined) {
