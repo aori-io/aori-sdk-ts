@@ -4,6 +4,11 @@ import { AORI_DATA_PROVIDER_APIS } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
 export class AoriDataProvider {
+    urls: string[];
+
+    constructor() {
+        this.urls = AORI_DATA_PROVIDER_APIS;
+    }
 
     async getBlockNumber({
         chainId
@@ -280,7 +285,7 @@ export class AoriDataProvider {
     }) {
         const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(
             // Pick randomly from AORI_DATA_PROVIDER_APIS
-            AORI_DATA_PROVIDER_APIS[Math.floor(Math.random() * AORI_DATA_PROVIDER_APIS.length)],
+            this.urls[Math.floor(Math.random() * this.urls.length)],
             {
                 id: 1,
                 jsonrpc: "2.0",
@@ -302,6 +307,10 @@ export class AoriDataProvider {
 //////////////////////////////////////////////////////////////*/
 
 const dataProvider = new AoriDataProvider();
+
+export function _setDataProviderURLs(urls: string[]) {
+    dataProvider.urls = urls;
+}
 
 export function getBlockNumber(chainId: number) { return dataProvider.getBlockNumber({ chainId }) }
 
