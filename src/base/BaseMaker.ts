@@ -154,7 +154,7 @@ export class BaseMaker extends AoriHttpProvider {
         } else {
             // Just approve now
             for (const preCalls of preCalldata) {
-                await sendOrRetryTransaction(this.wallet, { ...preCalls, chainId: this.defaultChainId });
+                sendOrRetryTransaction(this.wallet, { ...preCalls, chainId: this.defaultChainId }).catch(console.error);
             }
 
             if (settleTx) {
