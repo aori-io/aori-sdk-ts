@@ -34,7 +34,8 @@ export class EnsoQuoter implements Quoter {
                 amountIn: inputAmount,
                 tokenOut: outputToken,
                 priceImpact: true,
-                chainId
+                chainId,
+                routingStrategy: "router"
             },
             headers: {
                 "Authorization": `Bearer ${this.apiKey}`
