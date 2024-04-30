@@ -142,14 +142,16 @@ export class AoriDataProvider {
 
     async hasOrderSettled({
         chainId,
-        orderHash
+        orderHash,
+        zone
     }: {
         chainId: number;
         orderHash: string;
+        zone?: string;
     }): Promise<boolean> {
         const { orderSettled } = await this.rawCall({
             method: AoriDataMethods.HasOrderSettled,
-            params: [{ chainId, orderHash }]
+            params: [{ chainId, orderHash, zone }]
         });
         return orderSettled;
     }
@@ -346,8 +348,8 @@ export function isValidSignature(chainId: number, address: string, hash: BytesLi
     return dataProvider.isValidSignature({ chainId, vault: address, hash: hash.toString(), signature });
 }
 
-export function hasOrderSettled(chainId: number, orderHash: string): Promise<boolean> {
-    return dataProvider.hasOrderSettled({ chainId, orderHash });
+export function hasOrderSettled(chainId: number, orderHash: string, zone?: string): Promise<boolean> {
+    return dataProvider.hasOrderSettled({ chainId, orderHash, zone });
 }
 
 export function getAoriCounter(chainId: number, zone: string, address: string): Promise<number> {
