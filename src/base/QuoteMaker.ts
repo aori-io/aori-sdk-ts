@@ -17,7 +17,7 @@ export function QuoteMaker({
     cancelAfter = 12_000,
     cancelAllFirst = false,
     quoter,
-    sponsorGas = true,
+    sponsorGas = false,
     gasLimit = 5_000_000n,
     settleTx
 }:  ConstructorParameters<typeof BaseMaker>[0] & Parameters<BaseMaker["initialise"]>[0] & {
@@ -55,18 +55,14 @@ export function QuoteMaker({
             if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
                 // Approve quoter
-                if (await getTokenAllowance(chainId, baseMaker.vaultContract || baseMaker.wallet.address, inputToken, quoterTo) < BigInt(inputAmount)) { 
-                    console.log(`✍️ Approving ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
-                    preCalldata.push({
-                        to: inputToken,
-                        value: 0,
-                        data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                            quoterTo, parseEther("100000")
-                        ])
-                    });
-                } else {
-                    console.log(`☑️ Already approved ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
-                }
+                console.log(`✍️ Approving ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
+                preCalldata.push({
+                    to: inputToken,
+                    value: 0,
+                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                        quoterTo, parseEther("100000")
+                    ])
+                });
 
                 // Perform swap
                 preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
@@ -78,12 +74,15 @@ export function QuoteMaker({
             }
 
             try {
-                const { gasPrice } = await getFeeData(chainId);
-                const gasInToken = (sponsorGas) ? 0n : await baseMaker.pricingProvider.calculateGasInToken({
-                    chainId,
-                    gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
-                    token: inputToken
-                });
+                let gasInToken = 0n;
+                if (sponsorGas) {
+                    const { gasPrice } = await getFeeData(chainId);
+                    gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
+                        chainId,
+                        gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
+                        token: inputToken
+                    });
+                }
 
                 await baseMaker.generateQuoteOrder({
                     inputToken,
