@@ -546,6 +546,14 @@ export async function matchAndTakeOrder(takerWallet: Wallet, makerOrder: AoriOrd
     }, apiUrl);
 }
 
+export async function matchAndMarketOrder(takerWallet: Wallet, makerOrder: AoriOrder, takerApiUrl: string = AORI_TAKER_API) {
+    const takerOrder = await createMatchingOrder(makerOrder, { offerer: takerWallet.address || "" });
+    return await marketOrder({
+        order: takerOrder,
+        signature: signOrderSync(takerWallet, takerOrder)
+    }, takerApiUrl);
+}
+
 export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | undefined> {
     const quoteOrders = await quote(quoteParams, apiUrl);
     while (quoteOrders.length != 0) {
