@@ -55,7 +55,6 @@ export function QuoteMaker({
             if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
                 // Approve quoter
-                console.log(`✍️ Approving ${quoterTo} for ${baseMaker.vaultContract || baseMaker.wallet.address} on chain ${baseMaker.defaultChainId}`);
                 preCalldata.push({
                     to: inputToken,
                     value: 0,

@@ -133,19 +133,13 @@ export class BaseMaker extends AoriHttpProvider {
 
         // if we don't have enough allowance, approve
         if (this.protocolAllowances[outputToken] == undefined) {
-            console.log(`👮 Checking approval for ${createdLimitOrder.offerer} by spender ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
-            if (await getTokenAllowance(createdLimitOrder.inputChainId, createdLimitOrder.offerer, outputToken, createdLimitOrder.inputZone) < amountForUser) {
-                console.log(`✍️ Approving ${createdLimitOrder.offerer} for ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
-                preCalldata.push({
-                    to: outputToken,
-                    value: 0,
-                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                        createdLimitOrder.inputZone, parseEther("100000")
-                    ])
-                });
-            } else {
-                console.log(`☑️ Already approved ${createdLimitOrder.offerer} for ${createdLimitOrder.inputZone} on chain ${createdLimitOrder.inputChainId}`);
-            }
+            preCalldata.push({
+                to: outputToken,
+                value: 0,
+                data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                    createdLimitOrder.inputZone, parseEther("100000")
+                ])
+            });
 
             this.protocolAllowances[outputToken] = true;
         }
