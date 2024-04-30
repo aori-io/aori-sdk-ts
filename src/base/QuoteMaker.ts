@@ -100,7 +100,7 @@ export function QuoteMaker({
 
         baseMaker.feed.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
             if (chainId == baseMaker.defaultChainId) {
-                if (inputAmount == undefined) return;
+                if (inputAmount == undefined || inputAmount == "0") return;
                 await generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
             }
         });
