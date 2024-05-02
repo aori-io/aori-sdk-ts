@@ -1,9 +1,9 @@
 import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
-import { getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
+import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/core/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
@@ -432,6 +432,37 @@ export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, s
     }
 }
 
+export async function deployVault(wallet: Wallet, {
+    chainId = ChainId.ARBITRUM_MAINNET,
+    aoriProtocol = getDefaultZone(chainId),
+    saltPhrase = `aori-vault-${Math.random().toString(36).substring(2, 7)}`,
+    gasLimit = 10_000_000n
+}: {
+    chainId?: ChainId,
+    aoriProtocol: string,
+    saltPhrase: string,
+    gasLimit: bigint
+}): Promise<string> {
+    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
+    
+    await sendOrRetryTransaction(wallet, {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        value: 0,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [AoriVault__factory.bytecode, AoriVault__factory.createInterface().encodeDeploy(
+                [wallet.address, aoriProtocol],
+            )])
+        ]),
+        gasLimit,
+        chainId
+    });
+
+    return destinationAddress;
+}
+
 const InstructionTypeABI = {
     "components": [
         {
@@ -566,6 +597,25 @@ export function prepareYinTokenDeployment(saltPhrase: string, gasLimit: bigint =
     }
 }
 
+export async function deployYinToken(wallet: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): Promise<string> {
+    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
+    
+    await sendOrRetryTransaction(wallet, {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        value: 0,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [Yin__factory.bytecode, Yin__factory.createInterface().encodeDeploy([])]
+        )]),
+        gasLimit,
+        chainId: ChainId.ARBITRUM_MAINNET
+    });
+
+    return destinationAddress;
+}
+
 export function prepareYangTokenDeployment(saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
     return {
         to: CREATE3FACTORY_DEPLOYED_ADDRESS,
@@ -577,6 +627,25 @@ export function prepareYangTokenDeployment(saltPhrase: string, gasLimit: bigint 
         )]),
         gasLimit
     }
+}
+
+export async function deployYangToken(wallet: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): Promise<string> {
+    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
+    
+    await sendOrRetryTransaction(wallet, {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        value: 0,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [Yang__factory.bytecode, Yang__factory.createInterface().encodeDeploy([])]
+        )]),
+        gasLimit,
+        chainId: ChainId.ARBITRUM_MAINNET
+    });
+
+    return destinationAddress;
 }
 
 export function mintYinToken(wallet: Wallet, chainId: number, address: string) {
