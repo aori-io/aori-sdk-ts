@@ -132,7 +132,9 @@ export class BaseMaker extends AoriHttpProvider {
         //////////////////////////////////////////////////////////////*/
 
         // if we don't have enough allowance, approve
-        if (this.protocolAllowances[outputToken] == undefined) {
+
+        // TODO: 
+        // if (this.protocolAllowances[outputToken] == undefined) {
             preCalldata.push({
                 to: outputToken,
                 value: 0,
@@ -142,7 +144,7 @@ export class BaseMaker extends AoriHttpProvider {
             });
 
             this.protocolAllowances[outputToken] = true;
-        }
+        // }
 
         /*//////////////////////////////////////////////////////////////
                                 SAVE SOLUTION
