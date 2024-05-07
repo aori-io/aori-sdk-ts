@@ -12,8 +12,6 @@ export class BaseMaker extends AoriHttpProvider {
     pricingProvider = new AoriPricingProvider();
     solutionStore = new AoriSolutionStore();
 
-    protocolAllowances: { [token: string]: boolean } = {};
-
     /*//////////////////////////////////////////////////////////////
                                  STATE
     //////////////////////////////////////////////////////////////*/
@@ -131,20 +129,14 @@ export class BaseMaker extends AoriHttpProvider {
                                 SET PRECALLDATA
         //////////////////////////////////////////////////////////////*/
 
-        // if we don't have enough allowance, approve
-
-        // TODO: 
-        // if (this.protocolAllowances[outputToken] == undefined) {
-            preCalldata.push({
-                to: outputToken,
-                value: 0,
-                data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                    createdLimitOrder.inputZone, parseEther("100000")
-                ])
-            });
-
-            this.protocolAllowances[outputToken] = true;
-        // }
+        // Approve protocol
+        preCalldata.push({
+            to: outputToken,
+            value: 0,
+            data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                createdLimitOrder.inputZone, parseEther("100000")
+            ])
+        });
 
         /*//////////////////////////////////////////////////////////////
                                 SAVE SOLUTION
