@@ -382,13 +382,15 @@ export async function takeOrder({
     order,
     signature,
     seatId = 0,
-    apiKey
+    apiKey,
+    showExecutionDetails = true
 }: {
     orderHash: string,
     order: AoriOrder,
     signature: string,
     seatId?: number,
-    apiKey?: string
+    apiKey?: string,
+    showExecutionDetails?: boolean
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.TakeOrder][0]> {
     return await rawCall({
         method: AoriMethods.TakeOrder,
@@ -397,7 +399,8 @@ export async function takeOrder({
             signature,
             orderHash,
             seatId,
-            apiKey
+            apiKey,
+            showExecutionDetails
         }]
     }, apiUrl);
 }
@@ -554,7 +557,7 @@ export async function matchAndMarketOrder(takerWallet: Wallet, makerOrder: AoriO
     }, takerApiUrl);
 }
 
-export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | undefined> {
+export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | string | undefined> {
     const quoteOrders = await quote(quoteParams, apiUrl);
     while (quoteOrders.length != 0) {
         const orderView = quoteOrders.shift();
