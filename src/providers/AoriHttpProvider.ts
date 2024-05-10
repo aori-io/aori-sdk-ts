@@ -569,6 +569,21 @@ export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parame
     }
 }
 
+export async function quoteAndRetryTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], deadlineInMs: number = 15000, apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | string | undefined> {
+    const deadline = new Date().getTime() + deadlineInMs;
+    while (new Date().getTime() < deadline) {
+        const quoteOrders = await quote(quoteParams, apiUrl);
+
+        const orderView = quoteOrders.shift();
+        if (orderView == undefined) {
+            setTimeout(await new Promise(resolve => setTimeout(resolve, 1000)), 1000);
+            continue;
+        }
+
+        return await matchAndTakeOrder(takerWallet, orderView.order, apiUrl)
+    }
+}
+
 export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, gasLimit = 2_000_000n) {
     return await sendOrRetryTransaction(wallet, {
         to: detailsToExecute.to,
