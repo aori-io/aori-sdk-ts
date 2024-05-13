@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BytesLike, id, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
-import { AORI_DATA_PROVIDER_APIS } from "../utils";
+import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
 export class AoriDataProvider {
@@ -266,14 +266,16 @@ export class AoriDataProvider {
 
     async computeCREATE3Address({
         deployer,
-        salt
+        salt,
+        create3address = CREATE3FACTORY_DEPLOYED_ADDRESS
     }: {
         deployer: string;
-        salt: string
+        salt: string,
+        create3address?: string
     }): Promise<string> {
         const { computedAddress } = await this.rawCall({
             method: AoriDataMethods.Create3Address,
-            params: [{ deployer, salt }]
+            params: [{ create3address, deployer, salt }]
         });
         return computedAddress;
     }
@@ -400,8 +402,8 @@ export function staticCall({
     return dataProvider.staticCall({ chainId, to, data });
 }
 
-export function computeCREATE3Address(deployer: string, saltPhrase: string): Promise<string> {
-    return dataProvider.computeCREATE3Address({ deployer, salt: id(saltPhrase) });
+export function computeCREATE3Address(deployer: string, saltPhrase: string, create3address: string = CREATE3FACTORY_DEPLOYED_ADDRESS): Promise<string> {
+    return dataProvider.computeCREATE3Address({ deployer, salt: id(saltPhrase), create3address });
 }
 
 export function isContract(chainId: number, address: string): Promise<boolean> {
