@@ -427,6 +427,21 @@ export function decodeSettledMatch(eventData: string): SettledMatch {
     }
 }
 
+export function toSettledMatch(
+    makerOrderHash: string,
+    takerOrderHash: string,
+    eventData: string,
+    { transactionHash, blockNumber }: { transactionHash?: string, blockNumber?: number }): SettledMatch {
+        return {
+            makerOrderHash,
+            takerOrderHash,
+            blockNumber,
+            ...decodeSettledMatch(eventData),
+            ...(transactionHash ? { transactionHash } : {}),
+            ...(blockNumber ? { blockNumber } : {})
+        }
+    }
+
 /*//////////////////////////////////////////////////////////////
                     SEAT-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/

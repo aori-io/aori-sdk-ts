@@ -1,6 +1,7 @@
 import { WebSocket } from "ws";
-import { AoriFeedEvents, AoriMethods, AORI_FEED, connectTo, SubscriptionEvents } from "../utils";
+import { AoriFeedEvents, AoriMethods, AORI_FEED, connectTo, SubscriptionEvents, AORI_HTTP_FEED } from "../utils";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
+import { rawCall } from "./AoriHttpProvider";
 
 export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
 
@@ -115,4 +116,17 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
         this.feed.close();
     }
 
+}
+
+export async function broadcastToFeed(event: SubscriptionEvents, data: AoriFeedEvents[SubscriptionEvents][0], broadcastSecret = "", url = AORI_HTTP_FEED) {
+    await rawCall({
+        method: "aori_broadcast", 
+        params: [{
+            secret: broadcastSecret,
+            data: {
+                type: event,
+                data
+            }
+        }]
+    }, url);
 }

@@ -103,6 +103,11 @@ export const AORI_HTTP_API: string = "https://api.aori.io";
 export const AORI_HTTP_PRODUCTION_API: string = "https://api.aori.io";
 export const AORI_HTTP_DEVELOPMENT_API: string = "https://dev.api.aori.io";
 
+// Feed Urls
+export const AORI_HTTP_FEED: string = "https://feed.aori.io";
+export const AORI_HTTP_PRODUCTION_FEED: string = "https://feed.aori.io";
+export const AORI_HTTP_DEVELOPMENT_FEED: string = "https://dev.feed.aori.io";
+
 // Taker Service for facilitating UX-friendly Market Orders
 export const AORI_TAKER_API: string = "https://taker.aori.io";
 export const AORI_TAKER_PRODUCTION_API: string = "https://taker.aori.io";
