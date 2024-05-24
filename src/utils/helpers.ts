@@ -4,7 +4,7 @@ import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__fa
 import { InstructionStruct } from "../types/core/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
-import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView } from "./interfaces";
+import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView, SettledMatch } from "./interfaces";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -383,6 +383,47 @@ export function toDetailsToExecute(
         inputAmount: matching.makerOrder.inputAmount,
         outputToken: matching.takerOrder.inputToken,
         outputAmount: matching.takerOrder.inputAmount
+    }
+}
+
+export function decodeSettledMatch(eventData: string): SettledMatch {
+    const [
+        maker,
+        taker,
+        inputChainId,
+        outputChainId,
+        inputZone,
+        outputZone,
+        inputToken,
+        outputToken,
+        inputAmount,
+        outputAmount,
+        matchingHash
+    ] = AbiCoder.defaultAbiCoder().decode([
+        "address",
+        "address",
+        "uint256",
+        "uint256",
+        "address",
+        "address",
+        "address",
+        "address",
+        "uint256",
+        "uint256",
+        "bytes32"
+    ], eventData);
+    return {
+        maker,
+        taker,
+        inputChainId,
+        outputChainId,
+        inputZone,
+        outputZone,
+        inputToken,
+        outputToken,
+        inputAmount,
+        outputAmount,
+        matchingHash
     }
 }
 

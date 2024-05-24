@@ -118,6 +118,26 @@ export interface DetailsToExecute {
     outputAmount: string;
 }
 
+export interface SettledMatch {
+    makerOrderHash?: string;
+    takerOrderHash?: string;
+    maker: string;
+    taker: string;
+    inputChainId: number;
+    outputChainId: number;
+    inputZone: string;
+    outputZone: string;
+    inputToken: string;
+    outputToken: string;
+    inputAmount: string;
+    outputAmount: string;
+    matchingHash: string;
+
+    // Details from the input chain
+    transactionHash?: string;
+    blockNumber?: number;
+}
+
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -216,7 +236,7 @@ export type AoriFeedEvents = {
     [SubscriptionEvents.OrderCreated]: [order: OrderView],
     [SubscriptionEvents.OrderCancelled]: [order: OrderView],
     [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
-    [SubscriptionEvents.OrderFulfilled]: [orderHash: string],
+    [SubscriptionEvents.OrderFulfilled]: [settledMatch: SettledMatch],
     [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
 
