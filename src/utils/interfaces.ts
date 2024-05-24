@@ -136,6 +136,7 @@ export interface SettledMatch {
     // Details from the input chain
     transactionHash?: string;
     blockNumber?: number;
+    timestamp?: number;
 }
 
 /*//////////////////////////////////////////////////////////////
