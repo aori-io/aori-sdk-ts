@@ -193,13 +193,6 @@ export enum AoriSolutionStoreMethods {
     GetSolution = "aori_getSolution",
 }
 
-export enum AoriMempoolProviderMethods {
-    AoriPing = "aori_ping",
-    AoriSupportedChains = "aori_supportedChains",
-    AoriViewMatches = "aori_viewMatches",
-    AoriSubmitMatch = "aori_submitMatch",
-}
-
 export enum SubscriptionEvents {
     OrderCreated = "OrderCreated",
     OrderCancelled = "OrderCancelled",
