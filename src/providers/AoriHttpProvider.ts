@@ -241,6 +241,21 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         }, this.apiUrl);
     }
 
+    async requestSwap({
+        order,
+        signature
+    }: {
+        order: AoriOrder,
+        signature: string
+    }) {
+        console.log(`🗨️ Requesting Swap to trade ${formatEther(order.inputAmount)} ${order.inputToken} for ${formatEther(order.outputAmount)} ${order.outputToken} on chain ${order.inputChainId}`);
+        return await requestSwap({
+            order,
+            signature,
+            apiKey: this.apiKey
+        }, this.apiUrl);
+    }
+
     async quote({
         inputToken,
         inputAmount,
@@ -496,6 +511,25 @@ export async function requestQuote({
             inputAmount: inputAmount.toString(),
             outputToken,
             chainId,
+            apiKey
+        }]
+    }, apiUrl);
+}
+
+export async function requestSwap({
+    order,
+    signature,
+    apiKey
+}: {
+    order: AoriOrder,
+    signature: string,
+    apiKey?: string
+}, apiUrl: string = AORI_HTTP_API): Promise<void> {
+    return await rawCall({
+        method: AoriMethods.RequestSwap,
+        params: [{
+            order,
+            signature,
             apiKey
         }]
     }, apiUrl);

@@ -67,6 +67,9 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
                     case SubscriptionEvents.QuoteRequested:
                         this.emit(SubscriptionEvents.QuoteRequested, data);
                         break;
+                    case SubscriptionEvents.SwapRequested:
+                        this.emit(SubscriptionEvents.SwapRequested, data);
+                        break;
                 }
             } catch (e: any) {
                 console.log(e);

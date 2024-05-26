@@ -155,7 +155,8 @@ export enum AoriMethods {
     AccountDetails = "aori_accountDetails",
     AccountBalance = "aori_accountBalance",
     Quote = "aori_quote",
-    RequestQuote = "aori_requestQuote"
+    RequestQuote = "aori_requestQuote",
+    RequestSwap = "aori_requestSwap"
 }
 
 export enum AoriDataMethods {
@@ -195,6 +196,7 @@ export enum SubscriptionEvents {
     OrderFulfilled = "OrderFulfilled",
     OrderToExecute = "OrderToExecute",
     QuoteRequested = "QuoteRequested",
+    SwapRequested = "SwapRequested",
 }
 export type FeedEvents = SubscriptionEvents;
 
@@ -213,6 +215,7 @@ export type AoriMethodsEvents = {
     [AoriMethods.AccountDetails]: [{ assignedAddress: string, credit: string, orders: OrderView[] }],
     [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
     [AoriMethods.RequestQuote]: [],
+    [AoriMethods.RequestSwap]: [],
     [AoriMethods.Quote]: [orders: OrderView[]]
 
     // 
@@ -222,11 +225,12 @@ export type AoriMethodsEvents = {
 export type AoriFeedEvents = {
     ["ready"]: [],
     ["error"]: [error: any],
-    [SubscriptionEvents.OrderCreated]: [order: OrderView],
-    [SubscriptionEvents.OrderCancelled]: [order: OrderView],
-    [SubscriptionEvents.OrderTaken]: [orderHash: OrderView],
+    [SubscriptionEvents.OrderCreated]: [makerOrder: OrderView],
+    [SubscriptionEvents.OrderCancelled]: [updatedMakerOrder: OrderView],
+    [SubscriptionEvents.OrderTaken]: [updatedMakerOrder: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [settledMatch: SettledMatch],
     [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
+    [SubscriptionEvents.SwapRequested]: [takerOrder: OrderView],
     [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
 
     // 
