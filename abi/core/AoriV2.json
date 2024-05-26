@@ -67,6 +67,42 @@
         {
           "indexed": false,
           "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "taker",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "inputChainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "outputChainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "inputZone",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "outputZone",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
           "name": "inputToken",
           "type": "address"
         },
@@ -775,19 +811,6 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "version",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "address",
@@ -843,7 +866,1024 @@
     "version()": "54fd4d50",
     "withdraw(address,uint256)": "f3fef3a3"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_serverSigner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"}],\"name\":\"AddressEmptyCode\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"AddressInsufficientBalance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedInnerCall\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"SafeERC20FailedOperation\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"makerHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"takerHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"matchingHash\",\"type\":\"bytes32\"}],\"name\":\"OrdersSettled\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_account\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_account\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"userData\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"receiveToken\",\"type\":\"bool\"}],\"name\":\"flashLoan\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCounter\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"offerer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"inputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"inputZone\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"outputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"outputZone\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"toWithdraw\",\"type\":\"bool\"}],\"internalType\":\"struct IAoriV2.Order\",\"name\":\"makerOrder\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"offerer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"inputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"inputZone\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"outputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"outputZone\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"toWithdraw\",\"type\":\"bool\"}],\"internalType\":\"struct IAoriV2.Order\",\"name\":\"takerOrder\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"makerSignature\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerSignature\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"blockDeadline\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seatNumber\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"seatHolder\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"seatPercentOfFees\",\"type\":\"uint256\"}],\"internalType\":\"struct IAoriV2.MatchingDetails\",\"name\":\"matching\",\"type\":\"tuple\"}],\"name\":\"getMatchingHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"matchingHash\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"offerer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"inputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"inputZone\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"outputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"outputZone\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"toWithdraw\",\"type\":\"bool\"}],\"internalType\":\"struct IAoriV2.Order\",\"name\":\"order\",\"type\":\"tuple\"}],\"name\":\"getOrderHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"}],\"name\":\"hasOrderSettled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"settled\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"incrementCounter\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"_takerFeeBips\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"_takerFeeAddress\",\"type\":\"address\"}],\"name\":\"setTakerFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"offerer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"inputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"inputZone\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"outputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"outputZone\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"toWithdraw\",\"type\":\"bool\"}],\"internalType\":\"struct IAoriV2.Order\",\"name\":\"makerOrder\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"offerer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"inputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"inputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"inputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"inputZone\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"outputToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"outputAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"outputChainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"outputZone\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"toWithdraw\",\"type\":\"bool\"}],\"internalType\":\"struct IAoriV2.Order\",\"name\":\"takerOrder\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"makerSignature\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerSignature\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"blockDeadline\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seatNumber\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"seatHolder\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"seatPercentOfFees\",\"type\":\"uint256\"}],\"internalType\":\"struct IAoriV2.MatchingDetails\",\"name\":\"matching\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"serverSignature\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"hookData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"options\",\"type\":\"bytes\"}],\"name\":\"settleOrders\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"signatureIntoComponents\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"The current implementation regards a serverSigner that signs off on matching details      of which the private key behind this wallet should be protected. If the private key is      compromised, no funds can technically be stolen but orders will be matched in a way      that is not intended i.e FIFO.\",\"errors\":{\"AddressEmptyCode(address)\":[{\"details\":\"There's no code at `target` (it is not a contract).\"}],\"AddressInsufficientBalance(address)\":[{\"details\":\"The ETH balance of the account is not enough to perform the operation.\"}],\"FailedInnerCall()\":[{\"details\":\"A call to an address target failed. The target may have reverted.\"}],\"SafeERC20FailedOperation(address)\":[{\"details\":\"An operation with an ERC-20 token failed.\"}]},\"kind\":\"dev\",\"methods\":{\"deposit(address,address,uint256)\":{\"params\":{\"_account\":\"The account to deposit to\",\"_amount\":\"The amount to deposit\",\"_token\":\"The token to deposit\"}},\"flashLoan(address,address,uint256,bytes,bool)\":{\"params\":{\"amount\":\"The amount\",\"receiveToken\":\"Whether to receive the token directly or fine to keep in the contract for gas efficiency\",\"recipient\":\"The recipient\",\"token\":\"The token\",\"userData\":\"User data to pass to the recipient\"}},\"setTakerFee(uint8,address)\":{\"details\":\"Can only be called by the server signer\"},\"settleOrders(((address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),(address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),bytes,bytes,uint256,uint256,address,uint256),bytes,bytes,bytes)\":{\"details\":\"Server signer signature must be signed with the private key of the server signer\",\"params\":{\"matching\":\"The matching details of the orders to settle\",\"serverSignature\":\"The signature of the server signer\"}},\"withdraw(address,uint256)\":{\"params\":{\"_amount\":\"The amount to withdraw\",\"_token\":\"The token to withdraw\"}}},\"title\":\"AoriV2\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"deposit(address,address,uint256)\":{\"notice\":\"Deposits tokens to the contract\"},\"flashLoan(address,address,uint256,bytes,bool)\":{\"notice\":\"Flash loan tokens\"},\"incrementCounter()\":{\"notice\":\"Increment the counter of the sender. Note that this is         counter is not exactly a sequence number. It is a         counter that is incremented to denote\"},\"setTakerFee(uint8,address)\":{\"notice\":\"Set the taker fee address and bips\"},\"settleOrders(((address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),(address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),bytes,bytes,uint256,uint256,address,uint256),bytes,bytes,bytes)\":{\"notice\":\"Main bulk of the logic for validating and settling orders\"},\"withdraw(address,uint256)\":{\"notice\":\"Withdraws tokens from the contract\"}},\"notice\":\"An implementation of the settlement contract used for the Aori V2 protocol\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/AoriV2.sol\":\"AoriV2\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":LayerZero-v2/=lib/LayerZero-v2/\",\":create3-factory/=lib/create3-factory/\",\":ds-test/=lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solmate/=lib/solmate/src/\",\":weird-erc20/=lib/solmate/lib/weird-erc20/src/\"],\"viaIR\":true},\"sources\":{\"lib/forge-std/src/interfaces/IERC20.sol\":{\"keccak256\":\"0x4cab887298790f908c27de107e4e2907ca5413aee482ef776f8d2f353c5ef947\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bb715e0c4a2bdbe432bb624501506041f06e878e0b72675aebba30ad2c2b72e7\",\"dweb:/ipfs/QmWhhLSvkxS2NrukJJHqFY8gDVE5r9rD4PfHvR24pwdKv9\"]},\"src/AoriV2.sol\":{\"keccak256\":\"0x735f66c4d42f3bb2e1afda7fe89dcb049257bdfe9aecaa879ba77c90b60a9292\",\"urls\":[\"bzz-raw://6c9013994e35c9fe13c228dcd6592c5f74469a5fc72682891f502dfbbebd0167\",\"dweb:/ipfs/QmZLUDicnH6M1FfHrAmS3TuwWop1zeALWPF5dAut68jU6s\"]},\"src/interfaces/IAoriHook.sol\":{\"keccak256\":\"0xc4bd7a35c6e514ba22c3160868928924f22b9df3ab0f5c3ebbb3ebb039361c6b\",\"urls\":[\"bzz-raw://d8b5fff115f14c357863df196ace76eb7474fd59d70a63bfe201e67328309ce5\",\"dweb:/ipfs/QmaiFSvvvm1pUtnkmvBfwMtH47PygjS4cGvfvMrPuxkv8N\"]},\"src/interfaces/IAoriV2.sol\":{\"keccak256\":\"0x3446a6e5d3da9af32f4835209be90b9cab5b6a6b0d93cc4ad0da6dc14bf2da22\",\"urls\":[\"bzz-raw://546a00158e6270431ac38d9a0fbfd7c43867c63dbb1cb3ac9c147c03efc203b0\",\"dweb:/ipfs/QmNPpG8wHG2RDXD8i95dq8Z6zqi2su4M7oLkCz7jQ1fZuc\"]},\"src/interfaces/IERC1271.sol\":{\"keccak256\":\"0x0896b47d7646823e377ee55e8190151d5ab89f326033e411bf9deb5f2596749d\",\"urls\":[\"bzz-raw://2a4e63afd76c15ea78a2930bfdb6c6048f954289c6de893339bf7232b82c62b7\",\"dweb:/ipfs/Qmcm3mbTBUQFHmZUYpVxhs3GDM4nV9WbckcxYJ5BQkJJGF\"]},\"src/interfaces/IERC165.sol\":{\"keccak256\":\"0x35338d78ebfa80cb07425c046b7dddbdc4b8d54ac95b5527b6650266420541fc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://59439cebc4af82bdccd6eb9607455b7f209ae3d2770d2b9a8ae3b7a63205270c\",\"dweb:/ipfs/QmZuJFyhKk6rJYkVTh55r7K916JfT6ueg3Xf25tNezKgHx\"]},\"src/interfaces/IFlashLoanReceiver.sol\":{\"keccak256\":\"0x5b7aca6347e7b48a3fe5a55296e1fbc116de61db07f5599eefaeb2fac2c8685f\",\"urls\":[\"bzz-raw://58035e0e8c8cda30f1836d007a84e0879316fc715a27c79d23f181326780e854\",\"dweb:/ipfs/QmdVBsNaoAUNxc2rxANMAhrufqAZjjeLpqgXsmWXjZicWq\"]},\"src/libs/Address.sol\":{\"keccak256\":\"0xca1918175f21609fd5ac97bfd259a1336603fa4b1b308d2bab432fc0a79650ff\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://346e0379a3b51a9547ad0b02a647b834ef8d3a2be4b9ca080376ae134a0d391f\",\"dweb:/ipfs/QmZ2rBWAYmYucY3vAHaQieJhxJYc4bfANtZ7SmmkSDCuLm\"]},\"src/libs/BitMaps.sol\":{\"keccak256\":\"0x88b85ca3f9617a8819626c5de4f6ddc9eaa1f078b5fac7f725567fd6e021a208\",\"urls\":[\"bzz-raw://8ecc839e0f37ff9201cb7b0fcaa456c2ace6595ee672dcc40b0ca8dd4ba3ed76\",\"dweb:/ipfs/QmQMED5vHJHXFwdj6ukD8oi2oocXJmCVAdMuHkAqsN6Ekj\"]},\"src/libs/ECDSA.sol\":{\"keccak256\":\"0x48f7d412569634ffdaee4b963738ee1a0408329d34801b80ef00213f0c5cfadd\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://05541b2cff9e4c43899a6f894ab9bc9a971b2808fafb787d0b570707fa1a0232\",\"dweb:/ipfs/QmVM55d2XG4njAGYrvYr6bM4V25yA4ievNhdufJbMxFtvg\"]},\"src/libs/SafeERC20.sol\":{\"keccak256\":\"0x0c08c071f67c14c2d771d7884d330ffa6267464ea54abd3942c839f84f19751a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f5b380195556fb43477a410a9eb8309c1a52404dc7fc46b5521679c16633480d\",\"dweb:/ipfs/QmYZALZcwEN1Vrg6W6s2d6v9maXVyntnwdnnB8LCdhBaDr\"]},\"src/libs/SignatureChecker.sol\":{\"keccak256\":\"0x07a7ee4e15ecefe02835767c45b7671d354994f3694491bf615701edf46efe67\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be86df2aaa9c9e31c5fa0825cd35f07280135c17b2ab8cd997efd7d2d4d4e72c\",\"dweb:/ipfs/QmQW1Cd5gjjhFe6dMAALhbKcMtHLzSFQ6x9G8jhmX5HBp2\"]}},\"version\":1}",
+  "rawMetadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_serverSigner",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            }
+          ],
+          "name": "AddressEmptyCode",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "AddressInsufficientBalance",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "FailedInnerCall",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "SafeERC20FailedOperation",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "makerHash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "takerHash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "inputToken",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "outputToken",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "inputAmount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "outputAmount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "matchingHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "OrdersSettled",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_account",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_token",
+              "type": "address"
+            }
+          ],
+          "name": "balanceOf",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_account",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "deposit",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "userData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bool",
+              "name": "receiveToken",
+              "type": "bool"
+            }
+          ],
+          "name": "flashLoan",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCounter",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "offerer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "startTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "endTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "salt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "toWithdraw",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct IAoriV2.Order",
+                  "name": "makerOrder",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "offerer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "startTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "endTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "salt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "toWithdraw",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct IAoriV2.Order",
+                  "name": "takerOrder",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "makerSignature",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "takerSignature",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockDeadline",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "seatNumber",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "seatHolder",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "seatPercentOfFees",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IAoriV2.MatchingDetails",
+              "name": "matching",
+              "type": "tuple"
+            }
+          ],
+          "name": "getMatchingHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "matchingHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "offerer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "inputToken",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "inputAmount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "inputChainId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "inputZone",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "outputToken",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "outputAmount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "outputChainId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "outputZone",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "startTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "salt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "toWithdraw",
+                  "type": "bool"
+                }
+              ],
+              "internalType": "struct IAoriV2.Order",
+              "name": "order",
+              "type": "tuple"
+            }
+          ],
+          "name": "getOrderHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "orderHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "orderHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "hasOrderSettled",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "settled",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "incrementCounter",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint8",
+              "name": "_takerFeeBips",
+              "type": "uint8"
+            },
+            {
+              "internalType": "address",
+              "name": "_takerFeeAddress",
+              "type": "address"
+            }
+          ],
+          "name": "setTakerFee",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "offerer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "startTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "endTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "salt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "toWithdraw",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct IAoriV2.Order",
+                  "name": "makerOrder",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "offerer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "inputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputAmount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "outputChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "outputZone",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "startTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "endTime",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "salt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "toWithdraw",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct IAoriV2.Order",
+                  "name": "takerOrder",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "makerSignature",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "takerSignature",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockDeadline",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "seatNumber",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "seatHolder",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "seatPercentOfFees",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IAoriV2.MatchingDetails",
+              "name": "matching",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes",
+              "name": "serverSignature",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "hookData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "options",
+              "type": "bytes"
+            }
+          ],
+          "name": "settleOrders",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "name": "signatureIntoComponents",
+          "outputs": [
+            {
+              "internalType": "uint8",
+              "name": "v",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "r",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "s",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "version",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "withdraw",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ],
+      "devdoc": {
+        "details": "The current implementation regards a serverSigner that signs off on matching details      of which the private key behind this wallet should be protected. If the private key is      compromised, no funds can technically be stolen but orders will be matched in a way      that is not intended i.e FIFO.",
+        "errors": {
+          "AddressEmptyCode(address)": [
+            {
+              "details": "There's no code at `target` (it is not a contract)."
+            }
+          ],
+          "AddressInsufficientBalance(address)": [
+            {
+              "details": "The ETH balance of the account is not enough to perform the operation."
+            }
+          ],
+          "FailedInnerCall()": [
+            {
+              "details": "A call to an address target failed. The target may have reverted."
+            }
+          ],
+          "SafeERC20FailedOperation(address)": [
+            {
+              "details": "An operation with an ERC-20 token failed."
+            }
+          ]
+        },
+        "kind": "dev",
+        "methods": {
+          "deposit(address,address,uint256)": {
+            "params": {
+              "_account": "The account to deposit to",
+              "_amount": "The amount to deposit",
+              "_token": "The token to deposit"
+            }
+          },
+          "flashLoan(address,address,uint256,bytes,bool)": {
+            "params": {
+              "amount": "The amount",
+              "receiveToken": "Whether to receive the token directly or fine to keep in the contract for gas efficiency",
+              "recipient": "The recipient",
+              "token": "The token",
+              "userData": "User data to pass to the recipient"
+            }
+          },
+          "setTakerFee(uint8,address)": {
+            "details": "Can only be called by the server signer"
+          },
+          "settleOrders(((address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),(address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),bytes,bytes,uint256,uint256,address,uint256),bytes,bytes,bytes)": {
+            "details": "Server signer signature must be signed with the private key of the server signer",
+            "params": {
+              "matching": "The matching details of the orders to settle",
+              "serverSignature": "The signature of the server signer"
+            }
+          },
+          "withdraw(address,uint256)": {
+            "params": {
+              "_amount": "The amount to withdraw",
+              "_token": "The token to withdraw"
+            }
+          }
+        },
+        "title": "AoriV2",
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "deposit(address,address,uint256)": {
+            "notice": "Deposits tokens to the contract"
+          },
+          "flashLoan(address,address,uint256,bytes,bool)": {
+            "notice": "Flash loan tokens"
+          },
+          "incrementCounter()": {
+            "notice": "Increment the counter of the sender. Note that this is         counter is not exactly a sequence number. It is a         counter that is incremented to denote"
+          },
+          "setTakerFee(uint8,address)": {
+            "notice": "Set the taker fee address and bips"
+          },
+          "settleOrders(((address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),(address,address,uint256,uint256,address,address,uint256,uint256,address,uint256,uint256,uint256,uint256,bool),bytes,bytes,uint256,uint256,address,uint256),bytes,bytes,bytes)": {
+            "notice": "Main bulk of the logic for validating and settling orders"
+          },
+          "withdraw(address,uint256)": {
+            "notice": "Withdraws tokens from the contract"
+          }
+        },
+        "notice": "An implementation of the settlement contract used for the Aori V2 protocol",
+        "version": 1
+      }
+    },
+    "settings": {
+      "compilationTarget": {
+        "src/AoriV2.sol": "AoriV2"
+      },
+      "evmVersion": "london",
+      "libraries": {},
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "optimizer": {
+        "enabled": true,
+        "runs": 1000000
+      },
+      "remappings": [
+        ":LayerZero-v2/=lib/LayerZero-v2/",
+        ":create3-factory/=lib/create3-factory/",
+        ":ds-test/=lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":solmate/=lib/solmate/src/",
+        ":weird-erc20/=lib/solmate/lib/weird-erc20/src/"
+      ],
+      "viaIR": true
+    },
+    "sources": {
+      "lib/forge-std/src/interfaces/IERC20.sol": {
+        "keccak256": "0x4cab887298790f908c27de107e4e2907ca5413aee482ef776f8d2f353c5ef947",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://bb715e0c4a2bdbe432bb624501506041f06e878e0b72675aebba30ad2c2b72e7",
+          "dweb:/ipfs/QmWhhLSvkxS2NrukJJHqFY8gDVE5r9rD4PfHvR24pwdKv9"
+        ]
+      },
+      "src/AoriV2.sol": {
+        "keccak256": "0x735f66c4d42f3bb2e1afda7fe89dcb049257bdfe9aecaa879ba77c90b60a9292",
+        "urls": [
+          "bzz-raw://6c9013994e35c9fe13c228dcd6592c5f74469a5fc72682891f502dfbbebd0167",
+          "dweb:/ipfs/QmZLUDicnH6M1FfHrAmS3TuwWop1zeALWPF5dAut68jU6s"
+        ]
+      },
+      "src/interfaces/IAoriHook.sol": {
+        "keccak256": "0xc4bd7a35c6e514ba22c3160868928924f22b9df3ab0f5c3ebbb3ebb039361c6b",
+        "urls": [
+          "bzz-raw://d8b5fff115f14c357863df196ace76eb7474fd59d70a63bfe201e67328309ce5",
+          "dweb:/ipfs/QmaiFSvvvm1pUtnkmvBfwMtH47PygjS4cGvfvMrPuxkv8N"
+        ]
+      },
+      "src/interfaces/IAoriV2.sol": {
+        "keccak256": "0x3446a6e5d3da9af32f4835209be90b9cab5b6a6b0d93cc4ad0da6dc14bf2da22",
+        "urls": [
+          "bzz-raw://546a00158e6270431ac38d9a0fbfd7c43867c63dbb1cb3ac9c147c03efc203b0",
+          "dweb:/ipfs/QmNPpG8wHG2RDXD8i95dq8Z6zqi2su4M7oLkCz7jQ1fZuc"
+        ]
+      },
+      "src/interfaces/IERC1271.sol": {
+        "keccak256": "0x0896b47d7646823e377ee55e8190151d5ab89f326033e411bf9deb5f2596749d",
+        "urls": [
+          "bzz-raw://2a4e63afd76c15ea78a2930bfdb6c6048f954289c6de893339bf7232b82c62b7",
+          "dweb:/ipfs/Qmcm3mbTBUQFHmZUYpVxhs3GDM4nV9WbckcxYJ5BQkJJGF"
+        ]
+      },
+      "src/interfaces/IERC165.sol": {
+        "keccak256": "0x35338d78ebfa80cb07425c046b7dddbdc4b8d54ac95b5527b6650266420541fc",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://59439cebc4af82bdccd6eb9607455b7f209ae3d2770d2b9a8ae3b7a63205270c",
+          "dweb:/ipfs/QmZuJFyhKk6rJYkVTh55r7K916JfT6ueg3Xf25tNezKgHx"
+        ]
+      },
+      "src/interfaces/IFlashLoanReceiver.sol": {
+        "keccak256": "0x5b7aca6347e7b48a3fe5a55296e1fbc116de61db07f5599eefaeb2fac2c8685f",
+        "urls": [
+          "bzz-raw://58035e0e8c8cda30f1836d007a84e0879316fc715a27c79d23f181326780e854",
+          "dweb:/ipfs/QmdVBsNaoAUNxc2rxANMAhrufqAZjjeLpqgXsmWXjZicWq"
+        ]
+      },
+      "src/libs/Address.sol": {
+        "keccak256": "0xca1918175f21609fd5ac97bfd259a1336603fa4b1b308d2bab432fc0a79650ff",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://346e0379a3b51a9547ad0b02a647b834ef8d3a2be4b9ca080376ae134a0d391f",
+          "dweb:/ipfs/QmZ2rBWAYmYucY3vAHaQieJhxJYc4bfANtZ7SmmkSDCuLm"
+        ]
+      },
+      "src/libs/BitMaps.sol": {
+        "keccak256": "0x88b85ca3f9617a8819626c5de4f6ddc9eaa1f078b5fac7f725567fd6e021a208",
+        "urls": [
+          "bzz-raw://8ecc839e0f37ff9201cb7b0fcaa456c2ace6595ee672dcc40b0ca8dd4ba3ed76",
+          "dweb:/ipfs/QmQMED5vHJHXFwdj6ukD8oi2oocXJmCVAdMuHkAqsN6Ekj"
+        ]
+      },
+      "src/libs/ECDSA.sol": {
+        "keccak256": "0x48f7d412569634ffdaee4b963738ee1a0408329d34801b80ef00213f0c5cfadd",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://05541b2cff9e4c43899a6f894ab9bc9a971b2808fafb787d0b570707fa1a0232",
+          "dweb:/ipfs/QmVM55d2XG4njAGYrvYr6bM4V25yA4ievNhdufJbMxFtvg"
+        ]
+      },
+      "src/libs/SafeERC20.sol": {
+        "keccak256": "0x0c08c071f67c14c2d771d7884d330ffa6267464ea54abd3942c839f84f19751a",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://f5b380195556fb43477a410a9eb8309c1a52404dc7fc46b5521679c16633480d",
+          "dweb:/ipfs/QmYZALZcwEN1Vrg6W6s2d6v9maXVyntnwdnnB8LCdhBaDr"
+        ]
+      },
+      "src/libs/SignatureChecker.sol": {
+        "keccak256": "0x07a7ee4e15ecefe02835767c45b7671d354994f3694491bf615701edf46efe67",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://be86df2aaa9c9e31c5fa0825cd35f07280135c17b2ab8cd997efd7d2d4d4e72c",
+          "dweb:/ipfs/QmQW1Cd5gjjhFe6dMAALhbKcMtHLzSFQ6x9G8jhmX5HBp2"
+        ]
+      }
+    },
+    "version": 1
+  },
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"

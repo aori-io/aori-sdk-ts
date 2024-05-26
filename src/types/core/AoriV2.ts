@@ -119,7 +119,6 @@ export interface AoriV2Interface extends Interface {
       | "setTakerFee"
       | "settleOrders"
       | "signatureIntoComponents"
-      | "version"
       | "withdraw"
   ): FunctionFragment;
 
@@ -169,7 +168,6 @@ export interface AoriV2Interface extends Interface {
     functionFragment: "signatureIntoComponents",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "version", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdraw",
     values: [AddressLike, BigNumberish]
@@ -207,7 +205,6 @@ export interface AoriV2Interface extends Interface {
     functionFragment: "signatureIntoComponents",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
@@ -215,6 +212,12 @@ export namespace OrdersSettledEvent {
   export type InputTuple = [
     makerHash: BytesLike,
     takerHash: BytesLike,
+    maker: AddressLike,
+    taker: AddressLike,
+    inputChainId: BigNumberish,
+    outputChainId: BigNumberish,
+    inputZone: AddressLike,
+    outputZone: AddressLike,
     inputToken: AddressLike,
     outputToken: AddressLike,
     inputAmount: BigNumberish,
@@ -224,6 +227,12 @@ export namespace OrdersSettledEvent {
   export type OutputTuple = [
     makerHash: string,
     takerHash: string,
+    maker: string,
+    taker: string,
+    inputChainId: bigint,
+    outputChainId: bigint,
+    inputZone: string,
+    outputZone: string,
     inputToken: string,
     outputToken: string,
     inputAmount: bigint,
@@ -233,6 +242,12 @@ export namespace OrdersSettledEvent {
   export interface OutputObject {
     makerHash: string;
     takerHash: string;
+    maker: string;
+    taker: string;
+    inputChainId: bigint;
+    outputChainId: bigint;
+    inputZone: string;
+    outputZone: string;
     inputToken: string;
     outputToken: string;
     inputAmount: bigint;
@@ -357,8 +372,6 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
-  version: TypedContractMethod<[], [string], "view">;
-
   withdraw: TypedContractMethod<
     [_token: AddressLike, _amount: BigNumberish],
     [void],
@@ -442,9 +455,6 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "version"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<
     [_token: AddressLike, _amount: BigNumberish],
@@ -461,7 +471,7 @@ export interface AoriV2 extends BaseContract {
   >;
 
   filters: {
-    "OrdersSettled(bytes32,bytes32,address,address,uint256,uint256,bytes32)": TypedContractEvent<
+    "OrdersSettled(bytes32,bytes32,address,address,uint256,uint256,address,address,address,address,uint256,uint256,bytes32)": TypedContractEvent<
       OrdersSettledEvent.InputTuple,
       OrdersSettledEvent.OutputTuple,
       OrdersSettledEvent.OutputObject

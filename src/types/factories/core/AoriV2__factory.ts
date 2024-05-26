@@ -84,6 +84,42 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
+        name: "maker",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "taker",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "inputChainId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "outputChainId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "inputZone",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "outputZone",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
         name: "inputToken",
         type: "address",
       },
@@ -789,19 +825,6 @@ const _abi = [
       },
     ],
     stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "version",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
