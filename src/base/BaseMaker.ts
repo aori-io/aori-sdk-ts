@@ -1,5 +1,5 @@
 import { parseEther, Wallet } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, AoriSolutionStore, createAndMakeOrder, getTokenAllowance, settleOrdersViaVault } from "../providers";
+import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, createAndMakeOrder, getTokenAllowance, settleOrdersViaVault } from "../providers";
 import { AoriFeedProvider } from "../providers/AoriFeedProvider";
 import { ERC20__factory } from "../types";
 import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, calldataToSettleOrders, encodeInstructions, getDefaultZone, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
@@ -10,7 +10,6 @@ export class BaseMaker extends AoriHttpProvider {
     feed: AoriFeedProvider = null as any;
     dataProvider = new AoriDataProvider();
     pricingProvider = new AoriPricingProvider();
-    solutionStore = new AoriSolutionStore();
 
     /*//////////////////////////////////////////////////////////////
                                  STATE

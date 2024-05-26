@@ -132,9 +132,6 @@ export const AORI_DATA_PROVIDER_APIS: string[] = [
 // Pricing Provider API
 export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 
-// Solution Store
-export const AORI_SOLUTION_STORE_API: string = "https://solution.aori.io";
-
 /*//////////////////////////////////////////////////////////////
                     ORDER CONFIGURATION
 //////////////////////////////////////////////////////////////*/

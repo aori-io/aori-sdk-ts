@@ -188,11 +188,6 @@ export enum AoriPricingMethods {
     CalculateGasInToken = "aori_calculateGasInToken",
 }
 
-export enum AoriSolutionStoreMethods {
-    SaveSolution = "aori_saveSolution",
-    GetSolution = "aori_getSolution",
-}
-
 export enum SubscriptionEvents {
     OrderCreated = "OrderCreated",
     OrderCancelled = "OrderCancelled",
