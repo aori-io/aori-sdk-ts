@@ -4,8 +4,8 @@ export function verifyAuthSignature(address: string, signature: string): boolean
     return address == verifyMessage(`${address}-01/${new Date().getMonth()}`, signature);
 }
 
-export function signAuthMessage(wallet: Wallet): string {
+export function signAuthSignature(wallet: Wallet): string {
     return wallet.signMessageSync(`${wallet.address}-01/${new Date().getMonth()}`);
 }
 
-// verifyAuthSignature(_wallet.address, signAuthMessage(_wallet));
+// verifyAuthSignature(_wallet.address, signAuthSignature(_wallet));
