@@ -1,6 +1,6 @@
 import { verifyMessage, Wallet } from "ethers";
 
-export function verifyAuthSignature(signatureTimestamp: number, signature: string): string {
+export function addressFromAuthSignature(signatureTimestamp: number, signature: string): string {
     return verifyMessage(`Permission to cancel orders until ${signatureTimestamp}`, signature);
 }
 
