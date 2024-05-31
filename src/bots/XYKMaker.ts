@@ -11,7 +11,6 @@ export function XYKMaker({
     spreadPercentage = 0n,
     defaultChainId,
     cancelAfter = 12_000,
-    cancelAllFirst = false,
     tokenA,
     tokenB
 }: Parameters<typeof QuoteMaker>[0] & {
@@ -28,7 +27,6 @@ export function XYKMaker({
         apiKey,
         defaultChainId,
         cancelAfter,
-        cancelAllFirst,
         quoter: xykQuoterFactory(vaultContract || wallet.address, defaultChainId, tokenA, tokenB)
     });
 

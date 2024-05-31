@@ -1,8 +1,8 @@
-import { parseEther, Wallet } from "ethers";
-import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, createAndMakeOrder, getTokenAllowance, settleOrdersViaVault } from "../providers";
+import { parseEther } from "ethers";
+import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, createAndMakeOrder, settleOrdersViaVault } from "../providers";
 import { AoriFeedProvider } from "../providers/AoriFeedProvider";
 import { ERC20__factory } from "../types";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, calldataToSettleOrders, encodeInstructions, getDefaultZone, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
@@ -43,20 +43,11 @@ export class BaseMaker extends AoriHttpProvider {
         });
     }
 
-    async initialise({ cancelAllFirst = false, gasLimit = 5_000_000n }: {
-        cancelAllFirst?: boolean,
+    async initialise({ gasLimit = 5_000_000n }: {
         gasLimit?: bigint
     }) {
 
         console.log("Initialising maker...");
-
-        if (cancelAllFirst) {
-            try {
-                await this.cancelAllOrders();
-            } catch (e: any) {
-                console.log(e);
-            }
-        }
 
         this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
             const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
@@ -120,9 +111,22 @@ export class BaseMaker extends AoriHttpProvider {
             outputToken: inputToken,
             inputAmount,
             outputAmount: amountForUser,
-            chainId: this.defaultChainId,
-            ...(cancelAfter != undefined) ? { endTime: Math.ceil((Date.now() + cancelAfter) / 1000) } : {},
+            chainId: this.defaultChainId
         }, this.apiUrl);
+
+        /*//////////////////////////////////////////////////////////////
+                                  CANCELAFTER
+        //////////////////////////////////////////////////////////////*/
+
+        if (cancelAfter) {
+            setTimeout(async () => {
+                try {
+                    await this.cancelOrder(createdLimitOrder.orderHash);
+                } catch (e: any) {
+                    console.log(e);
+                }
+            }, cancelAfter);
+        }
 
         /*//////////////////////////////////////////////////////////////
                                 SET PRECALLDATA

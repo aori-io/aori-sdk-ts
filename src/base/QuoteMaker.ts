@@ -1,9 +1,9 @@
-import { parseEther, Wallet } from "ethers";
-import { getFeeData, getTokenAllowance } from "../providers";
+import { parseEther } from "ethers";
+import { Quoter } from "../adapters";
+import { getFeeData } from "../providers";
 import { ERC20__factory } from "../types";
 import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
-import { Quoter } from "../adapters";
 
 export function QuoteMaker({
     wallet,
@@ -15,12 +15,11 @@ export function QuoteMaker({
     spreadPercentage = 0n,
     defaultChainId,
     cancelAfter = 30_000,
-    cancelAllFirst = false,
     quoter,
     sponsorGas = false,
     gasLimit = 5_000_000n,
     settleTx
-}:  ConstructorParameters<typeof BaseMaker>[0] & Parameters<BaseMaker["initialise"]>[0] & {
+}: ConstructorParameters<typeof BaseMaker>[0] & Parameters<BaseMaker["initialise"]>[0] & {
     spreadPercentage?: bigint;
     cancelAfter?: number;
     quoter: Quoter;
@@ -38,7 +37,7 @@ export function QuoteMaker({
     });
 
     baseMaker.on("ready", () => {
-        baseMaker.initialise({ cancelAllFirst });
+        baseMaker.initialise({});
         baseMaker.subscribe();
 
         async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
