@@ -1,11 +1,15 @@
 import { verifyMessage, Wallet } from "ethers";
 
+export function timestampToAuthMessage(timestamp: number): string {
+    return `Permission to cancel orders until ${timestamp}`;
+}
+
 export function addressFromAuthSignature(signatureTimestamp: number, signature: string): string {
-    return verifyMessage(`Permission to cancel orders until ${signatureTimestamp}`, signature);
+    return verifyMessage(timestampToAuthMessage(signatureTimestamp), signature);
 }
 
 export function signAuthSignature(wallet: Wallet, signatureTimestamp: number): string {
-    return wallet.signMessageSync(`Permission to cancel orders until ${signatureTimestamp}`);
+    return wallet.signMessageSync(timestampToAuthMessage(signatureTimestamp));
 }
 
 // const wallet = new Wallet(Wallet.createRandom().privateKey);
