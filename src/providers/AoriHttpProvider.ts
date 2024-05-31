@@ -443,12 +443,15 @@ export async function cancelOrder({
     orderHash,
     signature,
     apiKey,
-    privyAuth
+    // TODO: deprecate privyAuth
+    privyAuth,
+    signatureTimestamp
 }: {
     orderHash: string,
     signature: string,
     apiKey?: string,
-    privyAuth?: string
+    privyAuth?: string,
+    signatureTimestamp?: number
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
     return await rawCall({
         method: AoriMethods.CancelOrder,
@@ -456,7 +459,8 @@ export async function cancelOrder({
             orderHash: orderHash,
             signature,
             apiKey,
-            privyAuth
+            privyAuth,
+            signatureTimestamp
         }]
     }, apiUrl);
 }
@@ -465,12 +469,14 @@ export async function cancelAllOrders({
     signature,
     tag,
     apiKey,
-    privyAuth
+    privyAuth,
+    signatureTimestamp
 }: {
     apiKey?: string,
     signature: string,
     tag?: string,
-    privyAuth?: string
+    privyAuth?: string,
+    signatureTimestamp?: number
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
     return await rawCall({
         method: AoriMethods.CancelAllOrders,
@@ -478,7 +484,8 @@ export async function cancelAllOrders({
             signature,
             ...(tag != undefined) ? { tag } : {},
             apiKey,
-            privyAuth
+            privyAuth,
+            signatureTimestamp
         }]
     }, apiUrl);
 }

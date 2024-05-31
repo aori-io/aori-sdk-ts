@@ -1,11 +1,13 @@
 import { verifyMessage, Wallet } from "ethers";
 
-export function verifyAuthSignature(address: string, signature: string): boolean {
-    return address == verifyMessage(`${address}-01/${new Date().getMonth()}`, signature);
+export function verifyAuthSignature(signatureTimestamp: number, signature: string): string {
+    return verifyMessage(`Permission to cancel orders until ${signatureTimestamp}`, signature);
 }
 
-export function signAuthSignature(wallet: Wallet): string {
-    return wallet.signMessageSync(`${wallet.address}-01/${new Date().getMonth()}`);
+export function signAuthSignature(wallet: Wallet, signatureTimestamp: number): string {
+    return wallet.signMessageSync(`Permission to cancel orders until ${signatureTimestamp}`);
 }
 
-// verifyAuthSignature(_wallet.address, signAuthSignature(_wallet));
+// const wallet = new Wallet(Wallet.createRandom().privateKey);
+// const timestamp = Date.now() + 1000 * 60 * 60 * 24 * 7;
+// console.log(wallet.address == verifyAuthSignature(timestamp, signAuthSignature(wallet, timestamp)));
