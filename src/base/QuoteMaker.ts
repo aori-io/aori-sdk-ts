@@ -14,7 +14,7 @@ export function QuoteMaker({
     vaultContract,
     spreadPercentage = 0n,
     defaultChainId,
-    cancelAfter = 30_000,
+    cancelAfter,
     quoter,
     sponsorGas = false,
     gasLimit = 5_000_000n,

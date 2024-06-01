@@ -10,7 +10,7 @@ export function XYKMaker({
     vaultContract,
     spreadPercentage = 0n,
     defaultChainId,
-    cancelAfter = 12_000,
+    cancelAfter,
     tokenA,
     tokenB
 }: Parameters<typeof QuoteMaker>[0] & {
