@@ -185,7 +185,7 @@ export enum AoriDataMethods {
 }
 
 export enum AoriPricingMethods {
-    GetAssetPrice = "aori_getAssetPrice",
+    GetToken = "aori_getToken",
     CalculateGasInToken = "aori_calculateGasInToken",
 }
 

@@ -5,7 +5,7 @@ import { AoriPricingMethods } from "../utils/interfaces";
 
 export class AoriPricingProvider {
 
-    async getAssetPrice({
+    async getToken({
         chainId,
         token,
         amount
@@ -16,7 +16,7 @@ export class AoriPricingProvider {
     }) {
 
         const data = await this.rawCall({
-            method: AoriPricingMethods.GetAssetPrice,
+            method: AoriPricingMethods.GetToken,
             params: [{ chainId, token, amount }]
         });
         return data.amountUSD;
@@ -67,6 +67,6 @@ export class AoriPricingProvider {
 
 const pricingProvider = new AoriPricingProvider();
 
-export function getAssetPrice(chainId: number, token: string, amount: string): Promise<number> {
-    return pricingProvider.getAssetPrice({ chainId, token, amount });
+export function getToken(chainId: number, token: string, amount: string): Promise<number> {
+    return pricingProvider.getToken({ chainId, token, amount });
 }
