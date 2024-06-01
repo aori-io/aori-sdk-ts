@@ -5,7 +5,7 @@ import { AoriPricingMethods } from "../utils/interfaces";
 
 export class AoriPricingProvider {
 
-    async getToken({
+    async getTokenPrice({
         chainId,
         token,
         amount
@@ -67,6 +67,6 @@ export class AoriPricingProvider {
 
 const pricingProvider = new AoriPricingProvider();
 
-export function getToken(chainId: number, token: string, amount: string): Promise<number> {
-    return pricingProvider.getToken({ chainId, token, amount });
+export function getTokenPrice(chainId: number, token: string, amount: string): Promise<number> {
+    return pricingProvider.getTokenPrice({ chainId, token, amount });
 }
