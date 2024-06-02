@@ -1,6 +1,6 @@
 # Aori TypeScript SDK
 
-![H](assets/aori.svg)
+![H](assets/aori-banner.svg)
 
 [![https://devs.aori.io](https://img.shields.io/badge/🗨_telegram_chat-0088cc)](https://devs.aori.io) ![npm (scoped)](https://img.shields.io/npm/v/%40aori-io/sdk) ![npm](https://img.shields.io/npm/dm/%40aori-io/sdk) ![NPM](https://img.shields.io/npm/l/%40aori-io%2Fsdk) ![GitHub issues](https://img.shields.io/github/issues-raw/aori-io/aori-sdk-ts?color=blue)
 
