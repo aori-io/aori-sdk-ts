@@ -355,12 +355,14 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputToken,
         inputAmount,
         outputToken,
-        chainId = this.defaultChainId
+        chainId = this.defaultChainId,
+        delay
     }: {
         inputToken: string,
         inputAmount: BigNumberish,
         outputToken: string,
-        chainId?: number
+        chainId?: number,
+        delay?: number
     }) {
         await this.rawCall({
             method: AoriMethods.Quote,
@@ -369,7 +371,8 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                 inputAmount: inputAmount.toString(),
                 outputToken,
                 chainId,
-                apiKey: this.apiKey
+                apiKey: this.apiKey,
+                delay
             }]
         })
     };

@@ -260,19 +260,22 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         inputToken,
         inputAmount,
         outputToken,
-        chainId = this.defaultChainId
+        chainId = this.defaultChainId,
+        delay
     }: {
         inputToken: string,
         inputAmount: BigNumberish,
         outputToken: string,
-        chainId?: number
+        chainId?: number,
+        delay?: number
     }): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
         return await quote({
             inputToken,
             inputAmount: inputAmount.toString(),
             outputToken,
             chainId,
-            apiKey: this.apiKey
+            apiKey: this.apiKey,
+            delay
         }, this.apiUrl);
     };
 
@@ -547,13 +550,15 @@ export async function quote({
     inputAmount,
     outputToken,
     chainId,
-    apiKey
+    apiKey,
+    delay
 }: {
     inputToken: string,
     inputAmount: BigNumberish,
     outputToken: string,
     chainId: number,
-    apiKey?: string
+    apiKey?: string,
+    delay?: number
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
     const { orders } = await rawCall({
         method: AoriMethods.Quote,
@@ -562,7 +567,8 @@ export async function quote({
             inputAmount: inputAmount.toString(),
             outputToken,
             chainId,
-            apiKey
+            apiKey,
+            delay
         }]
     }, apiUrl);
 
