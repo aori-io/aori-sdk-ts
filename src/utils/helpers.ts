@@ -497,22 +497,12 @@ export async function deployVault(wallet: Wallet, {
     chainId?: ChainId,
     aoriProtocol: string,
     saltPhrase: string,
-    gasLimit: bigint
+    gasLimit?: bigint
 }): Promise<string> {
     const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
     
     await sendOrRetryTransaction(wallet, {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        value: 0,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [AoriVault__factory.bytecode, AoriVault__factory.createInterface().encodeDeploy(
-                [wallet.address, aoriProtocol],
-            )])
-        ]),
-        gasLimit,
+        ...prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit),
         chainId
     });
 
