@@ -84,7 +84,6 @@ export class ValantisQuoter implements Quoter {
             }
         });
 
-        console.log(data)
 
         return {
             outputAmount: (AMOUNT_OUT - BigInt(2000)),
