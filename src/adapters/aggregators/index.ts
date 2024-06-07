@@ -7,3 +7,4 @@ export * from "./openocean";
 export * from "./paraswap";
 export * from "./socket";
 export * from "./valantis";
+export * from "./oogabooga";
