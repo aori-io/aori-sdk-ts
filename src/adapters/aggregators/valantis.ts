@@ -73,7 +73,7 @@ export class ValantisQuoter implements Quoter {
             token_in: inputToken,
             token_out: outputToken,
             volume_token_in: inputAmount,
-            volume_token_out_min: (AMOUNT_OUT - BigInt(2000)).toString(),
+            volume_token_out_min: (AMOUNT_OUT - BigInt(750)).toString(),
         };
 
         const { data } = await axios.post(this.url, requestBody, {
@@ -86,7 +86,7 @@ export class ValantisQuoter implements Quoter {
 
 
         return {
-            outputAmount: (AMOUNT_OUT - BigInt(2000)),
+            outputAmount: (AMOUNT_OUT - BigInt(750)),
             to: data.pool_address,
             value: 0,
             data: data.signed_payload,
