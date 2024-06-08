@@ -211,6 +211,22 @@ export function withStringifiedTimes(order: AoriOrderWithIntegerTimes): AoriOrde
     return { ...order, startTime: `${order.startTime}`, endTime: `${order.endTime}` };
 }
 
+export type DatabaseOrderView = Omit<OrderView, "order"> & { order: AoriOrderWithIntegerTimes };
+
+export function toDatabaseOrderView(orderView: OrderView): DatabaseOrderView {
+    return {
+        ...orderView,
+        order: withIntegerTimes(orderView.order)
+    };
+}
+
+export function toNormalOrderView(orderView: DatabaseOrderView): OrderView {
+    return {
+        ...orderView,
+        order: withStringifiedTimes(orderView.order)
+    };
+}
+
 export function toOrderView({
     order,
     signature,
