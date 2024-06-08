@@ -80,10 +80,8 @@ export interface ViewOrderbookQuery {
     signature?: string;
     offerer?: string;
     orderHash?: string;
-    query?: {
-        base: string;
-        quote: string;
-    };
+    inputToken: string;
+    outputToken: string;
     chainId?: number;
     sortBy?: "createdAt_asc" | "createdAt_desc" | "rate_asc" | "rate_desc";
     inputAmount?: string;
