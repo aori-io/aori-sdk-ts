@@ -238,7 +238,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             outputToken,
             chainId,
             apiKey: this.apiKey
-        }, this.apiUrl);
+        }, this.takerUrl);
     }
 
     async requestSwap({
@@ -253,7 +253,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             order,
             signature,
             apiKey: this.apiKey
-        }, this.apiUrl);
+        }, this.takerUrl);
     }
 
     async quote({
@@ -276,7 +276,7 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
             chainId,
             apiKey: this.apiKey,
             delay
-        }, this.apiUrl);
+        }, this.takerUrl);
     };
 
     async sendTransaction(tx: TransactionRequest): Promise<string> {
@@ -513,7 +513,7 @@ export async function requestQuote({
     outputToken: string,
     chainId: number,
     apiKey?: string
-}, apiUrl: string = AORI_HTTP_API): Promise<void> {
+}, apiUrl: string = AORI_TAKER_API): Promise<void> {
     return await rawCall({
         method: AoriMethods.RequestQuote,
         params: [{
@@ -534,7 +534,7 @@ export async function requestSwap({
     order: AoriOrder,
     signature: string,
     apiKey?: string
-}, apiUrl: string = AORI_HTTP_API): Promise<void> {
+}, apiUrl: string = AORI_TAKER_API): Promise<void> {
     return await rawCall({
         method: AoriMethods.RequestSwap,
         params: [{
@@ -559,7 +559,7 @@ export async function quote({
     chainId: number,
     apiKey?: string,
     delay?: number
-}, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
+}, apiUrl: string = AORI_TAKER_API): Promise<AoriMethodsEvents[AoriMethods.Quote][0]> {
     const { orders } = await rawCall({
         method: AoriMethods.Quote,
         params: [{
@@ -604,8 +604,8 @@ export async function matchAndMarketOrder(takerWallet: Wallet, makerOrder: AoriO
     }, takerApiUrl);
 }
 
-export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | string | undefined> {
-    const quoteOrders = await quote(quoteParams, apiUrl);
+export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], apiUrl: string = AORI_HTTP_API, takerApiUrl: string = AORI_TAKER_API): Promise<DetailsToExecute | string | undefined> {
+    const quoteOrders = await quote(quoteParams, takerApiUrl);
     while (quoteOrders.length != 0) {
         const orderView = quoteOrders.shift();
         if (orderView == undefined) {
@@ -616,10 +616,10 @@ export async function quoteAndTakeOrder(takerWallet: Wallet, quoteParams: Parame
     }
 }
 
-export async function quoteAndRetryTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], deadlineInMs: number = 15000, apiUrl: string = AORI_HTTP_API): Promise<DetailsToExecute | string | undefined> {
+export async function quoteAndRetryTakeOrder(takerWallet: Wallet, quoteParams: Parameters<typeof quote>[0], deadlineInMs: number = 15000, apiUrl: string = AORI_HTTP_API, takerApiUrl: string = AORI_TAKER_API): Promise<DetailsToExecute | string | undefined> {
     const deadline = new Date().getTime() + deadlineInMs;
     while (new Date().getTime() < deadline) {
-        const quoteOrders = await quote(quoteParams, apiUrl);
+        const quoteOrders = await quote(quoteParams, takerApiUrl);
 
         const orderView = quoteOrders.shift();
         if (orderView == undefined) {
