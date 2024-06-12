@@ -19,7 +19,7 @@ export class AoriPricingProvider {
             method: AoriPricingMethods.GetToken,
             params: [{ chainId, token, amount }]
         });
-        return data.amountUSD;
+        return data.price.price;
     }
 
     async calculateGasInToken({
