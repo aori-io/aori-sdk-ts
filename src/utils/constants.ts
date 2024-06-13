@@ -28,6 +28,7 @@ export enum ChainId {
     TAIKO_KATLA = 167008,
     ARBITRUM_SEPOLIA = 421614,
     SCROLL_SEPOLIA = 534351,
+    SCROLL_MAINNET = 534352,
     SEI_EVM_DEVNET = 713715,
     MANTA_PACIFIC_SEPOLIA = 3441006,
     SEPOLIA = 11155111,
@@ -40,15 +41,23 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
+    [ChainId.ETHEREUM_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
     [ChainId.OPTIMISM_MAINNET, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
-    [ChainId.POLYGON_MAINNET, new Set([
+    [ChainId.BINANCE_SMART_CHAIN, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
-    [ChainId.BLAST_MAINNET, new Set([
+    [ChainId.GNOSIS_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.POLYGON_MAINNET, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
@@ -59,6 +68,26 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
     [ChainId.ARBITRUM_MAINNET, new Set([
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
         "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
+    ])],
+
+    [ChainId.CELO_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.AVAX_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.LINEA_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.BLAST_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
+    ])],
+
+    [ChainId.SCROLL_MAINNET, new Set([
+        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
     ])],
 
     /*//////////////////////////////////////////////////////////////
