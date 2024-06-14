@@ -78,8 +78,13 @@ export function QuoteMaker({
                     gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
                         chainId,
                         gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
-                        token: inputToken
+                        token: outputToken
                     });
+                }
+
+                if (outputAmount < gasInToken) {
+                    console.log(`✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low`);
+                    return;
                 }
 
                 await baseMaker.generateQuoteOrder({

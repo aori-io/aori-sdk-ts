@@ -70,3 +70,7 @@ const pricingProvider = new AoriPricingProvider();
 export function getTokenPrice(chainId: number, token: string, amount: string): Promise<number> {
     return pricingProvider.getTokenPrice({ chainId, token, amount });
 }
+
+export function calculateGasInToken(chainId: number, gas: number, token: string): Promise<bigint> {
+    return pricingProvider.calculateGasInToken({ chainId, gas, token });
+}
