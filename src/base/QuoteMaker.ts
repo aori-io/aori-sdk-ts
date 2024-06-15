@@ -65,7 +65,7 @@ export function QuoteMaker({
 
                 // Approve quoter
                 preCalldata.push({
-                    to: outputToken,
+                    to: inputToken,
                     value: 0,
                     data: ERC20__factory.createInterface().encodeFunctionData("approve", [
                         quoterTo, parseEther("100000")
