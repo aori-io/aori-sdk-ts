@@ -8,11 +8,11 @@ import {
   Interface,
 } from "ethers";
 import type { Signer, ContractDeployTransaction, ContractRunner } from "ethers";
-import type { NonPayableOverrides } from "../../common";
+import type { NonPayableOverrides } from "../common";
 import type {
   CREATE3Factory,
   CREATE3FactoryInterface,
-} from "../../core/CREATE3Factory";
+} from "../CREATE3Factory";
 
 const _abi = [
   {

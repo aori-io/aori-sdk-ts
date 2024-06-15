@@ -8,8 +8,8 @@ import {
   Interface,
 } from "ethers";
 import type { Signer, ContractDeployTransaction, ContractRunner } from "ethers";
-import type { NonPayableOverrides } from "../../common";
-import type { Yang, YangInterface } from "../../core/Yang";
+import type { NonPayableOverrides } from "../common";
+import type { Yang, YangInterface } from "../Yang";
 
 const _abi = [
   {

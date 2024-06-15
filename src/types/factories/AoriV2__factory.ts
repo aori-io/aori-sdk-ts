@@ -13,8 +13,8 @@ import type {
   ContractDeployTransaction,
   ContractRunner,
 } from "ethers";
-import type { NonPayableOverrides } from "../../common";
-import type { AoriV2, AoriV2Interface } from "../../core/AoriV2";
+import type { NonPayableOverrides } from "../common";
+import type { AoriV2, AoriV2Interface } from "../AoriV2";
 
 const _abi = [
   {

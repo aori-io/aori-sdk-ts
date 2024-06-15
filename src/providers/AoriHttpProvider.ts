@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
-import { InstructionStruct } from "../types/core/AoriVault";
+import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, ViewOrderbookQuery } from "../utils/interfaces";

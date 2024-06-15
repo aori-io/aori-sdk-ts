@@ -1,7 +1,7 @@
 import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
-import { InstructionStruct } from "../types/core/AoriVault";
+import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView, SettledMatch } from "./interfaces";
