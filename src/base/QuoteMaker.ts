@@ -1,9 +1,9 @@
 import { parseEther } from "ethers";
-import { Quoter } from "../adapters";
 import { getFeeData } from "../providers";
 import { ERC20__factory } from "../types";
 import { SubscriptionEvents } from "../utils";
 import { BaseMaker } from "./BaseMaker";
+import { Quoter } from "../utils/Quoter";
 
 export function QuoteMaker({
     wallet,
