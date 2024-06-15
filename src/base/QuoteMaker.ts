@@ -56,27 +56,27 @@ export function QuoteMaker({
 
     baseMaker.on("ready", () => {
         baseMaker.initialise({ beforeSettlement: async (detailsToExecute) => {
-            const { makerOrderHash, chainId, inputToken, outputToken, outputAmount: inputAmount } = detailsToExecute;
-            const { quoterTo, quoterValue, quoterData } = await getQuote({ inputToken: outputToken, inputAmount, outputToken: inputToken, chainId });
+            // const { makerOrderHash, chainId, inputToken, outputToken, outputAmount: inputAmount } = detailsToExecute;
+            // const { quoterTo, quoterValue, quoterData } = await getQuote({ inputToken: outputToken, inputAmount, outputToken: inputToken, chainId });
 
-            // Construct preCalldata
-            const preCalldata: any[] = [];
-            if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
+            // // Construct preCalldata
+            // const preCalldata: any[] = [];
+            // if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
-                // Approve quoter
-                preCalldata.push({
-                    to: outputToken,
-                    value: 0,
-                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                        quoterTo, parseEther("100000")
-                    ])
-                });
+            //     // Approve quoter
+            //     preCalldata.push({
+            //         to: outputToken,
+            //         value: 0,
+            //         data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+            //             quoterTo, parseEther("100000")
+            //         ])
+            //     });
 
-                // Perform swap
-                preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
+            //     // Perform swap
+            //     preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
                 
-                baseMaker.preCalldata[makerOrderHash] = preCalldata;
-            }
+            //     baseMaker.preCalldata[makerOrderHash] = preCalldata;
+            // }
         }});
 
         baseMaker.subscribe();
