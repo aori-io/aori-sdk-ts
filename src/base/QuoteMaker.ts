@@ -41,37 +41,37 @@ export function QuoteMaker({
         baseMaker.subscribe();
 
         async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
-            const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-                inputToken,
-                outputToken,
-                inputAmount,
-                fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
-                chainId
-            });
-
-            // Construct preCalldata
-            const preCalldata = [];
-            if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
-
-                // Approve quoter
-                preCalldata.push({
-                    to: inputToken,
-                    value: 0,
-                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-                        quoterTo, parseEther("100000")
-                    ])
+            try {
+                const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
+                    inputToken,
+                    outputToken,
+                    inputAmount,
+                    fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
+                    chainId
                 });
 
-                // Perform swap
-                preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
-            }
+                // Construct preCalldata
+                const preCalldata = [];
+                if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
-            if (outputAmount == 0n) {
-                console.log(`✍️ Quote for ${inputToken} -> ${outputToken} is 0`);
-                return;
-            }
+                    // Approve quoter
+                    preCalldata.push({
+                        to: inputToken,
+                        value: 0,
+                        data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                            quoterTo, parseEther("100000")
+                        ])
+                    });
 
-            try {
+                    // Perform swap
+                    preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
+                }
+
+                if (outputAmount == 0n) {
+                    console.log(`✍️ Quote for ${inputToken} -> ${outputToken} is 0`);
+                    return;
+                }
+
                 let gasInToken = 0n;
                 if (sponsorGas) {
                     const { gasPrice } = await getFeeData(chainId);
