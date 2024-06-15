@@ -16,6 +16,7 @@ export function QuoteMaker({
     defaultChainId,
     cancelAfter,
     quoter,
+    logQuotes,
     sponsorGas = false,
     gasLimit = 5_000_000n,
     settleTx
@@ -23,6 +24,7 @@ export function QuoteMaker({
     spreadPercentage?: bigint;
     cancelAfter?: number;
     quoter: Quoter;
+    logQuotes?: boolean;
     sponsorGas?: boolean;
     settleTx?: boolean;
 }) {
@@ -36,17 +38,26 @@ export function QuoteMaker({
         defaultChainId
     });
 
+    async function getQuote({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
+        const { to: quoterTo, value: quoterValue, data: quoterData, outputAmount } = await quoter.getOutputAmountQuote({
+            inputToken,
+            outputToken,
+            inputAmount,
+            fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
+            chainId
+        });
+
+        if (logQuotes) {
+            console.log(`✍️ ${quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken}`);
+        }
+
+        return { quoterTo, quoterValue, quoterData, outputAmount };
+    }
+
     baseMaker.on("ready", () => {
         baseMaker.initialise({ beforeSettlement: async (detailsToExecute) => {
-            const { makerOrderHash, chainId, inputToken, outputToken, outputAmount } = detailsToExecute;
-
-            const { to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-                inputToken: outputToken,
-                outputToken: inputToken,
-                inputAmount: outputAmount,
-                fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
-                chainId
-            });
+            const { makerOrderHash, chainId, inputToken, outputToken, outputAmount: inputAmount } = detailsToExecute;
+            const { quoterTo, quoterValue, quoterData } = await getQuote({ inputToken: outputToken, inputAmount, outputToken: inputToken, chainId });
 
             // Construct preCalldata
             const preCalldata: any[] = [];
@@ -72,13 +83,7 @@ export function QuoteMaker({
 
         async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
             try {
-                const { outputAmount, to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-                    inputToken,
-                    outputToken,
-                    inputAmount,
-                    fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
-                    chainId
-                });
+                const { quoterTo, quoterValue, quoterData, outputAmount } = await getQuote({ inputToken, inputAmount, outputToken, chainId });
 
                 // Construct preCalldata
                 const preCalldata = [];
