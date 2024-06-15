@@ -37,7 +37,37 @@ export function QuoteMaker({
     });
 
     baseMaker.on("ready", () => {
-        baseMaker.initialise({});
+        baseMaker.initialise({ beforeSettlement: async (detailsToExecute) => {
+            const { makerOrderHash, chainId, inputToken, outputToken, inputAmount } = detailsToExecute;
+
+            const { to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
+                inputToken,
+                outputToken,
+                inputAmount,
+                fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
+                chainId
+            });
+
+            // Construct preCalldata
+            const preCalldata: any[] = [];
+            if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
+
+                // Approve quoter
+                preCalldata.push({
+                    to: inputToken,
+                    value: 0,
+                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                        quoterTo, parseEther("100000")
+                    ])
+                });
+
+                // Perform swap
+                preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
+                
+                baseMaker.preCalldata[makerOrderHash] = preCalldata;
+            }
+        }});
+
         baseMaker.subscribe();
 
         async function generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {

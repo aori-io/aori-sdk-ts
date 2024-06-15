@@ -2,7 +2,7 @@ import { parseEther } from "ethers";
 import { AoriDataProvider, AoriHttpProvider, AoriPricingProvider, createAndMakeOrder, settleOrdersViaVault } from "../providers";
 import { AoriFeedProvider } from "../providers/AoriFeedProvider";
 import { ERC20__factory } from "../types";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, DetailsToExecute, sendOrRetryTransaction, SubscriptionEvents } from "../utils";
 
 export class BaseMaker extends AoriHttpProvider {
 
@@ -43,14 +43,21 @@ export class BaseMaker extends AoriHttpProvider {
         });
     }
 
-    async initialise({ gasLimit = 5_000_000n }: {
-        gasLimit?: bigint
+    async initialise({ gasLimit = 5_000_000n, beforeSettlement }: {
+        gasLimit?: bigint,
+        beforeSettlement?: (detailsToExecute: DetailsToExecute) => Promise<void>
     }) {
 
         console.log("Initialising maker...");
 
         this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
             const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
+
+            try {
+                if (beforeSettlement) await beforeSettlement(detailsToExecute);
+            } catch (e: any) {
+                console.log(e);
+            }
 
             if (!this.preCalldata[makerOrderHash]) return;
             console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
