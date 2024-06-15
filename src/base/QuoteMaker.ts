@@ -38,34 +38,34 @@ export function QuoteMaker({
 
     baseMaker.on("ready", () => {
         baseMaker.initialise({ beforeSettlement: async (detailsToExecute) => {
-            // const { makerOrderHash, chainId, inputToken, outputToken, inputAmount } = detailsToExecute;
+            const { makerOrderHash, chainId, inputToken, outputToken, outputAmount } = detailsToExecute;
 
-            // const { to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
-            //     inputToken,
-            //     outputToken,
-            //     inputAmount,
-            //     fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
-            //     chainId
-            // });
+            const { to: quoterTo, value: quoterValue, data: quoterData } = await quoter.getOutputAmountQuote({
+                inputToken: outputToken,
+                outputToken: inputToken,
+                inputAmount: outputAmount,
+                fromAddress: baseMaker.vaultContract || baseMaker.wallet.address,
+                chainId
+            });
 
-            // // Construct preCalldata
-            // const preCalldata: any[] = [];
-            // if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
+            // Construct preCalldata
+            const preCalldata: any[] = [];
+            if (quoterTo != baseMaker.vaultContract && quoterTo != baseMaker.wallet.address && quoterTo != "") {
 
-            //     // Approve quoter
-            //     preCalldata.push({
-            //         to: inputToken,
-            //         value: 0,
-            //         data: ERC20__factory.createInterface().encodeFunctionData("approve", [
-            //             quoterTo, parseEther("100000")
-            //         ])
-            //     });
+                // Approve quoter
+                preCalldata.push({
+                    to: outputToken,
+                    value: 0,
+                    data: ERC20__factory.createInterface().encodeFunctionData("approve", [
+                        quoterTo, parseEther("100000")
+                    ])
+                });
 
-            //     // Perform swap
-            //     preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
+                // Perform swap
+                preCalldata.push({ to: quoterTo, value: quoterValue, data: quoterData });
                 
-            //     baseMaker.preCalldata[makerOrderHash] = preCalldata;
-            // }
+                baseMaker.preCalldata[makerOrderHash] = preCalldata;
+            }
         }});
 
         baseMaker.subscribe();
