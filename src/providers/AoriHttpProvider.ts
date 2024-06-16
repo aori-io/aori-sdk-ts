@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { InstructionStruct } from "../types/AoriVault";
-import { AORI_HTTP_API, AORI_TAKER_API, getOrderHash } from "../utils";
+import { AORI_HTTP_API, AORI_ORDERBOOK_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
@@ -493,7 +493,7 @@ export async function cancelAllOrders({
     }, apiUrl);
 }
 
-export async function viewOrderbook(query?: ViewOrderbookQuery, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook][0]> {
+export async function viewOrderbook(query?: ViewOrderbookQuery, apiUrl: string = AORI_ORDERBOOK_API): Promise<AoriMethodsEvents[AoriMethods.ViewOrderbook][0]> {
     const { orders } = await rawCall({
         method: AoriMethods.ViewOrderbook,
         params: query != undefined ? [query] : []
