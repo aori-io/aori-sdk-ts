@@ -39,6 +39,7 @@ export function QuoteMaker({
     });
 
     async function getQuote({ inputToken, inputAmount, outputToken, chainId }: { inputToken: string, inputAmount: string, outputToken: string, chainId: number }) {
+        const startTime = Date.now();
         const { to: quoterTo, value: quoterValue, data: quoterData, outputAmount } = await quoter.getOutputAmountQuote({
             inputToken,
             outputToken,
@@ -48,7 +49,8 @@ export function QuoteMaker({
         });
 
         if (logQuotes) {
-            console.log(`✍️ ${quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken}`);
+            const endTime = Date.now();
+            console.log(`✍️ ${quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken} in ${Math.round(endTime - startTime)}ms`);
         }
 
         return { quoterTo, quoterValue, quoterData, outputAmount };
