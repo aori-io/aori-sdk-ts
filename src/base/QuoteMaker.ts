@@ -59,6 +59,8 @@ export function QuoteMaker({
     baseMaker.on("ready", () => {
         baseMaker.initialise({ beforeSettlement: async (detailsToExecute) => {
             const { makerOrderHash, chainId, inputToken, outputToken, outputAmount: inputAmount, makerZone } = detailsToExecute;
+            if (chainId != baseMaker.defaultChainId || inputAmount == undefined || inputAmount == "0") return;
+
             const { quoterTo, quoterValue, quoterData } = await getQuote({ inputToken: outputToken, inputAmount, outputToken: inputToken, chainId });
 
             // Construct preCalldata
