@@ -53,14 +53,16 @@ export class BaseMaker extends AoriHttpProvider {
         this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
             const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
 
+            // Do an initial check
+            if (!this.preCalldata[makerOrderHash]) return;
+            console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
+
+            // Process beforeSettlement actions
             try {
                 if (beforeSettlement) await beforeSettlement(detailsToExecute);
             } catch (e: any) {
                 console.log(e);
             }
-
-            if (!this.preCalldata[makerOrderHash]) return;
-            console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
 
             const preCalldata = this.preCalldata[makerOrderHash];
             const postCalldata = this.postCalldata[makerOrderHash];
