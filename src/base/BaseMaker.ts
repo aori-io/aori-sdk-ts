@@ -62,19 +62,8 @@ export class BaseMaker extends AoriHttpProvider {
             if (!this.preCalldata[makerOrderHash]) return;
             console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
 
-            /*//////////////////////////////////////////////////////////////
-                                        SEND TX
-            //////////////////////////////////////////////////////////////*/
-
-            if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
-                gasLimit,
-                preSwapInstructions: this.preCalldata[makerOrderHash] || [],
-                postSwapInstructions: this.postCalldata[makerOrderHash] || []
-            })) {
-                console.log(`Successfully sent transaction`);
-            } else {
-                console.log(`Failed to send transaction`);
-            }
+            const preCalldata = this.preCalldata[makerOrderHash];
+            const postCalldata = this.postCalldata[makerOrderHash];
 
             /*//////////////////////////////////////////////////////////////
                                         CLEAN UP
@@ -84,6 +73,20 @@ export class BaseMaker extends AoriHttpProvider {
             this.preCalldata[makerOrderHash] = undefined;
             // @ts-ignore
             this.postCalldata[makerOrderHash] = undefined;
+
+            /*//////////////////////////////////////////////////////////////
+                                        SEND TX
+            //////////////////////////////////////////////////////////////*/
+
+            if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
+                gasLimit,
+                preSwapInstructions: preCalldata || [],
+                postSwapInstructions: postCalldata || []
+            })) {
+                console.log(`Successfully sent transaction`);
+            } else {
+                console.log(`Failed to send transaction`);
+            }
         });
 
         this.initialised = true;
