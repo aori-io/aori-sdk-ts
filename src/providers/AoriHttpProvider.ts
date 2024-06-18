@@ -203,12 +203,16 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         }, this.apiUrl);
     }
 
-    async cancelOrder(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
+    async cancelOrder(orderHash: string, auth?: {message: string, signature: string}): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
         console.log(`🗑️ Attempting to Cancel ${orderHash} on ${this.apiUrl}`);
         return await cancelOrder({
             orderHash,
-            apiKey: this.apiKey,
-            signature: signOrderHashSync(this.wallet, orderHash)
+            ...(
+                auth ?? {
+                    apiKey: this.apiKey,
+                    signature: signOrderHashSync(this.wallet, orderHash)
+                }
+            ),
         }, this.apiUrl);
     }
 
@@ -442,54 +446,37 @@ export async function marketOrder({
     }, takerUrl);
 }
 
-export async function cancelOrder({
-    orderHash,
-    signature,
-    apiKey,
-    // TODO: deprecate privyAuth
-    privyAuth,
-    signatureTimestamp
-}: {
-    orderHash: string,
-    signature: string,
-    apiKey?: string,
-    privyAuth?: string,
-    signatureTimestamp?: number
-}, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
+export async function cancelOrder(
+    params: {
+        orderHash: string,
+        message: string,
+        signature: string
+    } | {
+        orderHash: string,
+        apiKey: string,
+        signature: string
+    },
+    apiUrl: string = AORI_HTTP_API
+): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
+    
     return await rawCall({
         method: AoriMethods.CancelOrder,
-        params: [{
-            orderHash: orderHash,
-            signature,
-            apiKey,
-            privyAuth,
-            signatureTimestamp
-        }]
+        params: [params]
     }, apiUrl);
 }
 
-export async function cancelAllOrders({
-    signature,
-    tag,
-    apiKey,
-    privyAuth,
-    signatureTimestamp
-}: {
-    apiKey?: string,
-    signature: string,
+export async function cancelAllOrders(params: {
+    message: string,
+    signature: string
     tag?: string,
-    privyAuth?: string,
-    signatureTimestamp?: number
+} | {
+    apiKey: string,
+    signature: string
+    tag?: string,
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
     return await rawCall({
         method: AoriMethods.CancelAllOrders,
-        params: [{
-            signature,
-            ...(tag != undefined) ? { tag } : {},
-            apiKey,
-            privyAuth,
-            signatureTimestamp
-        }]
+        params: [params]
     }, apiUrl);
 }
 
