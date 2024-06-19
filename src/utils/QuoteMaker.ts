@@ -32,6 +32,7 @@ export class QuoteMaker extends AoriHttpProvider {
         quoter,
         logQuotes = false,
         sponsorGas = false,
+        cancelAfter,
         gasLimit = 5_000_000n,
         spreadPercentage = 5n
     }: ConstructorParameters<typeof AoriHttpProvider>[0] & {
@@ -39,6 +40,7 @@ export class QuoteMaker extends AoriHttpProvider {
         quoter: Quoter,
         logQuotes?: boolean,
         sponsorGas?: boolean,
+        cancelAfter?: number,
         gasLimit?: bigint,
         spreadPercentage?: bigint
     }) {
@@ -67,7 +69,7 @@ export class QuoteMaker extends AoriHttpProvider {
                 if (chainId == this.defaultChainId) {
                     if (inputAmount == undefined || inputAmount == "0") return;
                     try {
-                        await this.generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId });
+                        await this.generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId, cancelAfter });
                     } catch (e: any) {
                         console.log(e);
                     }
