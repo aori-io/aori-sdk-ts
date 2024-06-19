@@ -1,7 +1,9 @@
 import { parseEther } from "ethers";
 import { AoriDataProvider, AoriFeedProvider, AoriHttpProvider, AoriPricingProvider, calculateGasInToken, createAndMakeOrder, getFeeData, settleOrdersViaVault } from "../providers";
 import { ERC20__factory } from "../types";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, DetailsToExecute, Quoter, SubscriptionEvents } from ".";
+import { Quoter } from "./Quoter";
+import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API } from "./constants";
+import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
 
 export class QuoteMaker extends AoriHttpProvider {
 
