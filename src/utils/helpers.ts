@@ -1,4 +1,4 @@
-import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, ethers, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
@@ -196,7 +196,7 @@ export function signOrderHashSync(wallet: Wallet, orderHash: string) {
 }
 
 export function signAddressSync(wallet: Wallet, address: string) {
-    return wallet.signMessageSync(getBytes(address));
+    return wallet.signMessageSync(getBytes(ethers.getAddress(address)));
 }
 
 export function getOrderSigner(order: AoriOrder, signature: string) {

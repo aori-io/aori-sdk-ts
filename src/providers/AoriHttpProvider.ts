@@ -203,16 +203,11 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         }, this.apiUrl);
     }
 
-    async cancelOrder(orderHash: string, auth?: {message: string, signature: string}): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
+    async cancelOrder(orderHash: string): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
         console.log(`🗑️ Attempting to Cancel ${orderHash} on ${this.apiUrl}`);
         return await cancelOrder({
             orderHash,
-            ...(
-                auth ?? {
-                    apiKey: this.apiKey,
-                    signature: signOrderHashSync(this.wallet, orderHash)
-                }
-            ),
+            apiKey: this.apiKey,
         }, this.apiUrl);
     }
 
@@ -449,16 +444,16 @@ export async function marketOrder({
 export async function cancelOrder(
     params: {
         orderHash: string,
-        message: string,
-        signature: string
+        // message: string,
+        signature: string,
+        signatureTimestamp: number,
     } | {
         orderHash: string,
         apiKey: string,
-        signature: string
     },
     apiUrl: string = AORI_HTTP_API
 ): Promise<AoriMethodsEvents[AoriMethods.CancelOrder][0]> {
-    
+
     return await rawCall({
         method: AoriMethods.CancelOrder,
         params: [params]
@@ -466,12 +461,12 @@ export async function cancelOrder(
 }
 
 export async function cancelAllOrders(params: {
-    message: string,
-    signature: string
+    apiKey: string
     tag?: string,
 } | {
-    apiKey: string,
-    signature: string
+    // message: string,
+    signature: string,
+    signatureTimestamp: number,
     tag?: string,
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
     return await rawCall({
