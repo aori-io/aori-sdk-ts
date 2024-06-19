@@ -5,7 +5,6 @@ import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API, DetailsToExecute, Quoter, Sub
 
 export class QuoteMaker extends AoriHttpProvider {
 
-    initialised = false;
     feed: AoriFeedProvider = null as any;
     dataProvider = new AoriDataProvider();
     pricingProvider = new AoriPricingProvider();
