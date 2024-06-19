@@ -123,11 +123,17 @@ export function QuoteMaker({
                 let gasInToken = 0n;
                 if (sponsorGas) {
                     const { gasPrice } = await getFeeData(chainId);
-                    gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
-                        chainId,
-                        gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
-                        token: outputToken
-                    });
+                    try {
+                        gasInToken = await baseMaker.pricingProvider.calculateGasInToken({
+                            chainId,
+                            gas: Number((BigInt(gasLimit) * BigInt(gasPrice)).toString()),
+                            token: outputToken
+                        });
+                    } catch (e: any) {
+                        // TODO: find better way to handle this
+                        // Chip off 10 bips for gas
+                        gasInToken = outputAmount / 10_000n;
+                    }
                 }
 
                 if (outputAmount < gasInToken) {
