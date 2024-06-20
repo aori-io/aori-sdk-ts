@@ -178,6 +178,8 @@ export class QuoteMaker {
             chainId: this.defaultChainId
         }, this.apiUrl);
 
+        this.createdOrders.add(createdLimitOrder.orderHash);
+
         /*//////////////////////////////////////////////////////////////
                                   CANCELAFTER
         //////////////////////////////////////////////////////////////*/
