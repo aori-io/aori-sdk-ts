@@ -628,7 +628,11 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n }) });
 
             // On first try, just send the transaction
-            if (attempts != 0) await simulateTransaction(signedTx);
+            try {
+                await simulateTransaction(signedTx);
+            } catch (e: any) {
+                console.log(e);
+            }
             await sendTransaction(signedTx);
             success = true;
         } catch (e: any) {
