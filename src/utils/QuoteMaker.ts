@@ -205,7 +205,7 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: DetailsToExecute) {
+    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 3): Promise<void> {
         const { inputToken, inputAmount, outputToken, chainId, makerZone } = detailsToExecute;
 
         const {
@@ -257,6 +257,7 @@ export class QuoteMaker {
         })) {
             console.log(`Successfully sent transaction`);
         } else {
+            if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
             console.log(`Failed to send transaction`);
         }
     }
