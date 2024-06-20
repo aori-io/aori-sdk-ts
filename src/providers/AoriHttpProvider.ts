@@ -74,8 +74,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
                                 METHODS
     //////////////////////////////////////////////////////////////*/
 
-    async initialise(...any: any[]): Promise<void> { }
-
     setDefaultChainId(chainId: number) {
         this.defaultChainId = chainId;
     }

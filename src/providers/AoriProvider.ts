@@ -158,8 +158,6 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
                                 METHODS
     //////////////////////////////////////////////////////////////*/
 
-    async initialise(...any: any[]): Promise<void> { }
-
     terminate() {
         if (this.keepAliveTimer) { clearInterval(this.keepAliveTimer); }
         this.api.close();
