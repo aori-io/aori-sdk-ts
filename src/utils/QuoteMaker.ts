@@ -206,7 +206,7 @@ export class QuoteMaker {
     //////////////////////////////////////////////////////////////*/
 
     async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 5): Promise<void> {
-        const { inputToken, inputAmount, outputToken, chainId, makerZone } = detailsToExecute;
+        const { inputToken, outputAmount, outputToken, chainId, makerZone } = detailsToExecute;
 
         const {
             to: quoterTo,
@@ -214,7 +214,7 @@ export class QuoteMaker {
             data: quoterData
         } = await this.quoter.generateCalldata({
             inputToken: outputToken,
-            inputAmount,
+            inputAmount: outputAmount,
             outputToken: inputToken,
             chainId,
             fromAddress: this.vaultContract || this.wallet.address
