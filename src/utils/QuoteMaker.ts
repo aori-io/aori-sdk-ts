@@ -165,7 +165,7 @@ export class QuoteMaker {
         }
 
         if (outputAmount < gasInToken) {
-            console.log(`✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low`);
+            console.log(`✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`);
             return;
         }
 
