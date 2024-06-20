@@ -5,6 +5,7 @@ import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
 import { signOrderHashSync } from "./helpers";
+import { timestampToAuthMessage } from "./signature";
 
 export class QuoteMaker {
 
@@ -97,7 +98,7 @@ export class QuoteMaker {
 
             this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
                 const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
-    
+
                 // Do an initial check
                 if (!this.createdOrders.has(makerOrderHash)) return;
                 console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
@@ -183,19 +184,26 @@ export class QuoteMaker {
         //////////////////////////////////////////////////////////////*/
 
         if (cancelAfter) {
-            setTimeout(async () => {
-                try {
-                    await cancelOrder({
-                        orderHash: createdLimitOrder.orderHash,
-                        apiKey: this.apiKey,
-                        signature: signOrderHashSync(this.wallet, createdLimitOrder.orderHash)
-                    }, this.apiUrl);
-                } catch (e: any) {
-                    console.log(e);
-                }
-            }, cancelAfter);
-        }
+            setTimeout(
+                () => {
+                    if (this.apiKey) {
+                        cancelOrder({
+                            orderHash: createdLimitOrder.orderHash,
+                            apiKey: this.apiKey,
+                        })
+                    } else {
+                        const timeout = Date.now() + 10_000;
+                        cancelOrder({
+                            orderHash: createdLimitOrder.orderHash,
+                            signature: signOrderHashSync(this.wallet, timestampToAuthMessage(timeout)),
+                            signatureTimestamp: timeout
+                        })
+                    }
 
+                },
+                cancelAfter,
+            );
+        }
         return { order: createdLimitOrder.order, orderHash: createdLimitOrder.orderHash }
     }
 
