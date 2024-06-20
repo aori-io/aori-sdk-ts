@@ -205,7 +205,7 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 3): Promise<void> {
+    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 5): Promise<void> {
         const { inputToken, inputAmount, outputToken, chainId, makerZone } = detailsToExecute;
 
         const {
