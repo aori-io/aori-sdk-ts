@@ -1,21 +1,30 @@
-import { parseEther } from "ethers";
-import { AoriDataProvider, AoriFeedProvider, AoriHttpProvider, AoriPricingProvider, calculateGasInToken, createAndMakeOrder, getFeeData, settleOrdersViaVault } from "../providers";
+import { parseEther, Wallet } from "ethers";
+import { AoriDataProvider, AoriFeedProvider, AoriPricingProvider, calculateGasInToken, cancelOrder, createAndMakeOrder, getFeeData, settleOrdersViaVault } from "../providers";
 import { ERC20__factory } from "../types";
 import { Quoter } from "./Quoter";
-import { AORI_FEED, AORI_HTTP_API, AORI_TAKER_API } from "./constants";
+import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
+import { signOrderHashSync } from "./helpers";
 
-export class QuoteMaker extends AoriHttpProvider {
+export class QuoteMaker {
+
+    wallet: Wallet;
+    apiUrl: string;
 
     feed: AoriFeedProvider = null as any;
     dataProvider = new AoriDataProvider();
     pricingProvider = new AoriPricingProvider();
     createdOrders = new Set<string>();
     quoter: Quoter;
+
+    vaultContract?: string;
+    apiKey?: string;
+    seatId = 0;
     logQuotes = false;
     sponsorGas = false;
     gasLimit: bigint = 5_000_000n;
     spreadPercentage: bigint = 0n;
+    defaultChainId: number;
 
     /*//////////////////////////////////////////////////////////////
                                INITIALISE
@@ -24,7 +33,6 @@ export class QuoteMaker extends AoriHttpProvider {
     constructor({
         wallet,
         apiUrl = AORI_HTTP_API,
-        takerUrl = AORI_TAKER_API,
         feedUrl = AORI_FEED,
         vaultContract,
         apiKey,
@@ -36,8 +44,14 @@ export class QuoteMaker extends AoriHttpProvider {
         cancelAfter,
         gasLimit = 5_000_000n,
         spreadPercentage = 5n
-    }: ConstructorParameters<typeof AoriHttpProvider>[0] & {
+    }:{
+        wallet: Wallet,
+        apiUrl?: string,
         feedUrl?: string,
+        vaultContract?: string,
+        apiKey?: string,
+        defaultChainId?: number,
+        seatId?: number,
         quoter: Quoter,
         logQuotes?: boolean,
         sponsorGas?: boolean,
@@ -49,8 +63,13 @@ export class QuoteMaker extends AoriHttpProvider {
                                  SET PROPERTIES
         //////////////////////////////////////////////////////////////*/
 
-        super({ wallet, apiUrl, takerUrl, vaultContract, apiKey, defaultChainId, seatId });
+        this.wallet = wallet;
+        this.apiUrl = apiUrl;
         this.feed = new AoriFeedProvider({ feedUrl });
+        this.vaultContract = vaultContract;
+        this.apiKey = apiKey;
+        this.defaultChainId = defaultChainId;
+        this.seatId = seatId;
         this.quoter = quoter;
         this.logQuotes = logQuotes;
         this.sponsorGas = sponsorGas;
@@ -62,7 +81,6 @@ export class QuoteMaker extends AoriHttpProvider {
         //////////////////////////////////////////////////////////////*/
 
         this.feed.on("ready", () => {
-            this.emit("ready");
 
             this.feed.subscribe();
 
@@ -167,7 +185,11 @@ export class QuoteMaker extends AoriHttpProvider {
         if (cancelAfter) {
             setTimeout(async () => {
                 try {
-                    await this.cancelOrder(createdLimitOrder.orderHash);
+                    await cancelOrder({
+                        orderHash: createdLimitOrder.orderHash,
+                        apiKey: this.apiKey,
+                        signature: signOrderHashSync(this.wallet, createdLimitOrder.orderHash)
+                    }, this.apiUrl);
                 } catch (e: any) {
                     console.log(e);
                 }
