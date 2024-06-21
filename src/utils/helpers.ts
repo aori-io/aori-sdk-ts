@@ -1,6 +1,6 @@
 import { AbiCoder, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
-import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
+import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
@@ -504,6 +504,21 @@ export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, s
     }
 }
 
+export function prepareBlastVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [AoriVaultBlast__factory.bytecode, AoriVaultBlast__factory.createInterface().encodeDeploy(
+                [deployer.address, aoriProtocol],
+            )])
+        ]),
+        gasLimit
+    }
+}
+
 export async function deployVault(wallet: Wallet, {
     chainId = ChainId.ARBITRUM_MAINNET,
     aoriProtocol = getDefaultZone(chainId),
@@ -518,7 +533,9 @@ export async function deployVault(wallet: Wallet, {
     const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
     
     await sendOrRetryTransaction(wallet, {
-        ...prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit),
+        ...((chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA) ?
+            prepareBlastVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit) :
+            prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit)),
         chainId
     });
 
