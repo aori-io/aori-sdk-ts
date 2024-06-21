@@ -650,7 +650,6 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             success = true;
         } catch (e: any) {
             console.log(e);
-            await new Promise(r => setTimeout(r, 500));
         }
 
         attempts++;
