@@ -600,6 +600,8 @@ export async function receivePriceQuote({
         delay
     }, takerApiUrl);
 
+    if (orders.length == 0) throw new Error("No orders found");
+
     return {
         outputAmount: orders[0].outputAmount,
         orders,
@@ -658,7 +660,7 @@ export async function quoteAndRetryTakeOrder(takerWallet: Wallet, quoteParams: P
 
         const orderView = quoteOrders.shift();
         if (orderView == undefined) {
-            setTimeout(await new Promise(resolve => setTimeout(resolve, 1000)), 1000);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             continue;
         }
 
