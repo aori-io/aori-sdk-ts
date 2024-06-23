@@ -3,7 +3,7 @@ import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequ
 import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_ORDERBOOK_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, ViewOrderbookQuery } from "../utils/interfaces";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, OrderView, ViewOrderbookQuery } from "../utils/interfaces";
 import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { sendTransaction } from "./AoriDataProvider";
 export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
@@ -572,6 +572,43 @@ export async function quote({
 
     return orders;
 };
+
+export async function receivePriceQuote({
+    wallet,
+    inputToken,
+    inputAmount,
+    outputToken,
+    chainId,
+    apiKey,
+    delay
+}: {
+    wallet : Wallet,
+    inputToken: string,
+    inputAmount: BigNumberish,
+    outputToken: string,
+    chainId: number,
+    apiKey?: string,
+    delay?: number
+}, takerApiUrl: string = AORI_TAKER_API): Promise<{ outputAmount: string, orders: OrderView[], topOrder: { details: OrderView, take: () => Promise<void> } }> {
+
+    const orders = await quote({
+        inputToken,
+        inputAmount,
+        outputToken,
+        chainId,
+        apiKey,
+        delay
+    }, takerApiUrl);
+
+    return {
+        outputAmount: orders[0].outputAmount,
+        orders,
+        topOrder: {
+            details: orders[0],
+            take: () => matchAndMarketOrder(wallet, orders[0].order, takerApiUrl)
+        }
+    }
+}
 
 /*//////////////////////////////////////////////////////////////
                         COMBINED FUNCTIONS
