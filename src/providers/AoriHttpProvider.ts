@@ -4,9 +4,8 @@ import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_ORDERBOOK_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, OrderView, ViewOrderbookQuery } from "../utils/interfaces";
-import { TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { sendTransaction } from "./AoriDataProvider";
-export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
+export class AoriHttpProvider {
 
     apiUrl: string;
     takerUrl: string;
@@ -42,8 +41,6 @@ export class AoriHttpProvider extends TypedEventEmitter<AoriMethodsEvents> {
         defaultChainId?: number
         seatId?: number
     }) {
-        super();
-
         this.wallet = wallet;
         this.apiKey = apiKey;
         this.apiUrl = apiUrl;
