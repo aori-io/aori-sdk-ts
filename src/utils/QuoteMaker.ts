@@ -1,10 +1,9 @@
-import { parseEther, Wallet } from "ethers";
-import { AoriDataProvider, AoriFeedProvider, AoriPricingProvider, calculateGasInToken, cancelOrder, createAndMakeOrder, getCurrentGasInToken, getFeeData, settleOrders, settleOrdersViaVault } from "../providers";
-import { ERC20__factory } from "../types";
+import { Wallet } from "ethers";
+import { AoriFeedProvider, createAndMakeOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { approveTokenCall, signOrderHashSync } from "./helpers";
+import { approveTokenCall } from "./helpers";
 
 export class QuoteMaker {
 
@@ -12,8 +11,6 @@ export class QuoteMaker {
     apiUrl: string;
 
     feed: AoriFeedProvider = null as any;
-    dataProvider = new AoriDataProvider();
-    pricingProvider = new AoriPricingProvider();
     createdOrders = new Set<string>();
     quoter: Quoter;
 
@@ -144,7 +141,7 @@ export class QuoteMaker {
         if (outputAmount < gasInToken) return console.log(`✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`);
 
         const { orderHash, order } = await createAndMakeOrder(this.wallet, {
-            offerer: this.vaultContract || this.wallet.address,
+            offerer: this.activeAddress(),
             inputToken: outputToken,
             outputToken: inputToken,
             inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
@@ -184,7 +181,7 @@ export class QuoteMaker {
             inputAmount: matching.makerOrder.outputAmount,
             outputToken: inputToken,
             chainId,
-            fromAddress: this.vaultContract
+            fromAddress: this.activeAddress()
         });
 
         /*//////////////////////////////////////////////////////////////
@@ -193,9 +190,9 @@ export class QuoteMaker {
 
         if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
             gasLimit: this.gasLimit,
-            preSwapInstructions: (quoterTo != this.vaultContract && quoterTo != this.wallet.address && quoterTo != "") ? [
-                approveTokenCall(inputToken, makerZone, parseEther("100000")),
-                approveTokenCall(outputToken, quoterTo, parseEther("100000")),
+            preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
+                approveTokenCall(inputToken, makerZone, 10n ** 18n),
+                approveTokenCall(outputToken, quoterTo, 10n ** 18n),
                 { to: quoterTo, value: quoterValue, data: quoterData }
             ] : [],
             postSwapInstructions: []
