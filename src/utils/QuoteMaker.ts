@@ -1,5 +1,5 @@
 import { parseEther, Wallet } from "ethers";
-import { AoriDataProvider, AoriFeedProvider, AoriPricingProvider, calculateGasInToken, cancelOrder, createAndMakeOrder, getCurrentGasInToken, getFeeData, settleOrdersViaVault } from "../providers";
+import { AoriDataProvider, AoriFeedProvider, AoriPricingProvider, calculateGasInToken, cancelOrder, createAndMakeOrder, getCurrentGasInToken, getFeeData, settleOrders, settleOrdersViaVault } from "../providers";
 import { ERC20__factory } from "../types";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
@@ -96,6 +96,10 @@ export class QuoteMaker {
         });
     }
 
+    activeAddress(): string {
+        return this.vaultContract || this.wallet.address;
+    }
+
     /*//////////////////////////////////////////////////////////////
                           GENERATE QUOTE ORDER
     //////////////////////////////////////////////////////////////*/
@@ -121,7 +125,7 @@ export class QuoteMaker {
         //////////////////////////////////////////////////////////////*/
 
         const startTime = Date.now();
-        const { outputAmount } = await this.quoter.getOutputAmountQuote({ inputToken, outputToken, inputAmount, fromAddress: this.vaultContract || this.wallet.address, chainId });
+        const { outputAmount } = await this.quoter.getOutputAmountQuote({ inputToken, outputToken, inputAmount, fromAddress: this.activeAddress(), chainId });
 
         if (this.logQuotes) {
             const endTime = Date.now();
@@ -165,12 +169,22 @@ export class QuoteMaker {
     async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 5): Promise<void> {
         const { inputToken, matching, outputToken, chainId, makerZone } = detailsToExecute;
 
+        if (this.vaultContract == undefined) {
+            if (await settleOrders(this.wallet, detailsToExecute, this.gasLimit)) {
+                console.log(`Successfully sent transaction`);
+            } else {
+                if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
+                console.log(`Failed to send transaction`);
+            }
+            return;
+        }
+
         const { to: quoterTo, value: quoterValue, data: quoterData } = await this.quoter.generateCalldata({
             inputToken: outputToken,
             inputAmount: matching.makerOrder.outputAmount,
             outputToken: inputToken,
             chainId,
-            fromAddress: this.vaultContract || this.wallet.address
+            fromAddress: this.vaultContract
         });
 
         /*//////////////////////////////////////////////////////////////
