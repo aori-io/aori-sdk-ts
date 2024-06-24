@@ -183,6 +183,7 @@ export enum AoriDataMethods {
 }
 
 export enum AoriPricingMethods {
+    CurrentGasInToken = "aori_currentGasInToken",
     GetToken = "aori_getToken",
     CalculateGasInToken = "aori_calculateGasInToken",
 }

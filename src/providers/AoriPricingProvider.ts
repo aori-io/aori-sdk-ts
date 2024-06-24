@@ -38,6 +38,23 @@ export class AoriPricingProvider {
         return BigInt(data.gasInToken);
     }
 
+    async currentGasInToken({
+        chainId,
+        gasLimit,
+        token
+    }: {
+        chainId: number,
+        gasLimit: number,
+        token: string
+    }): Promise<{ chainId: number, gasLimit: number, gasPrice: number, token: string, gasInToken: string, gasInUSD: number }> {
+        const data = await this.rawCall({
+            method: AoriPricingMethods.CurrentGasInToken,
+            params: [{ chainId, gasLimit, token }]
+        });
+
+        return data;
+    }
+
     async rawCall<T>({
         method,
         params
@@ -73,4 +90,8 @@ export function getTokenPrice(chainId: number, token: string, amount: string): P
 
 export function calculateGasInToken(chainId: number, gas: number, token: string): Promise<bigint> {
     return pricingProvider.calculateGasInToken({ chainId, gas, token });
+}
+
+export function getCurrentGasInToken(chainId: number, gasLimit: number, token: string) {
+    return pricingProvider.currentGasInToken({ chainId, gasLimit, token });
 }

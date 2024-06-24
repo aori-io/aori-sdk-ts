@@ -604,6 +604,18 @@ export function decodeInstructions(encoded: string) {
                             WALLET
 //////////////////////////////////////////////////////////////*/
 
+export function approveTokenCall(
+    token: string,
+    spender: string,
+    amount: bigint
+) {
+    return {
+        to: token,
+        value: 0,
+        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
+    }
+}
+
 export async function approveToken(
     wallet: Wallet,
     chainId: number,
@@ -612,9 +624,7 @@ export async function approveToken(
     amount: bigint
 ) {
     return sendOrRetryTransaction(wallet, {
-        to: token,
-        value: 0,
-        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
+        ...approveTokenCall(token, spender, amount),
         chainId,
         gasLimit: 1_000_000,
     });

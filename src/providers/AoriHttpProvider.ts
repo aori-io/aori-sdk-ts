@@ -618,10 +618,22 @@ export async function receivePriceQuote({
 
 export async function createAndMakeOrder(makerWallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0], apiUrl: string = AORI_HTTP_API) {
     const limitOrder = await createLimitOrder(orderParams);
-    return await makeOrder({
+    
+    const order = await makeOrder({
         order: limitOrder,
         signature: await signOrderSync(makerWallet, limitOrder)
     }, apiUrl);
+
+    return {
+        orderHash: order.orderHash,
+        order: {
+            details: order,
+            cancel: () => cancelOrder({
+                orderHash: order.orderHash,
+                signature: signOrderHashSync(makerWallet, order.orderHash)
+            }, apiUrl)
+        }
+    }
 }
 
 export async function matchAndTakeOrder(takerWallet: Wallet, makerOrder: AoriOrder, apiUrl: string = AORI_HTTP_API) {
