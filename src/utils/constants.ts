@@ -42,12 +42,12 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
     //////////////////////////////////////////////////////////////*/
 
     [ChainId.ETHEREUM_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
+        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
     [ChainId.OPTIMISM_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
+        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
@@ -62,12 +62,12 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>(
     ])],
 
     [ChainId.POLYGON_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
+        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
     [ChainId.BASE_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
+        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
         "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
     ])],
 
