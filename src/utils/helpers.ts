@@ -5,6 +5,7 @@ import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView, SettledMatch } from "./interfaces";
+import { SiweMessage } from 'siwe';
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -193,6 +194,33 @@ export const signOrder = signOrderSync;
 
 export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
+}
+
+export const AUTH_TIMEOUT = 604_800_000; // one week
+
+export function signSiweMessage(wallet: Wallet, chainId: number, orderHash: string) {
+    const siweExpiration = Date.now() + AUTH_TIMEOUT
+    const siweNonce = Date.now().toString();
+    const siweMessage = new SiweMessage({
+        scheme: 'cli',
+        domain: 'cli',
+        uri: 'api.aori.io',
+        statement: "Sign In to Aori",
+        version: "1",
+        chainId,
+        nonce: siweNonce,
+        address: wallet.address,
+        expirationTime: new Date(siweExpiration).toString(),
+    }).prepareMessage();
+
+    const signature = wallet.signMessageSync(siweMessage);
+    return {
+        orderHash,
+        siweMessage,
+        siweNonce,
+        signature,
+        siweExpiration,
+    }
 }
 
 export function getOrderSigner(order: AoriOrder, signature: string) {

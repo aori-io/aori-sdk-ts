@@ -3,7 +3,7 @@ import { AoriFeedProvider, cancelOrder, createAndMakeOrder, getCurrentGasInToken
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync } from "./helpers";
+import { signOrderHashSync, signSiweMessage } from "./helpers";
 import { timestampToAuthMessage } from "./helpers";
 import { approveTokenCall } from "./helpers";
 
@@ -167,11 +167,7 @@ export class QuoteMaker {
                         })
                     } else {
                         const timeout = Date.now() + 10_000;
-                        cancelOrder({
-                            orderHash,
-                            signature: signOrderHashSync(this.wallet, timestampToAuthMessage(timeout)),
-                            signatureTimestamp: timeout
-                        })
+                        cancelOrder(signSiweMessage(this.wallet, order.details.inputChainId, orderHash))
                     }
 
                 },
