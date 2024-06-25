@@ -1,10 +1,9 @@
 import axios from "axios";
 import { BigNumberish, formatEther, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { WebSocket } from "ws";
-import { AORI_API, AORI_TAKER_API, connectTo, getOrderHash } from "../utils";
+import { AORI_API, AORI_TAKER_API, getOrderHash } from "../utils";
 import { formatIntoLimitOrder, getDefaultZone, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, ViewOrderbookQuery } from "../utils/interfaces";
-import { TypedEventEmitter } from "../utils/TypedEventEmitter";
+import { AoriMethods, AoriMethodsEvents, AoriOrder, TypedEventEmitter, ViewOrderbookQuery } from "../utils/interfaces";
 import { sendTransaction } from "./AoriDataProvider";
 export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
 
@@ -84,7 +83,7 @@ export class AoriProvider extends TypedEventEmitter<AoriMethodsEvents> {
     async connect() {
         if (this.api) this.api.close();
 
-        this.api = connectTo(this.apiUrl);
+        this.api = new WebSocket(this.apiUrl);
 
         this.readyLatch = false;
 

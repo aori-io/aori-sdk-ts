@@ -1,6 +1,5 @@
 import { WebSocket } from "ws";
-import { AoriFeedEvents, AoriMethods, AORI_FEED, connectTo, SubscriptionEvents, AORI_HTTP_FEED } from "../utils";
-import { TypedEventEmitter } from "../utils/TypedEventEmitter";
+import { AoriFeedEvents, AoriMethods, AORI_FEED, SubscriptionEvents, AORI_HTTP_FEED, TypedEventEmitter } from "../utils";
 import { rawCall } from "./AoriHttpProvider";
 
 export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
@@ -29,7 +28,7 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
     async connect() {
 
         if (this.feed) this.feed.close();
-        this.feed = connectTo(this.feedUrl);
+        this.feed = new WebSocket(this.feedUrl);
 
         this.feed.on("open", () => {
             console.log(`⚡ Connected to ${this.feedUrl}`);

@@ -1,6 +1,6 @@
-import { AbiCoder, ethers, getBytes, id, JsonRpcError, JsonRpcResult, parseEther, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
-import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory, Yang__factory, Yin__factory } from "../types";
+import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
@@ -195,10 +195,6 @@ export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
 }
 
-export function signAddressSync(wallet: Wallet, address: string) {
-    return wallet.signMessageSync(getBytes(ethers.getAddress(address)));
-}
-
 export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getBytes(getOrderHash(order)), signature);
 }
@@ -301,6 +297,26 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     }
 
     return null;
+}
+
+/*//////////////////////////////////////////////////////////////
+                        MISC. SIGNATURE
+//////////////////////////////////////////////////////////////*/
+
+export function signAddressSync(wallet: Wallet, address: string) {
+    return wallet.signMessageSync(getBytes(address));
+}
+
+export function timestampToAuthMessage(timestamp: number): string {
+    return `Permission to cancel orders until ${timestamp}`;
+}
+
+export function addressFromAuthSignature(signatureTimestamp: number, signature: string): string {
+    return verifyMessage(timestampToAuthMessage(signatureTimestamp), signature);
+}
+
+export function signAuthSignature(wallet: Wallet, signatureTimestamp: number): string {
+    return wallet.signMessageSync(timestampToAuthMessage(signatureTimestamp));
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -504,6 +520,21 @@ export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, s
     }
 }
 
+export function prepareBlastVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
+    return {
+        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
+        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
+            [
+                "bytes",
+                "bytes"
+            ], [AoriVaultBlast__factory.bytecode, AoriVaultBlast__factory.createInterface().encodeDeploy(
+                [deployer.address, aoriProtocol],
+            )])
+        ]),
+        gasLimit
+    }
+}
+
 export async function deployVault(wallet: Wallet, {
     chainId = ChainId.ARBITRUM_MAINNET,
     aoriProtocol = getDefaultZone(chainId),
@@ -518,7 +549,9 @@ export async function deployVault(wallet: Wallet, {
     const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
     
     await sendOrRetryTransaction(wallet, {
-        ...prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit),
+        ...((chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA) ?
+            prepareBlastVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit) :
+            prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit)),
         chainId
     });
 
@@ -587,6 +620,18 @@ export function decodeInstructions(encoded: string) {
                             WALLET
 //////////////////////////////////////////////////////////////*/
 
+export function approveTokenCall(
+    token: string,
+    spender: string,
+    amount: bigint
+) {
+    return {
+        to: token,
+        value: 0,
+        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
+    }
+}
+
 export async function approveToken(
     wallet: Wallet,
     chainId: number,
@@ -595,9 +640,7 @@ export async function approveToken(
     amount: bigint
 ) {
     return sendOrRetryTransaction(wallet, {
-        to: token,
-        value: 0,
-        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
+        ...approveTokenCall(token, spender, amount),
         chainId,
         gasLimit: 1_000_000,
     });
@@ -627,103 +670,16 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
             const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n }) });
 
-            // On first try, just send the transaction
-            if (attempts != 0) await simulateTransaction(signedTx);
+            // On last try, just send the transaction
+            if (retries != 0) await simulateTransaction(signedTx);
             await sendTransaction(signedTx);
             success = true;
         } catch (e: any) {
             console.log(e);
-            await new Promise(r => setTimeout(r, 500));
         }
 
         attempts++;
     }
 
     return success;
-}
-
-/*//////////////////////////////////////////////////////////////
-                    TOKEN-RELATED FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export function prepareYinTokenDeployment(saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
-    return {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [Yin__factory.bytecode, Yin__factory.createInterface().encodeDeploy([])]
-        )]),
-        gasLimit
-    }
-}
-
-export async function deployYinToken(wallet: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): Promise<string> {
-    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
-    
-    await sendOrRetryTransaction(wallet, {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        value: 0,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [Yin__factory.bytecode, Yin__factory.createInterface().encodeDeploy([])]
-        )]),
-        gasLimit,
-        chainId: ChainId.ARBITRUM_MAINNET
-    });
-
-    return destinationAddress;
-}
-
-export function prepareYangTokenDeployment(saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
-    return {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [Yang__factory.bytecode, Yang__factory.createInterface().encodeDeploy([])]
-        )]),
-        gasLimit
-    }
-}
-
-export async function deployYangToken(wallet: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): Promise<string> {
-    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
-    
-    await sendOrRetryTransaction(wallet, {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        value: 0,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [Yang__factory.bytecode, Yang__factory.createInterface().encodeDeploy([])]
-        )]),
-        gasLimit,
-        chainId: ChainId.ARBITRUM_MAINNET
-    });
-
-    return destinationAddress;
-}
-
-export function mintYinToken(wallet: Wallet, chainId: number, address: string) {
-    return sendOrRetryTransaction(wallet, {
-        to: address,
-        value: 0,
-        data: Yin__factory.createInterface().encodeFunctionData("mint", [parseEther("50")]),
-        chainId
-    });
-}
-
-export function mintYangToken(wallet: Wallet, chainId: number, address: string) {
-    return sendOrRetryTransaction(wallet, {
-        to: address,
-        value: 0,
-        data: Yang__factory.createInterface().encodeFunctionData("mint", [parseEther("50")]),
-        chainId
-    });
 }

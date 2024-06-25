@@ -117,9 +117,10 @@ export declare namespace IAoriV2 {
   };
 }
 
-export interface AoriVaultInterface extends Interface {
+export interface AoriVaultBlastInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "BLAST"
       | "afterAoriTrade"
       | "aoriProtocol"
       | "beforeAoriTrade"
@@ -134,6 +135,7 @@ export interface AoriVaultInterface extends Interface {
 
   getEvent(nameOrSignatureOrTopic: "Call"): EventFragment;
 
+  encodeFunctionData(functionFragment: "BLAST", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "afterAoriTrade",
     values: [IAoriV2.MatchingDetailsStruct, BytesLike]
@@ -175,6 +177,7 @@ export interface AoriVaultInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
 
+  decodeFunctionResult(functionFragment: "BLAST", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "afterAoriTrade",
     data: BytesLike
@@ -226,11 +229,11 @@ export namespace CallEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface AoriVault extends BaseContract {
-  connect(runner?: ContractRunner | null): AoriVault;
+export interface AoriVaultBlast extends BaseContract {
+  connect(runner?: ContractRunner | null): AoriVaultBlast;
   waitForDeployment(): Promise<this>;
 
-  interface: AoriVaultInterface;
+  interface: AoriVaultBlastInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -268,6 +271,8 @@ export interface AoriVault extends BaseContract {
   removeAllListeners<TCEvent extends TypedContractEvent>(
     event?: TCEvent
   ): Promise<this>;
+
+  BLAST: TypedContractMethod<[], [string], "view">;
 
   afterAoriTrade: TypedContractMethod<
     [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
@@ -325,6 +330,9 @@ export interface AoriVault extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "BLAST"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "afterAoriTrade"
   ): TypedContractMethod<
