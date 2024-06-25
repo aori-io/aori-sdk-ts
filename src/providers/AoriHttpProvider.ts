@@ -459,8 +459,8 @@ export async function cancelAllOrders(params: {
     apiKey: string
     tag?: string,
 } | {
-    siweMessage: string,
-    siweNonce: string,
+    siweMessage?: string,
+    siweNonce?: string,
     signature: string,
     tag?: string,
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.CancelAllOrders]> {
