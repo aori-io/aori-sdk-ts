@@ -600,7 +600,7 @@ export async function receivePriceQuote({
     if (orders.length == 0) throw new Error("No orders found");
 
     return {
-        outputAmount: orders[0].outputAmount,
+        outputAmount: orders[0].inputAmount,
         orders,
         topOrder: {
             details: orders[0],
