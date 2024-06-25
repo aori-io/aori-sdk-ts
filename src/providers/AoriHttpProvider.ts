@@ -203,6 +203,7 @@ export class AoriHttpProvider {
         return await cancelOrder({
             orderHash,
             apiKey: this.apiKey,
+            signature: signOrderHashSync(this.wallet, orderHash)
         }, this.apiUrl);
     }
 
