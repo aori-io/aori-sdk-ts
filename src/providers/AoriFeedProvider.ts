@@ -60,6 +60,9 @@ export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
                     case SubscriptionEvents.OrderFulfilled:
                         this.emit(SubscriptionEvents.OrderFulfilled, data);
                         break;
+                    case SubscriptionEvents.OrderFailed:
+                        this.emit(SubscriptionEvents.OrderFailed, data);
+                        break;
                     case SubscriptionEvents.OrderToExecute:
                         this.emit(SubscriptionEvents.OrderToExecute, data);
                         break;

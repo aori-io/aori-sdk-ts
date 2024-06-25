@@ -139,6 +139,23 @@ export interface SettledMatch {
     timestamp?: number;
 }
 
+export interface FailedMatch {
+    makerOrderHash: string;
+    takerOrderHash: string;
+    maker: string;
+    taker: string;
+    inputChainId: number;
+    outputChainId: number;
+    inputZone: string;
+    outputZone: string;
+    inputToken: string;
+    outputToken: string;
+    inputAmount: string;
+    outputAmount: string;
+    matchingHash: string;
+}
+
+
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -195,6 +212,7 @@ export enum SubscriptionEvents {
     OrderCancelled = "OrderCancelled",
     OrderTaken = "OrderTaken",
     OrderFulfilled = "OrderFulfilled",
+    OrderFailed = "OrderFailed",
     OrderToExecute = "OrderToExecute",
     QuoteRequested = "QuoteRequested",
     SwapRequested = "SwapRequested",
@@ -259,6 +277,7 @@ export type AoriFeedEvents = {
     [SubscriptionEvents.OrderCancelled]: [updatedMakerOrder: OrderView],
     [SubscriptionEvents.OrderTaken]: [updatedMakerOrder: OrderView],
     [SubscriptionEvents.OrderFulfilled]: [settledMatch: SettledMatch],
+    [SubscriptionEvents.OrderFailed]: [failedMatch: FailedMatch],
     [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
     [SubscriptionEvents.SwapRequested]: [takerOrder: OrderView],
     [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
