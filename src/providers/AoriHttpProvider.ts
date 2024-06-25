@@ -2,7 +2,7 @@ import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_ORDERBOOK_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync, signSiweMessage } from "../utils/helpers";
+import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
 import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, OrderView, ViewOrderbookQuery } from "../utils/interfaces";
 import { sendTransaction } from "./AoriDataProvider";
 export class AoriHttpProvider {
@@ -439,8 +439,8 @@ export async function marketOrder({
 export async function cancelOrder(
     params: {
         orderHash: string,
-        siweMessage: string,
-        siweNonce: string,
+        siweMessage?: string,
+        siweNonce?: string,
         signature: string,
     } | {
         orderHash: string,
@@ -607,11 +607,10 @@ export async function createAndMakeOrder(makerWallet: Wallet, orderParams: Param
         orderHash: order.orderHash,
         order: {
             details: order,
-            cancel: () => cancelOrder(signSiweMessage(
-                makerWallet,
-                order.inputChainId,
-                order.orderHash,
-            ), apiUrl)
+            cancel: () => cancelOrder({
+                orderHash: order.orderHash,
+                signature: signOrderHashSync(makerWallet, order.orderHash)
+            }, apiUrl)
         }
     }
 }

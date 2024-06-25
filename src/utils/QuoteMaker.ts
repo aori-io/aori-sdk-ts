@@ -3,7 +3,7 @@ import { AoriFeedProvider, cancelOrder, createAndMakeOrder, getCurrentGasInToken
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync, signSiweMessage, timestampToAuthMessage, approveTokenCall } from "./helpers";
+import { signOrderHashSync, approveTokenCall } from "./helpers";
 
 export class QuoteMaker {
 
@@ -155,24 +155,8 @@ export class QuoteMaker {
                                   CANCELAFTER
         //////////////////////////////////////////////////////////////*/
 
-        if (cancelAfter) {
-            setTimeout(
-                () => {
-                    if (this.apiKey) {
-                        cancelOrder({
-                            orderHash,
-                            apiKey: this.apiKey,
-                        })
-                    } else {
-                        const timeout = Date.now() + 10_000;
-                        cancelOrder(signSiweMessage(this.wallet, order.details.inputChainId, orderHash))
-                    }
-
-                },
-                cancelAfter,
-            );
-        }
-        return { order, orderHash }
+        if (cancelAfter) setTimeout(() => order.cancel().catch(console.log), cancelAfter);
+        return { order, orderHash };
     }
 
     /*//////////////////////////////////////////////////////////////
