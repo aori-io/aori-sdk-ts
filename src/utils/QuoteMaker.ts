@@ -1,9 +1,9 @@
 import { Wallet } from "ethers";
-import { AoriFeedProvider, createAndMakeOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
+import { AoriFeedProvider, cancelOrder, createAndMakeOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { approveTokenCall } from "./helpers";
+import { signOrderHashSync, approveTokenCall } from "./helpers";
 
 export class QuoteMaker {
 
@@ -84,7 +84,7 @@ export class QuoteMaker {
 
             this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
                 const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
-    
+
                 // Do an initial check
                 if (!this.createdOrders.has(makerOrderHash)) return;
                 console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
