@@ -3,9 +3,7 @@ import { AoriFeedProvider, cancelOrder, createAndMakeOrder, getCurrentGasInToken
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync, signSiweMessage } from "./helpers";
-import { timestampToAuthMessage } from "./helpers";
-import { approveTokenCall } from "./helpers";
+import { signOrderHashSync, signSiweMessage, timestampToAuthMessage, approveTokenCall } from "./helpers";
 
 export class QuoteMaker {
 
