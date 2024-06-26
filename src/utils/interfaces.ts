@@ -71,6 +71,7 @@ export interface OrderView {
     takenAt?: number;
     cancelledAt?: number;
     fulfilledAt?: number;
+    failedAt?: number;
     systemCancelled?: boolean;
 
     isActive: boolean;
