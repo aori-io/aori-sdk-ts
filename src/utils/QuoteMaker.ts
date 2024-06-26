@@ -1,9 +1,9 @@
 import { Wallet } from "ethers";
-import { AoriFeedProvider, cancelOrder, createAndMakeOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
+import { AoriFeedProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync, approveTokenCall } from "./helpers";
+import { signOrderHashSync, approveTokenCall, signMatchingSync } from "./helpers";
 
 export class QuoteMaker {
 
@@ -88,7 +88,16 @@ export class QuoteMaker {
                 // Do an initial check
                 if (!this.createdOrders.has(makerOrderHash)) return;
                 console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
-                await this.settleOrders(detailsToExecute);
+                try {
+                    await this.settleOrders(detailsToExecute);
+                } catch (e: any) {
+                    console.log(e);
+                    await failOrder({
+                        matching: detailsToExecute.matching,
+                        matchingSignature: detailsToExecute.matchingSignature,
+                        makerMatchingSignature: signMatchingSync(this.wallet, detailsToExecute.matching)
+                    }, this.apiUrl);
+                }
             });
         });
     }
@@ -163,7 +172,7 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 5): Promise<void> {
+    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 3): Promise<void> {
         const { inputToken, matching, outputToken, chainId, makerZone } = detailsToExecute;
 
         if (this.vaultContract == undefined) {
@@ -171,9 +180,8 @@ export class QuoteMaker {
                 console.log(`Successfully sent transaction`);
             } else {
                 if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
-                console.log(`Failed to send transaction`);
+                throw new Error("Failed to settle transaction");
             }
-            return;
         }
 
         const { to: quoterTo, value: quoterValue, data: quoterData } = await this.quoter.generateCalldata({
@@ -200,7 +208,7 @@ export class QuoteMaker {
             console.log(`Successfully sent transaction`);
         } else {
             if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
-            console.log(`Failed to send transaction`);
+            throw new Error("Failed to settle transaction");
         }
     }
 

@@ -2,8 +2,8 @@ import axios from "axios";
 import { BigNumberish, formatEther, JsonRpcError, JsonRpcResult, TransactionRequest, Wallet, ZeroAddress } from "ethers";
 import { InstructionStruct } from "../types/AoriVault";
 import { AORI_HTTP_API, AORI_ORDERBOOK_API, AORI_TAKER_API, getOrderHash } from "../utils";
-import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
-import { AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, OrderView, ViewOrderbookQuery } from "../utils/interfaces";
+import { calldataToSettleOrders, createLimitOrder, createMatchingOrder, encodeInstructions, getDefaultZone, sendOrRetryTransaction, signAddressSync, signMatchingSync, signOrderHashSync, signOrderSync } from "../utils/helpers";
+import { AoriMatchingDetails, AoriMethods, AoriMethodsEvents, AoriOrder, DetailsToExecute, OrderView, ViewOrderbookQuery } from "../utils/interfaces";
 import { sendTransaction } from "./AoriDataProvider";
 export class AoriHttpProvider {
 
@@ -212,6 +212,14 @@ export class AoriHttpProvider {
             apiKey: this.apiKey,
             signature: signAddressSync(this.wallet, this.vaultContract || this.wallet.address),
             ...(tag != undefined) ? { tag } : {}
+        }, this.apiUrl);
+    }
+
+    async failOrder(matching: AoriMatchingDetails, matchingSignature: string): Promise<AoriMethodsEvents[AoriMethods.FailOrder]> {
+        return await failOrder({
+            matching,
+            matchingSignature,
+            makerMatchingSignature: signMatchingSync(this.wallet, matching),
         }, this.apiUrl);
     }
 
@@ -468,6 +476,25 @@ export async function cancelAllOrders(params: {
     return await rawCall({
         method: AoriMethods.CancelAllOrders,
         params: [params]
+    }, apiUrl);
+}
+
+export async function failOrder({
+    matching,
+    matchingSignature,
+    makerMatchingSignature,
+}: {
+    matching: AoriMatchingDetails,
+    matchingSignature: string,
+    makerMatchingSignature: string,
+}, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.FailOrder]> {
+    return await rawCall({
+        method: AoriMethods.FailOrder,
+        params: [{
+            matching,
+            matchingSignature,
+            makerMatchingSignature,
+        }]
     }, apiUrl);
 }
 
