@@ -173,7 +173,8 @@ export enum AoriMethods {
     AccountBalance = "aori_accountBalance",
     Quote = "aori_quote",
     RequestQuote = "aori_requestQuote",
-    RequestSwap = "aori_requestSwap"
+    RequestSwap = "aori_requestSwap",
+    FailOrder = "aori_failOrder",
 }
 
 export enum AoriDataMethods {
