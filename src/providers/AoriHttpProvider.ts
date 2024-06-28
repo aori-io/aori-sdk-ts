@@ -486,7 +486,7 @@ export async function failOrder({
 }: {
     matching: AoriMatchingDetails,
     matchingSignature: string,
-    makerMatchingSignature: string,
+    makerMatchingSignature?: string,
 }, apiUrl: string = AORI_HTTP_API): Promise<AoriMethodsEvents[AoriMethods.FailOrder]> {
     return await rawCall({
         method: AoriMethods.FailOrder,
