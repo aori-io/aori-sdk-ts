@@ -172,7 +172,7 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 3): Promise<void> {
+    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 2): Promise<void> {
         const { inputToken, matching, outputToken, chainId, makerZone } = detailsToExecute;
 
         if (this.vaultContract == undefined) {
