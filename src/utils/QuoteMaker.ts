@@ -92,11 +92,11 @@ export class QuoteMaker {
                     await this.settleOrders(detailsToExecute);
                 } catch (e: any) {
                     console.log(e);
-                    await failOrder({
+                    failOrder({
                         matching: detailsToExecute.matching,
                         matchingSignature: detailsToExecute.matchingSignature,
                         makerMatchingSignature: signMatchingSync(this.wallet, detailsToExecute.matching)
-                    }, this.apiUrl);
+                    }, this.apiUrl).then(() => console.log("Order failed")).catch(console.log);
                 }
             });
         });
