@@ -199,8 +199,8 @@ export class QuoteMaker {
         if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
-                approveTokenCall(inputToken, makerZone, 10n ** 18n),
-                approveTokenCall(outputToken, quoterTo, 10n ** 18n),
+                approveTokenCall(inputToken, makerZone, 10n ** 26n),
+                approveTokenCall(outputToken, quoterTo, 10n ** 26n),
                 { to: quoterTo, value: quoterValue, data: quoterData }
             ] : [],
             postSwapInstructions: []
