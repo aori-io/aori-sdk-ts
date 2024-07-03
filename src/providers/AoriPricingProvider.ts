@@ -3,6 +3,22 @@ import { JsonRpcError, JsonRpcResult } from "ethers";
 import { AORI_PRICING_PROVIDER_API } from "../utils";
 import { AoriPricingMethods } from "../utils/interfaces";
 
+interface AssetDetails {
+    symbol: string,
+    address: string,
+    logoURI: string,
+    name: string,
+    decimals: number,
+    price: number
+}
+
+interface GetTokenResponse {
+    chainId: number,
+    price: AssetDetails,
+    amount?: string,
+    amountUSD?: number
+}
+
 export class AoriPricingProvider {
 
     async getTokenPrice({
@@ -13,13 +29,13 @@ export class AoriPricingProvider {
         chainId: number,
         token: string,
         amount: string
-    }) {
+    }): Promise<GetTokenResponse> {
 
         const data = await this.rawCall({
             method: AoriPricingMethods.GetToken,
             params: [{ chainId, token, amount }]
         });
-        return data.price.price;
+        return data;
     }
 
     async calculateGasInToken({
@@ -84,7 +100,7 @@ export class AoriPricingProvider {
 
 const pricingProvider = new AoriPricingProvider();
 
-export function getTokenPrice(chainId: number, token: string, amount: string): Promise<number> {
+export function getTokenPrice(chainId: number, token: string, amount: string): Promise<GetTokenResponse> {
     return pricingProvider.getTokenPrice({ chainId, token, amount });
 }
 
