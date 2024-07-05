@@ -206,9 +206,8 @@ export class QuoteMaker {
             });
             quoterTo = to; quoterValue = value; quoterData = data;
         } catch (e: any) {
-            console.log(e);
             if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
-            throw new Error("Failed to generate calldata for quoter");
+            throw new Error(`Failed to generate calldata for quoter: ${e}`);
         }
 
         /*//////////////////////////////////////////////////////////////
