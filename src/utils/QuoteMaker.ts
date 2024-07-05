@@ -194,10 +194,7 @@ export class QuoteMaker {
             }
         }
 
-        let quoterTo: string = "";
-        let quoterValue: number = 0;
-        let quoterData: string = "0x";
-
+        let quoterTo: string = "", quoterValue: number = 0, quoterData: string = "0x";
         try {
             // Generate calldata for quoter
             const { to, value, data } = await this.quoter.generateCalldata({
@@ -207,10 +204,7 @@ export class QuoteMaker {
                 chainId,
                 fromAddress: this.activeAddress()
             });
-
-            quoterTo = to;
-            quoterValue = value;
-            quoterData = data;
+            quoterTo = to; quoterValue = value; quoterData = data;
         } catch (e: any) {
             console.log(e);
             if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
