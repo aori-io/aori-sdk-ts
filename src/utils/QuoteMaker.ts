@@ -5,6 +5,11 @@ import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
 import { signOrderHashSync, approveTokenCall, signMatchingSync } from "./helpers";
 
+export enum ExecutionStrictness {
+    ANY_ON_CHAIN = 0,
+    ONLY_HASH = 1
+}
+
 export class QuoteMaker {
 
     wallet: Wallet;
@@ -37,7 +42,8 @@ export class QuoteMaker {
         sponsorGas = false,
         cancelAfter,
         gasLimit = 5_000_000n,
-        spreadPercentage = 5n
+        spreadPercentage = 5n,
+        executionStrictness = ExecutionStrictness.ONLY_HASH
     }:{
         wallet: Wallet,
         apiUrl?: string,
@@ -50,7 +56,8 @@ export class QuoteMaker {
         sponsorGas?: boolean,
         cancelAfter?: number,
         gasLimit?: bigint,
-        spreadPercentage?: bigint
+        spreadPercentage?: bigint,
+        executionStrictness?: ExecutionStrictness
     }) {
         /*//////////////////////////////////////////////////////////////
                                  SET PROPERTIES
@@ -83,10 +90,12 @@ export class QuoteMaker {
             });
 
             this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
-                const { makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
+                const { makerOrderHash, takerOrderHash, to, value, data, chainId, maker } = detailsToExecute;
 
                 // Do an initial check
-                if (!this.createdOrders.has(makerOrderHash)) return;
+                if (executionStrictness == ExecutionStrictness.ONLY_HASH && !this.createdOrders.has(makerOrderHash)) return;
+                if (executionStrictness == ExecutionStrictness.ANY_ON_CHAIN && (chainId != defaultChainId || maker != this.activeAddress())) return;
+                
                 console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
                 try {
                     await this.settleOrders(detailsToExecute);
