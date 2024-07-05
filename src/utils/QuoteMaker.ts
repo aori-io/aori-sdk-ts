@@ -184,6 +184,7 @@ export class QuoteMaker {
     async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 2): Promise<void> {
         const { inputToken, matching, outputToken, chainId, makerZone } = detailsToExecute;
 
+        // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
             if (await settleOrders(this.wallet, detailsToExecute, this.gasLimit)) {
                 console.log(`Successfully sent transaction`);
@@ -193,18 +194,34 @@ export class QuoteMaker {
             }
         }
 
-        const { to: quoterTo, value: quoterValue, data: quoterData } = await this.quoter.generateCalldata({
-            inputToken: outputToken,
-            inputAmount: matching.makerOrder.outputAmount,
-            outputToken: inputToken,
-            chainId,
-            fromAddress: this.activeAddress()
-        });
+        let quoterTo: string = "";
+        let quoterValue: number = 0;
+        let quoterData: string = "0x";
+
+        try {
+            // Generate calldata for quoter
+            const { to, value, data } = await this.quoter.generateCalldata({
+                inputToken: outputToken,
+                inputAmount: matching.makerOrder.outputAmount,
+                outputToken: inputToken,
+                chainId,
+                fromAddress: this.activeAddress()
+            });
+
+            quoterTo = to;
+            quoterValue = value;
+            quoterData = data;
+        } catch (e: any) {
+            console.log(e);
+            if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
+            throw new Error("Failed to generate calldata for quoter");
+        }
 
         /*//////////////////////////////////////////////////////////////
-                                    SEND TX
+                                SEND TX
         //////////////////////////////////////////////////////////////*/
 
+        // Attempt to settle it via the vault
         if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
@@ -217,7 +234,7 @@ export class QuoteMaker {
             console.log(`Successfully sent transaction`);
         } else {
             if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
-            throw new Error("Failed to settle transaction");
+            throw new Error("Failed to settle transaction via vault");
         }
     }
 
