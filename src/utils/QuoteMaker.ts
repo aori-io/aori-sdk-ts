@@ -188,6 +188,7 @@ export class QuoteMaker {
         if (this.vaultContract == undefined) {
             if (await settleOrders(this.wallet, detailsToExecute, this.gasLimit)) {
                 console.log(`Successfully sent transaction`);
+                return;
             } else {
                 if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
                 throw new Error("Failed to settle transaction");
@@ -197,7 +198,7 @@ export class QuoteMaker {
         let quoterTo: string = "", quoterValue: number = 0, quoterData: string = "0x";
         try {
             // Generate calldata for quoter
-            const { to, value, data } = await this.quoter.generateCalldata({
+            const { to, value, data, outputAmount } = await this.quoter.generateCalldata({
                 inputToken: outputToken,
                 inputAmount: matching.makerOrder.outputAmount,
                 outputToken: inputToken,
@@ -205,6 +206,7 @@ export class QuoteMaker {
                 fromAddress: this.activeAddress()
             });
             quoterTo = to; quoterValue = value; quoterData = data;
+            if (outputAmount == 0n) throw new Error("Output amount is zero");
         } catch (e: any) {
             if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
             throw new Error(`Failed to generate calldata for quoter: ${e}`);

@@ -664,7 +664,7 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             success = true;
         } catch (e: any) {
             // TODO: standardise common error messages and handle them here
-            if (e.message.includes("Maker order has been settled")) success = true;
+            if (e.toString().includes("Maker order has been settled")) success = true;
             console.log(e);
         }
 

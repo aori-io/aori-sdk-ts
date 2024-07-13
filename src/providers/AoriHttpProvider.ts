@@ -352,7 +352,7 @@ export async function rawCall<T>({
         params
     });
     if ("error" in axiosResponseData) {
-        throw new Error(axiosResponseData.error.message);
+        throw axiosResponseData.error.message;
     }
 
     const { result: data } = axiosResponseData;
