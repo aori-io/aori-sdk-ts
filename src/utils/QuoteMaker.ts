@@ -187,6 +187,8 @@ export class QuoteMaker {
             }
         }
 
+        console.log(`✍️ Failed to generate quote after ${retries} retries for ${inputAmount} ${inputToken} -> ${outputToken}`);
+
         return;
     }
 
