@@ -2,7 +2,7 @@ import { Wallet } from "ethers";
 import { AoriFeedProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
-import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
+import { DetailsToExecute, OrderView, SubscriptionEvents } from "./interfaces";
 import { signOrderHashSync, approveTokenCall, signMatchingSync } from "./helpers";
 
 export enum ExecutionStrictness {
@@ -125,56 +125,69 @@ export class QuoteMaker {
         inputAmount, // Amount that the user is willing to pay
         chainId,
         cancelAfter,
+        retries = 3,
     }: {
         inputToken: string;
         outputToken: string;
         inputAmount: string;
         cancelAfter?: number,
         settleTx?: boolean,
-        chainId: number
+        chainId: number,
+        retries?: number
     }) {
         if (inputAmount == undefined || inputAmount == "0") return;
 
-        /*//////////////////////////////////////////////////////////////
-                                   GET QUOTE
-        //////////////////////////////////////////////////////////////*/
+        let count = 0;
+        while (count <= retries) {
+            try {
+                /*//////////////////////////////////////////////////////////////
+                                        GET QUOTE
+                //////////////////////////////////////////////////////////////*/
 
-        const startTime = Date.now();
-        const { outputAmount } = await this.quoter.getOutputAmountQuote({ inputToken, outputToken, inputAmount, fromAddress: this.activeAddress(), chainId });
+                const startTime = Date.now();
+                const { outputAmount } = await this.quoter.getOutputAmountQuote({ inputToken, outputToken, inputAmount, fromAddress: this.activeAddress(), chainId });
 
-        if (this.logQuotes) {
-            const endTime = Date.now();
-            console.log(`✍️ ${this.quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken} in ${Math.round(endTime - startTime)}ms`);
+                if (this.logQuotes) {
+                    const endTime = Date.now();
+                    console.log(`✍️ ${this.quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken} in ${Math.round(endTime - startTime)}ms`);
+                }
+
+                /*//////////////////////////////////////////////////////////////
+                                        SPONSOR GAS
+                //////////////////////////////////////////////////////////////*/
+
+                let gasInToken = 0n;
+                if (this.sponsorGas) await getCurrentGasInToken(chainId, Number(this.gasLimit), outputToken)
+                    .then(({ gasInToken: _gasInToken }) => { gasInToken = BigInt(_gasInToken); })
+                    .catch(() => { gasInToken = outputAmount / 10_000n; });
+
+                if (outputAmount < gasInToken) throw `✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`;
+
+                const { orderHash, order } = await createAndMakeOrder(this.wallet, {
+                    offerer: this.activeAddress(),
+                    inputToken: outputToken,
+                    outputToken: inputToken,
+                    inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
+                    outputAmount: BigInt(inputAmount),
+                    chainId
+                }, this.apiUrl);
+
+                this.createdOrders.add(orderHash);
+
+                /*//////////////////////////////////////////////////////////////
+                                        CANCELAFTER
+                //////////////////////////////////////////////////////////////*/
+
+                if (cancelAfter) setTimeout(() => order.cancel().catch(console.log), cancelAfter);
+
+                return { order, orderHash };
+            } catch (e: any) {
+                console.log(e);
+                count++;
+            }
         }
 
-        /*//////////////////////////////////////////////////////////////
-                                  SPONSOR GAS
-        //////////////////////////////////////////////////////////////*/
-
-        let gasInToken = 0n;
-        if (this.sponsorGas) await getCurrentGasInToken(chainId, Number(this.gasLimit), outputToken)
-            .then(({ gasInToken: _gasInToken }) => { gasInToken = BigInt(_gasInToken); })
-            .catch(() => { gasInToken = outputAmount / 10_000n; });
-
-        if (outputAmount < gasInToken) return console.log(`✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`);
-
-        const { orderHash, order } = await createAndMakeOrder(this.wallet, {
-            offerer: this.activeAddress(),
-            inputToken: outputToken,
-            outputToken: inputToken,
-            inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
-            outputAmount: BigInt(inputAmount),
-            chainId
-        }, this.apiUrl);
-
-        this.createdOrders.add(orderHash);
-
-        /*//////////////////////////////////////////////////////////////
-                                  CANCELAFTER
-        //////////////////////////////////////////////////////////////*/
-
-        if (cancelAfter) setTimeout(() => order.cancel().catch(console.log), cancelAfter);
-        return { order, orderHash };
+        return;
     }
 
     /*//////////////////////////////////////////////////////////////
