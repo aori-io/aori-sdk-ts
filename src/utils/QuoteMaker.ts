@@ -24,6 +24,7 @@ export class QuoteMaker {
     logQuotes = false;
     sponsorGas = false;
     gasLimit: bigint = 5_000_000n;
+    gasPriceMultiplier: number = 1.1;
     spreadPercentage: bigint = 0n;
 
     /*//////////////////////////////////////////////////////////////
@@ -201,7 +202,7 @@ export class QuoteMaker {
 
         // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
-            if (await settleOrders(this.wallet, detailsToExecute, this.gasLimit)) {
+            if (await settleOrders(this.wallet, detailsToExecute, { gasLimit: this.gasLimit, gasPriceMultiplier: this.gasPriceMultiplier })) {
                 console.log(`Successfully sent transaction`);
                 return;
             } else {
@@ -233,6 +234,7 @@ export class QuoteMaker {
 
         // Attempt to settle it via the vault
         if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
+            gasPriceMultiplier: this.gasPriceMultiplier,
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
                 approveTokenCall(inputToken, makerZone, 10n ** 26n),

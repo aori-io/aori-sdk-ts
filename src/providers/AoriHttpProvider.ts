@@ -687,21 +687,25 @@ export async function quoteAndRetryTakeOrder(takerWallet: Wallet, quoteParams: P
     }
 }
 
-export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, gasLimit = 2_000_000n) {
+export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, { gasLimit, gasPriceMultiplier }: { gasLimit?: bigint, gasPriceMultiplier?: number } = { gasLimit: 2_000_000n }) {
     return await sendOrRetryTransaction(wallet, {
         to: detailsToExecute.to,
         value: detailsToExecute.value,
         data: detailsToExecute.data,
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
+    }, {
+        gasPriceMultiplier
     });
 }
 
 export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute, {
+    gasPriceMultiplier,
     gasLimit = 2_000_000n,
     preSwapInstructions = [],
     postSwapInstructions = []
 }: {
+    gasPriceMultiplier?: number,
     gasLimit?: bigint,
     preSwapInstructions?: InstructionStruct[],
     postSwapInstructions?: InstructionStruct[]
@@ -719,5 +723,7 @@ export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: Det
         ),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
+    }, {
+        gasPriceMultiplier
     });
 }

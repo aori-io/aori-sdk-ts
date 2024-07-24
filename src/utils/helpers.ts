@@ -647,11 +647,14 @@ export async function checkAndApproveToken(
     }
 }
 
-export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, { retries, gasPriceMultiplier }: { retries: number, gasPriceMultiplier: number } = { retries: 3, gasPriceMultiplier: 1.1 }) {  
+export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, { retries, gasPriceMultiplier }: { retries?: number, gasPriceMultiplier?: number } = { retries: 3 }) {  
+    const _retries = retries || 3;
+    const _gasPriceMultiplier = gasPriceMultiplier || 1.1;
+
     let attempts = 0;
     let success = false;
 
-    while (attempts < retries && !success) {
+    while (attempts < _retries && !success) {
 
         try {
             const nonce = await getNonce(tx.chainId, wallet.address);
@@ -659,7 +662,7 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
-                gasPrice: Number(gasPrice) * gasPriceMultiplier,
+                gasPrice: Number(gasPrice) * _gasPriceMultiplier,
                 ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n })
             });
 
