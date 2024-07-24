@@ -43,6 +43,7 @@ export class QuoteMaker {
         sponsorGas = false,
         cancelAfter,
         gasLimit = 5_000_000n,
+        gasPriceMultiplier = 1.1,
         spreadPercentage = 5n,
         executionStrictness = ExecutionStrictness.ONLY_HASH
     }:{
@@ -57,6 +58,7 @@ export class QuoteMaker {
         sponsorGas?: boolean,
         cancelAfter?: number,
         gasLimit?: bigint,
+        gasPriceMultiplier?: number,
         spreadPercentage?: bigint,
         executionStrictness?: ExecutionStrictness
     }) {
@@ -73,6 +75,7 @@ export class QuoteMaker {
         this.logQuotes = logQuotes;
         this.sponsorGas = sponsorGas;
         this.gasLimit = gasLimit;
+        this.gasPriceMultiplier = gasPriceMultiplier;
         this.spreadPercentage = spreadPercentage;
 
         /*//////////////////////////////////////////////////////////////
