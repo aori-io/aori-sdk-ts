@@ -642,12 +642,12 @@ export async function checkAndApproveToken(
     amount: bigint
 ) {
     const allowance = await getTokenAllowance(chainId, wallet.address, token, spender);
-    if (allowance < amount) {
+    if (allowance < amount) { 
         await approveToken(wallet, chainId, token, spender, amount);
     }
 }
 
-export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, retries = 3) {
+export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, { retries, gasPriceMultiplier }: { retries: number, gasPriceMultiplier: number } = { retries: 3, gasPriceMultiplier: 1.1 }) {  
     let attempts = 0;
     let success = false;
 
@@ -656,7 +656,12 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
         try {
             const nonce = await getNonce(tx.chainId, wallet.address);
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
-            const signedTx = await wallet.signTransaction({ ...tx, nonce, gasPrice, ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n }) });
+            const signedTx = await wallet.signTransaction({
+                ...tx,
+                nonce,
+                gasPrice: Number(gasPrice) * gasPriceMultiplier,
+                ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n })
+            });
 
             // On last try, just send the transaction
             if (retries != 0) await simulateTransaction(signedTx);
