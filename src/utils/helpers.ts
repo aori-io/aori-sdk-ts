@@ -662,7 +662,7 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
-                gasPrice: Number(gasPrice) * _gasPriceMultiplier,
+                gasPrice: Math.round(Number(gasPrice) * _gasPriceMultiplier),
                 ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n })
             });
 
