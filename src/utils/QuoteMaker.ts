@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { AoriFeedProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
+import { AoriFeedProvider, AoriProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, OrderView, SubscriptionEvents } from "./interfaces";
@@ -45,7 +45,8 @@ export class QuoteMaker {
         gasLimit = 5_000_000n,
         gasPriceMultiplier = 1.1,
         spreadPercentage = 5n,
-        executionStrictness = ExecutionStrictness.ONLY_HASH
+        executionStrictness = ExecutionStrictness.ONLY_HASH,
+        failOrders = false
     }:{
         wallet: Wallet,
         apiUrl?: string,
@@ -60,7 +61,8 @@ export class QuoteMaker {
         gasLimit?: bigint,
         gasPriceMultiplier?: number,
         spreadPercentage?: bigint,
-        executionStrictness?: ExecutionStrictness
+        executionStrictness?: ExecutionStrictness,
+        failOrders?: boolean
     }) {
         /*//////////////////////////////////////////////////////////////
                                  SET PROPERTIES
@@ -105,11 +107,14 @@ export class QuoteMaker {
                     await this.settleOrders(detailsToExecute);
                 } catch (e: any) {
                     console.log(e);
-                    failOrder({
-                        matching: detailsToExecute.matching,
-                        matchingSignature: detailsToExecute.matchingSignature,
-                        makerMatchingSignature: signMatchingSync(this.wallet, detailsToExecute.matching)
-                    }, this.apiUrl).then(() => console.log("Order failed")).catch(console.log);
+
+                    if (failOrders) {
+                        failOrder({
+                            matching: detailsToExecute.matching,
+                            matchingSignature: detailsToExecute.matchingSignature,
+                            makerMatchingSignature: signMatchingSync(this.wallet, detailsToExecute.matching)
+                        }, this.apiUrl).then(() => console.log("Order failed")).catch(console.log);
+                    }
                 }
             });
         });
@@ -232,7 +237,7 @@ export class QuoteMaker {
         }
 
         /*//////////////////////////////////////////////////////////////
-                                SEND TX
+                                    SEND TX
         //////////////////////////////////////////////////////////////*/
 
         // Attempt to settle it via the vault
