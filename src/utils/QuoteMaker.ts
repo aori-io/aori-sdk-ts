@@ -1,9 +1,9 @@
 import { Wallet } from "ethers";
-import { AoriFeedProvider, AoriProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken, settleOrders, settleOrdersViaVault } from "../providers";
+import { AoriFeedProvider, AoriProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken } from "../providers";
 import { Quoter } from "./Quoter";
 import { AORI_FEED, AORI_HTTP_API } from "./constants";
 import { DetailsToExecute, OrderView, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync, approveTokenCall, signMatchingSync } from "./helpers";
+import { signOrderHashSync, approveTokenCall, signMatchingSync, settleOrders, settleOrdersViaVault } from "./helpers";
 
 export enum ExecutionStrictness {
     ANY_ON_CHAIN = 0,

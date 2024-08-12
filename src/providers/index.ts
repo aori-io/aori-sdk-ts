@@ -1,6 +1,8 @@
+export * from "./AoriBaseProvider";
 export * from "./AoriDataProvider";
 export * from "./AoriFeedProvider";
 export * from "./AoriHttpProvider";
 export * from "./AoriPricingProvider";
 export * from "./AoriProvider";
-
+export * from "./IAoriProvider";
+export * from "./ProviderHelpers";

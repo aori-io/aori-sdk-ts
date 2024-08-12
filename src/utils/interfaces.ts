@@ -38,11 +38,22 @@ export interface AoriMatchingDetails {
                          METHOD TYPES
 //////////////////////////////////////////////////////////////*/
 
+export interface CreateLimitOrderParams {
+    offerer: string;
+    startTime?: number;
+    endTime?: number;
+    inputToken: string;
+    inputAmount: bigint | string;
+    outputToken: string;
+    outputAmount: bigint | string;
+    chainId: string | number;
+    zone?: string;
+}
+
 export interface QuoteRequested {
     inputToken: string;
     outputToken: string;
-    inputAmount?: string;
-    outputAmount?: string;
+    inputAmount: string;
     chainId: number;
 }
 

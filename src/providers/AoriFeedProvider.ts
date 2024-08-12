@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { AoriFeedEvents, AoriMethods, AORI_FEED, SubscriptionEvents, AORI_HTTP_FEED, TypedEventEmitter } from "../utils";
-import { rawCall } from "./AoriHttpProvider";
+import { rawCall } from "./ProviderHelpers";
 
 export class AoriFeedProvider extends TypedEventEmitter<AoriFeedEvents> {
 
