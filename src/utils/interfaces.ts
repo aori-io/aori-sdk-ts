@@ -123,17 +123,9 @@ export enum AoriMethods {
     Ping = "aori_ping",
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
-    ViewOrderbook = "aori_viewOrderbook",
-    MakeOrder = "aori_makeOrder",
-    CancelOrder = "aori_cancelOrder",
-    CancelAllOrders = "aori_cancelAllOrders",
-    TakeOrder = "aori_takeOrder",
-    AccountDetails = "aori_accountDetails",
-    AccountBalance = "aori_accountBalance",
-    Quote = "aori_quote",
-    RequestQuote = "aori_requestQuote",
-    RequestSwap = "aori_requestSwap",
-    FailOrder = "aori_failOrder",
+    Rfq = "aori_rfq",
+    Respond = "aori_respond",
+    Subscribe = "aori_subscribe"
 }
 
 export enum AoriDataMethods {
@@ -165,6 +157,29 @@ export enum AoriPricingMethods {
     CurrentGasInToken = "aori_currentGasInToken",
     GetToken = "aori_getToken",
     CalculateGasInToken = "aori_calculateGasInToken",
+}
+
+export enum SubscriptionEvents {
+    QuoteRequested = "QuoteRequested",
+    QuoteReceived = "QuoteReceived",
+    CalldataToExecute = "CalldataToExecute",
+}
+
+export interface QuoteRequestedDetails {
+    rfqId: string,
+    address: string,
+    inputToken: string,
+    outputToken: string,
+    inputAmount: string,
+    zone: string,
+    chainId: number
+}
+
+export type RfqEvents = {
+    ["ready"]: [],
+    [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
+    [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
+    [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
 }
 
 export const ResponseEvents = { AoriMethods };

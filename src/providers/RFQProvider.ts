@@ -1,37 +1,5 @@
 import { WebSocket } from "ws";
-import { AoriOrder, DetailsToExecute, TypedEventEmitter } from "../utils";
-
-export enum AoriMethods {
-    Ping = "aori_ping",
-    Version = "aori_version",
-    SupportedChains = "aori_supportedChains",
-    Rfq = "aori_rfq",
-    Respond = "aori_respond",
-    Subscribe = "aori_subscribe"
-}
-
-export enum SubscriptionEvents {
-    QuoteRequested = "QuoteRequested",
-    QuoteReceived = "QuoteReceived",
-    CalldataToExecute = "CalldataToExecute",
-}
-
-export interface QuoteRequestedDetails {
-    rfqId: string,
-    address: string,
-    inputToken: string,
-    outputToken: string,
-    inputAmount: string,
-    zone: string,
-    chainId: number
-}
-
-export type RfqEvents = {
-    ["ready"]: [],
-    [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
-    [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
-    [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
-}
+import { AoriMethods, AoriOrder, DetailsToExecute, RfqEvents, SubscriptionEvents, TypedEventEmitter } from "../utils";
 
 export class RFQProvider extends TypedEventEmitter<RfqEvents> {
 

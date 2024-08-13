@@ -1,7 +1,7 @@
 import { Wallet } from "ethers";
-import { DetailsToExecute } from "./interfaces";
+import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
 import { Quoter } from "./Quoter";
-import { getCurrentGasInToken, RFQProvider, SubscriptionEvents } from "../providers";
+import { getCurrentGasInToken, RFQProvider } from "../providers";
 import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
 
 export class QuoteMaker {
