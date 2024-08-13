@@ -10,9 +10,9 @@ interface AoriPartialRequest {
 }
 
 export async function requestPriceQuote(req: AoriPartialRequest) {
-    // 
+    // TODO:
 }
 
 export async function requestForQuote(req: AoriPartialRequest) {
-    // Create
+    // TODO: 
 }
