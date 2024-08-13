@@ -50,58 +50,6 @@ export interface CreateLimitOrderParams {
     zone?: string;
 }
 
-export interface QuoteRequested {
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
-    chainId: number;
-}
-
-export type AoriOrderWithIntegerTimes = Omit<AoriOrder, "startTime" | "endTime"> & { startTime: number, endTime: number };
-
-export interface OrderView {
-    orderHash: string;
-    offerer: string;
-
-    order: AoriOrder;
-    signature?: string;
-
-    inputToken: string;
-    inputAmount: string;
-    inputChainId: number;
-    inputZone: string;
-
-    outputToken: string;
-    outputAmount: string;
-    outputChainId: number;
-    outputZone: string;
-
-    rate: number;
-    createdAt: number;
-    lastUpdatedAt: number;
-    takenAt?: number;
-    cancelledAt?: number;
-    fulfilledAt?: number;
-    failedAt?: number;
-    systemCancelled?: boolean;
-
-    isActive: boolean;
-    isPublic: boolean;
-    tag?: string;
-}
-
-export interface ViewOrderbookQuery {
-    signature?: string;
-    offerer?: string;
-    orderHash?: string;
-    inputToken: string;
-    outputToken: string;
-    chainId?: number;
-    sortBy?: "createdAt_asc" | "createdAt_desc" | "rate_asc" | "rate_desc";
-    inputAmount?: string;
-    outputAmount?: string;
-}
-
 export interface DetailsToExecute {
     matchingHash: string;
     matching: AoriMatchingDetails;
@@ -167,7 +115,6 @@ export interface FailedMatch {
     matchingHash: string;
 }
 
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -220,19 +167,7 @@ export enum AoriPricingMethods {
     CalculateGasInToken = "aori_calculateGasInToken",
 }
 
-export enum SubscriptionEvents {
-    OrderCreated = "OrderCreated",
-    OrderCancelled = "OrderCancelled",
-    OrderTaken = "OrderTaken",
-    OrderFulfilled = "OrderFulfilled",
-    OrderFailed = "OrderFailed",
-    OrderToExecute = "OrderToExecute",
-    QuoteRequested = "QuoteRequested",
-    SwapRequested = "SwapRequested",
-}
-export type FeedEvents = SubscriptionEvents;
-
-export const ResponseEvents = { AoriMethods, SubscriptionEvents };
+export const ResponseEvents = { AoriMethods };
 
 /*//////////////////////////////////////////////////////////////
                         EVENT EMITTER DATA
@@ -261,40 +196,4 @@ export class TypedEventEmitter<TEvents extends Record<string, any>> {
     ) {
         this.emitter.off(eventName, handler as any)
     }
-}
-
-export type AoriMethodsEvents = {
-    ["ready"]: [],
-    ["error"]: [error: any],
-    [AoriMethods.Ping]: ["aori_pong"],
-    [AoriMethods.SupportedChains]: [chainIds: number[]],
-    [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
-    [AoriMethods.MakeOrder]: [order: OrderView],
-    [AoriMethods.CancelOrder]: [orderHash: string],
-    [AoriMethods.CancelAllOrders]: [],
-    [AoriMethods.TakeOrder]: [orderToExecute: DetailsToExecute | string],
-    [AoriMethods.AccountDetails]: [{ assignedAddress: string, credit: string, orders: OrderView[] }],
-    [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
-    [AoriMethods.RequestQuote]: [],
-    [AoriMethods.RequestSwap]: [],
-    [AoriMethods.Quote]: [orders: OrderView[]]
-
-    // 
-    [_: string]: any
-};
-
-export type AoriFeedEvents = {
-    ["ready"]: [],
-    ["error"]: [error: any],
-    [SubscriptionEvents.OrderCreated]: [makerOrder: OrderView],
-    [SubscriptionEvents.OrderCancelled]: [updatedMakerOrder: OrderView],
-    [SubscriptionEvents.OrderTaken]: [updatedMakerOrder: OrderView],
-    [SubscriptionEvents.OrderFulfilled]: [settledMatch: SettledMatch],
-    [SubscriptionEvents.OrderFailed]: [failedMatch: FailedMatch],
-    [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
-    [SubscriptionEvents.SwapRequested]: [takerOrder: OrderView],
-    [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
-
-    // 
-    [_: string]: any
 }

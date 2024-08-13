@@ -1,148 +1,91 @@
 import { Wallet } from "ethers";
-import { AoriFeedProvider, AoriProvider, cancelOrder, createAndMakeOrder, failOrder, getCurrentGasInToken } from "../providers";
+import { DetailsToExecute } from "./interfaces";
 import { Quoter } from "./Quoter";
-import { AORI_FEED, AORI_HTTP_API } from "./constants";
-import { DetailsToExecute, OrderView, SubscriptionEvents } from "./interfaces";
-import { signOrderHashSync, approveTokenCall, signMatchingSync, settleOrders, settleOrdersViaVault } from "./helpers";
-
-export enum ExecutionStrictness {
-    ANY_ON_CHAIN = 0,
-    ONLY_HASH = 1
-}
+import { getCurrentGasInToken, RFQProvider, SubscriptionEvents } from "../providers";
+import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
 
 export class QuoteMaker {
-
     wallet: Wallet;
-    apiUrl: string;
-
-    feed: AoriFeedProvider = null as any;
-    createdOrders = new Set<string>();
+    feedRFQ: RFQProvider;
+    vaultContract?: string;
     quoter: Quoter;
 
-    vaultContract?: string;
-    apiKey?: string;
     logQuotes = false;
     sponsorGas = false;
     gasLimit: bigint = 5_000_000n;
     gasPriceMultiplier: number = 1.1;
     spreadPercentage: bigint = 0n;
 
-    /*//////////////////////////////////////////////////////////////
-                               INITIALISE
-    //////////////////////////////////////////////////////////////*/
-
     constructor({
         wallet,
-        apiUrl = AORI_HTTP_API,
-        feedUrl = AORI_FEED,
-        vaultContract,
-        apiKey,
-        defaultChainId = 5,
+        feedUrl,
         quoter,
-        logQuotes = false,
-        sponsorGas = false,
-        cancelAfter,
-        gasLimit = 5_000_000n,
-        gasPriceMultiplier = 1.1,
-        spreadPercentage = 5n,
-        executionStrictness = ExecutionStrictness.ONLY_HASH,
-        failOrders = false
-    }:{
+        defaultChainId = 42161,
+        sponsorGas,
+        gasLimit,
+        gasPriceMultiplier,
+        spreadPercentage
+    }: {
         wallet: Wallet,
-        apiUrl?: string,
-        feedUrl?: string,
-        vaultContract?: string,
-        apiKey?: string,
-        defaultChainId?: number,
+        feedUrl: string,
         quoter: Quoter,
-        logQuotes?: boolean,
+        defaultChainId: number
         sponsorGas?: boolean,
         cancelAfter?: number,
         gasLimit?: bigint,
         gasPriceMultiplier?: number,
         spreadPercentage?: bigint,
-        executionStrictness?: ExecutionStrictness,
-        failOrders?: boolean
     }) {
         /*//////////////////////////////////////////////////////////////
                                  SET PROPERTIES
         //////////////////////////////////////////////////////////////*/
 
         this.wallet = wallet;
-        this.apiUrl = apiUrl;
-        this.feed = new AoriFeedProvider({ feedUrl });
-        this.vaultContract = vaultContract;
-        this.apiKey = apiKey;
         this.quoter = quoter;
-        this.logQuotes = logQuotes;
-        this.sponsorGas = sponsorGas;
-        this.gasLimit = gasLimit;
-        this.gasPriceMultiplier = gasPriceMultiplier;
-        this.spreadPercentage = spreadPercentage;
 
         /*//////////////////////////////////////////////////////////////
                                FEED CONFIGURATION
         //////////////////////////////////////////////////////////////*/
 
-        this.feed.on("ready", () => {
+        this.feedRFQ = new RFQProvider(feedUrl);
 
-            this.feed.subscribe();
+        this.feedRFQ.on(SubscriptionEvents.QuoteRequested, ({ rfqId, inputToken, outputToken, inputAmount, chainId, zone }) => {
+            if (chainId == defaultChainId) {
+                if (inputAmount == undefined || inputAmount == "0") return;
+                this.generateQuote({ rfqId, inputToken, inputAmount, outputToken, chainId, zone }).catch(console.log);
+            }
+        });
 
-            this.feed.on(SubscriptionEvents.QuoteRequested, async ({ inputToken, inputAmount, outputToken, chainId }) => {
-                if (chainId == defaultChainId) {
-                    if (inputAmount == undefined || inputAmount == "0") return;
-                    this.generateQuoteOrder({ inputToken, inputAmount, outputToken, chainId, cancelAfter }).catch(console.log);
-                }
-            });
+        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, (msg) => {
 
-            this.feed.on(SubscriptionEvents.OrderToExecute, async (detailsToExecute) => {
-                const { makerOrderHash, takerOrderHash, to, value, data, chainId, maker } = detailsToExecute;
-
-                // Do an initial check
-                if (executionStrictness == ExecutionStrictness.ONLY_HASH && !this.createdOrders.has(makerOrderHash)) return;
-                if (executionStrictness == ExecutionStrictness.ANY_ON_CHAIN && (chainId != defaultChainId || maker != this.activeAddress())) return;
-                
-                console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
-                try {
-                    await this.settleOrders(detailsToExecute);
-                } catch (e: any) {
-                    console.log(e);
-
-                    if (failOrders) {
-                        failOrder({
-                            matching: detailsToExecute.matching,
-                            matchingSignature: detailsToExecute.matchingSignature,
-                            makerMatchingSignature: signMatchingSync(this.wallet, detailsToExecute.matching)
-                        }, this.apiUrl).then(() => console.log("Order failed")).catch(console.log);
-                    }
-                }
-            });
         });
     }
 
-    activeAddress(): string {
+    activeAddress() {
         return this.vaultContract || this.wallet.address;
     }
 
-    /*//////////////////////////////////////////////////////////////
-                          GENERATE QUOTE ORDER
-    //////////////////////////////////////////////////////////////*/
-
-    async generateQuoteOrder({
+    async generateQuote({
+        rfqId,
         inputToken,
         outputToken,
         inputAmount, // Amount that the user is willing to pay
         chainId,
-        cancelAfter,
+        zone,
         retries = 3,
     }: {
+        rfqId: string,
         inputToken: string;
         outputToken: string;
         inputAmount: string;
-        cancelAfter?: number,
-        settleTx?: boolean,
+        zone: string,
         chainId: number,
         retries?: number
+        sponsorGas?: boolean,
+        cancelAfter?: number,
+        gasLimit?: bigint,
+        gasPriceMultiplier?: number,
+        spreadPercentage?: bigint
     }) {
         if (inputAmount == undefined || inputAmount == "0") return;
 
@@ -172,24 +115,22 @@ export class QuoteMaker {
 
                 if (outputAmount < gasInToken) throw `✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`;
 
-                const { orderHash, order } = await createAndMakeOrder(this.wallet, {
-                    offerer: this.activeAddress(),
+                const { order: responseOrder, orderHash, signature: responseSignature } = await createAndSignResponse(this.wallet, {
+                    offerer: this.vaultContract || "",
                     inputToken: outputToken,
                     outputToken: inputToken,
                     inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
                     outputAmount: BigInt(inputAmount),
+                    zone,
                     chainId
-                }, this.apiUrl);
+                });
 
-                this.createdOrders.add(orderHash);
+                this.feedRFQ.respond(rfqId, {
+                    order: responseOrder,
+                    signature: responseSignature
+                });
 
-                /*//////////////////////////////////////////////////////////////
-                                        CANCELAFTER
-                //////////////////////////////////////////////////////////////*/
-
-                if (cancelAfter) setTimeout(() => order.cancel().catch(console.log), cancelAfter);
-
-                return { order, orderHash };
+                return { order: responseOrder, orderHash };
             } catch (e: any) {
                 console.log(e);
                 count++;
@@ -258,8 +199,6 @@ export class QuoteMaker {
         }
     }
 
-    async terminate() {
-        await this.feed.terminate();
-    }
-
+    
 }
+
