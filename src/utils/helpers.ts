@@ -5,6 +5,7 @@ import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView, SettledMatch } from "./interfaces";
+import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -25,6 +26,22 @@ export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcErr
 }
 
 export { JsonRpcError, JsonRpcPayload, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
+
+export async function rawCall<T>(url: string, method: string, params: [any] | [] ): Promise<T> {
+    const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(url, {
+        id,
+        jsonrpc: "2.0",
+        method,
+        params
+    });
+
+    if ("error" in axiosResponseData) {
+        throw new Error(axiosResponseData.error.message);
+    }
+
+    const { result: data } = axiosResponseData;
+    return data;
+}
 
 /*//////////////////////////////////////////////////////////////
                             ZONE
@@ -193,6 +210,62 @@ export const signOrder = signOrderSync;
 
 export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
+}
+
+export async function createAndSignResponse(wallet: Wallet, {
+    offerer,
+    startTime = Math.floor((Date.now() - 10 * 60 * 1000) / 1000), // Start 10 minutes in the past
+    endTime = Math.floor((Date.now() + 10 * 60 * 1000) / 1000), // End 10 minutes in the future 
+    inputToken,
+    inputAmount,
+    chainId = 1,
+    zone,
+    inputChainId = chainId,
+    inputZone = zone || getDefaultZone(inputChainId),
+    outputToken,
+    outputAmount,
+    outputChainId = chainId,
+    outputZone = zone || getDefaultZone(outputChainId),
+    counter = 0,
+    toWithdraw = true
+}: {
+    offerer: string;
+    chainId?: number;
+    zone?: string;
+    startTime?: number;
+    endTime?: number;
+    inputToken: string;
+    inputAmount: bigint;
+    inputChainId?: number;
+    inputZone?: string;
+    outputToken: string;
+    outputAmount: bigint;
+    outputChainId?: number;
+    outputZone?: string;
+    counter?: number;
+    toWithdraw?: boolean;
+}): Promise<{ order: AoriOrder, orderHash: string, signature: string }> {
+    const order = {
+        offerer,
+        inputToken,
+        inputAmount: inputAmount.toString(),
+        inputChainId,
+        inputZone,
+        outputToken,
+        outputAmount: outputAmount.toString(),
+        outputChainId,
+        outputZone,
+        startTime: `${startTime}`,
+        endTime: `${endTime}`,
+        salt: `${Math.floor(Math.random() * maxSalt)}`,
+        counter,
+        toWithdraw
+    };
+
+    const orderHash = getOrderHash(order);
+    const signature = signOrderSync(wallet, order);
+
+    return { order, orderHash, signature };
 }
 
 export function getOrderSigner(order: AoriOrder, signature: string) {

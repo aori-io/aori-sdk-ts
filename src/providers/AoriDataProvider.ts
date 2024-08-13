@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BytesLike, id, JsonRpcError, JsonRpcResult, verifyMessage } from "ethers";
-import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, rawCall } from "../utils";
 import { AoriDataMethods, AoriMethods } from "../utils/interfaces";
 
 export class AoriDataProvider {
@@ -310,16 +310,24 @@ export class AoriDataProvider {
                             HELPERS
 //////////////////////////////////////////////////////////////*/
 
+export function DATA_URL() {
+    return AORI_DATA_PROVIDER_APIS[Math.floor(Math.random() * AORI_DATA_PROVIDER_APIS.length)]
+}
+
 const dataProvider = new AoriDataProvider();
 
 export function _setDataProviderURLs(urls: string[]) {
     dataProvider.urls = urls;
 }
 
-export function getBlockNumber(chainId: number) { return dataProvider.getBlockNumber({ chainId }) }
+export function getBlockNumber(chainId: number) {
+    return rawCall<{ blockNumber: number }>(DATA_URL(), AoriDataMethods.GetBlockNumber, [{ chainId }])
+        .then(({ blockNumber}) => blockNumber)
+}
 
-export function getNonce(chainId: number, address: string): Promise<number> {
-    return dataProvider.getNonce({ chainId, address });
+export function getNonce(chainId: number, address: string) {
+    return rawCall<{ nonce: number }>(DATA_URL(), AoriDataMethods.GetNonce, [{ chainId, address }])
+        .then(({ nonce }) => nonce);
 }
 
 export function getFeeData(chainId: number): Promise<{
@@ -327,7 +335,9 @@ export function getFeeData(chainId: number): Promise<{
     maxFeePerGas: string | null,
     maxPriorityFeePerGas: string | null,
 }> {
-    return dataProvider.getFeeData({ chainId });
+
+    return rawCall<{ gasPrice: string, maxFeePerGas: string, maxPriorityFeePerGas: string }>(DATA_URL(), AoriDataMethods.GetFeeData, [{ chainId }])
+        .then(({ gasPrice, maxFeePerGas, maxPriorityFeePerGas }) => ({ gasPrice, maxFeePerGas, maxPriorityFeePerGas }));
 }
 
 export function estimateGas({

@@ -2,7 +2,6 @@ import { BigNumberish, formatEther, TransactionRequest, Wallet, ZeroAddress } fr
 import { AORI_TAKER_API, AoriMatchingDetails, AoriMethods, AoriMethodsEvents, AoriOrder, createLimitOrder, createMatchingOrder, getDefaultZone, getOrderHash, signOrderSync, TypedEventEmitter, ViewOrderbookQuery } from "../utils";
 import { sendTransaction } from "./AoriDataProvider";
 import { accountDetails, marketOrder, quote, requestQuote, requestSwap, viewOrderbook } from "./ProviderHelpers";
-import { EventEmitter } from "ws";
 
 export interface AoriBaseParams {
     wallet: Wallet;
