@@ -36,8 +36,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
 
         this.feed.on("message", (msg) => {
             try {
-                const { id, result } = JSON.parse(msg.toString());
-                const { type, data } = result;
+                const { rfqId, type, data } = JSON.parse(msg.toString());
 
                 switch (type) {
                     case SubscriptionEvents.QuoteRequested:

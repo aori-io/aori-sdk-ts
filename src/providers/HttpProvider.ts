@@ -19,8 +19,9 @@ export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPa
 }> {
     const { data } = await axios.post(AORI_HTTP_API, {
         id: 1,
+        jsonrpc: "2.0",
         method: AoriMethods.Rfq,
-        params: req
+        params: [req]
     });
 
     return data;
@@ -42,11 +43,12 @@ export async function requestForQuote(wallet: Wallet, req: AoriPartialRequest) {
     return { order: { sendIntentToRfq: () => {
         return axios.post(AORI_HTTP_API, {
             id: 1,
+            jsonrpc: "2.0",
             method: AoriMethods.Rfq,
-            params: {
+            params: [{
                 order,
                 signature
-            }
+            }]
         }); 
     }, details: order }, orderHash, signature };
 }
