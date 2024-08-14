@@ -67,6 +67,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
     async respond(rfqId: string, params: { order: AoriOrder, signature: string }) {
         this.feed.send(JSON.stringify({
             id: 1,
+            jsonrpc: "2.0",
             method: AoriMethods.Respond,
             params: [{
                 rfqId,
@@ -78,6 +79,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
     async subscribe(rfqId: "all" | string) {
         this.feed.send(JSON.stringify({
             id: 1,
+            jsonrpc: "2.0",
             method: AoriMethods.Subscribe,
             params: [{
                 rfqId
