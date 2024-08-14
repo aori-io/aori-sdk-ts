@@ -110,7 +110,7 @@ export class QuoteMaker {
                 if (outputAmount < gasInToken) throw `✍️ Quote for ${inputToken} -> ${outputToken} when gas is ${gasInToken} in ${outputToken} is too low (to ${outputAmount})`;
 
                 const { order: responseOrder, orderHash, signature: responseSignature } = await createAndSignResponse(this.wallet, {
-                    offerer: this.vaultContract || "",
+                    offerer: this.vaultContract || this.wallet.address,
                     inputToken: outputToken,
                     outputToken: inputToken,
                     inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
