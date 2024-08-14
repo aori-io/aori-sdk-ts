@@ -13,7 +13,7 @@ interface AoriPartialRequest {
 
 export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPartialRequest & {
     inputAmount: string,
-    outputAmount: string,
+    topOutputAmount: string,
     zone: string,
     deadline: number
 }> {
@@ -24,18 +24,18 @@ export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPa
         params: [req]
     });
 
-    return data;
+    return data.result;
 }
 
 export async function requestForQuote(wallet: Wallet, req: AoriPartialRequest) {
-    const { outputAmount } = await receivePriceQuote(req);
+    const { topOutputAmount } = await receivePriceQuote(req);
     
     const { order, orderHash, signature } = await createAndSignResponse(wallet, {
         offerer: wallet.address,
         inputToken: req.inputToken,
         inputAmount: BigInt(req.inputAmount),
         outputToken: req.outputToken,
-        outputAmount: BigInt(outputAmount),
+        outputAmount: BigInt(topOutputAmount),
         chainId: req.chainId,
         zone: req.zone,
         toWithdraw: true
