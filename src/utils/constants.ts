@@ -131,36 +131,8 @@ export const CREATE3FACTORY_DEPLOYED_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072
                         WEBSOCKET URLS
 //////////////////////////////////////////////////////////////*/
 
-export const AORI_API: string = "wss://api.aori.io";
-export const AORI_FEED: string = "wss://feed.aori.io";
-export const AORI_PRODUCTION_API: string = "wss://api.aori.io";
-export const AORI_PRODUCTION_FEED: string = "wss://feed.aori.io";
-export const AORI_DEVELOPMENT_API: string = "wss://dev.api.aori.io";
-export const AORI_DEVELOPMENT_FEED: string = "wss://dev.feed.aori.io";
-
-/*//////////////////////////////////////////////////////////////
-                        HTTP POST URLS
-//////////////////////////////////////////////////////////////*/
-
-// Main Aori API for facilitating CRUD operations
-export const AORI_HTTP_API: string = "https://api.aori.io";
-export const AORI_HTTP_PRODUCTION_API: string = "https://api.aori.io";
-export const AORI_HTTP_DEVELOPMENT_API: string = "https://dev.api.aori.io";
-
-// Feed Urls
-export const AORI_HTTP_FEED: string = "https://feed.aori.io";
-export const AORI_HTTP_PRODUCTION_FEED: string = "https://feed.aori.io";
-export const AORI_HTTP_DEVELOPMENT_FEED: string = "https://dev.feed.aori.io";
-
-// Orderbook Urls
-export const AORI_ORDERBOOK_API: string = "https://orderbook.aori.io";
-export const AORI_ORDERBOOK_PRODUCTION_API: string = "https://orderbook.aori.io";
-export const AORI_ORDERBOOK_DEVELOPMENT_API: string = "https://dev.orderbook.aori.io";
-
-// Taker Service for facilitating UX-friendly Market Orders
-export const AORI_TAKER_API: string = "https://taker.aori.io";
-export const AORI_TAKER_PRODUCTION_API: string = "https://taker.aori.io";
-export const AORI_TAKER_DEVELOPMENT_API: string = "https://dev.taker.aori.io";
+export const AORI_HTTP_API: string = "https://rfq.aori.io";
+export const AORI_WS_API: string = "wss://rfq.aori.io";
 
 // Data Provider API
 export const AORI_DATA_PROVIDER_API: string = "https://provider.aori.io";

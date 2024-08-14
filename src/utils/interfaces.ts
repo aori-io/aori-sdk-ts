@@ -43,63 +43,12 @@ export interface CreateLimitOrderParams {
     startTime?: number;
     endTime?: number;
     inputToken: string;
-    inputAmount: bigint | string;
+    inputAmount: bigint;
     outputToken: string;
-    outputAmount: bigint | string;
-    chainId: string | number;
-    zone?: string;
-}
-
-export interface QuoteRequested {
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
+    outputAmount: bigint;
     chainId: number;
-}
-
-export type AoriOrderWithIntegerTimes = Omit<AoriOrder, "startTime" | "endTime"> & { startTime: number, endTime: number };
-
-export interface OrderView {
-    orderHash: string;
-    offerer: string;
-
-    order: AoriOrder;
-    signature?: string;
-
-    inputToken: string;
-    inputAmount: string;
-    inputChainId: number;
-    inputZone: string;
-
-    outputToken: string;
-    outputAmount: string;
-    outputChainId: number;
-    outputZone: string;
-
-    rate: number;
-    createdAt: number;
-    lastUpdatedAt: number;
-    takenAt?: number;
-    cancelledAt?: number;
-    fulfilledAt?: number;
-    failedAt?: number;
-    systemCancelled?: boolean;
-
-    isActive: boolean;
-    isPublic: boolean;
-    tag?: string;
-}
-
-export interface ViewOrderbookQuery {
-    signature?: string;
-    offerer?: string;
-    orderHash?: string;
-    inputToken: string;
-    outputToken: string;
-    chainId?: number;
-    sortBy?: "createdAt_asc" | "createdAt_desc" | "rate_asc" | "rate_desc";
-    inputAmount?: string;
-    outputAmount?: string;
+    zone?: string;
+    toWithdraw?: boolean;
 }
 
 export interface DetailsToExecute {
@@ -151,23 +100,6 @@ export interface SettledMatch {
     timestamp?: number;
 }
 
-export interface FailedMatch {
-    makerOrderHash: string;
-    takerOrderHash: string;
-    maker: string;
-    taker: string;
-    inputChainId: number;
-    outputChainId: number;
-    inputZone: string;
-    outputZone: string;
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
-    outputAmount: string;
-    matchingHash: string;
-}
-
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -176,17 +108,9 @@ export enum AoriMethods {
     Ping = "aori_ping",
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
-    ViewOrderbook = "aori_viewOrderbook",
-    MakeOrder = "aori_makeOrder",
-    CancelOrder = "aori_cancelOrder",
-    CancelAllOrders = "aori_cancelAllOrders",
-    TakeOrder = "aori_takeOrder",
-    AccountDetails = "aori_accountDetails",
-    AccountBalance = "aori_accountBalance",
-    Quote = "aori_quote",
-    RequestQuote = "aori_requestQuote",
-    RequestSwap = "aori_requestSwap",
-    FailOrder = "aori_failOrder",
+    Rfq = "aori_rfq",
+    Respond = "aori_respond",
+    Subscribe = "aori_subscribe"
 }
 
 export enum AoriDataMethods {
@@ -221,18 +145,29 @@ export enum AoriPricingMethods {
 }
 
 export enum SubscriptionEvents {
-    OrderCreated = "OrderCreated",
-    OrderCancelled = "OrderCancelled",
-    OrderTaken = "OrderTaken",
-    OrderFulfilled = "OrderFulfilled",
-    OrderFailed = "OrderFailed",
-    OrderToExecute = "OrderToExecute",
     QuoteRequested = "QuoteRequested",
-    SwapRequested = "SwapRequested",
+    QuoteReceived = "QuoteReceived",
+    CalldataToExecute = "CalldataToExecute",
 }
-export type FeedEvents = SubscriptionEvents;
 
-export const ResponseEvents = { AoriMethods, SubscriptionEvents };
+export interface QuoteRequestedDetails {
+    rfqId: string,
+    address: string,
+    inputToken: string,
+    outputToken: string,
+    inputAmount: string,
+    zone: string,
+    chainId: number
+}
+
+export type RfqEvents = {
+    ["ready"]: [],
+    [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
+    [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
+    [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
+}
+
+export const ResponseEvents = { AoriMethods };
 
 /*//////////////////////////////////////////////////////////////
                         EVENT EMITTER DATA
@@ -261,40 +196,4 @@ export class TypedEventEmitter<TEvents extends Record<string, any>> {
     ) {
         this.emitter.off(eventName, handler as any)
     }
-}
-
-export type AoriMethodsEvents = {
-    ["ready"]: [],
-    ["error"]: [error: any],
-    [AoriMethods.Ping]: ["aori_pong"],
-    [AoriMethods.SupportedChains]: [chainIds: number[]],
-    [AoriMethods.ViewOrderbook]: [orders: OrderView[]],
-    [AoriMethods.MakeOrder]: [order: OrderView],
-    [AoriMethods.CancelOrder]: [orderHash: string],
-    [AoriMethods.CancelAllOrders]: [],
-    [AoriMethods.TakeOrder]: [orderToExecute: DetailsToExecute | string],
-    [AoriMethods.AccountDetails]: [{ assignedAddress: string, credit: string, orders: OrderView[] }],
-    [AoriMethods.AccountBalance]: [{ address: string, token: string, chainId: number, balance: string }],
-    [AoriMethods.RequestQuote]: [],
-    [AoriMethods.RequestSwap]: [],
-    [AoriMethods.Quote]: [orders: OrderView[]]
-
-    // 
-    [_: string]: any
-};
-
-export type AoriFeedEvents = {
-    ["ready"]: [],
-    ["error"]: [error: any],
-    [SubscriptionEvents.OrderCreated]: [makerOrder: OrderView],
-    [SubscriptionEvents.OrderCancelled]: [updatedMakerOrder: OrderView],
-    [SubscriptionEvents.OrderTaken]: [updatedMakerOrder: OrderView],
-    [SubscriptionEvents.OrderFulfilled]: [settledMatch: SettledMatch],
-    [SubscriptionEvents.OrderFailed]: [failedMatch: FailedMatch],
-    [SubscriptionEvents.QuoteRequested]: [quoteRequest: QuoteRequested],
-    [SubscriptionEvents.SwapRequested]: [takerOrder: OrderView],
-    [SubscriptionEvents.OrderToExecute]: [orderToExecute: DetailsToExecute],
-
-    // 
-    [_: string]: any
 }

@@ -4,7 +4,8 @@ import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Fa
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
-import { AoriOrderWithIntegerTimes, DetailsToExecute, OrderView, SettledMatch } from "./interfaces";
+import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
+import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -25,6 +26,22 @@ export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcErr
 }
 
 export { JsonRpcError, JsonRpcPayload, JsonRpcResult, Wallet, ZeroAddress } from "ethers";
+
+export async function rawCall<T>(url: string, method: string, params: [any] | [] ): Promise<T> {
+    const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(url, {
+        id,
+        jsonrpc: "2.0",
+        method,
+        params
+    });
+
+    if ("error" in axiosResponseData) {
+        throw new Error(axiosResponseData.error.message);
+    }
+
+    const { result: data } = axiosResponseData;
+    return data;
+}
 
 /*//////////////////////////////////////////////////////////////
                             ZONE
@@ -55,83 +72,32 @@ export async function formatIntoLimitOrder({
     inputToken,
     inputAmount,
     chainId = 1,
-    zone,
-    inputChainId = chainId,
-    inputZone = zone || getDefaultZone(inputChainId),
+    zone = getDefaultZone(chainId),
     outputToken,
     outputAmount,
-    outputChainId = chainId,
-    outputZone = zone || getDefaultZone(outputChainId),
-    counter = 0,
     toWithdraw = true
-}: {
-    offerer: string;
-    chainId?: number;
-    zone?: string;
-    startTime?: number;
-    endTime?: number;
-    inputToken: string;
-    inputAmount: bigint;
-    inputChainId?: number;
-    inputZone?: string;
-    outputToken: string;
-    outputAmount: bigint;
-    outputChainId?: number;
-    outputZone?: string;
-    counter?: number;
-    toWithdraw?: boolean;
-}): Promise<AoriOrder> {
+}: CreateLimitOrderParams): Promise<AoriOrder> {
 
     return {
         offerer,
         inputToken,
         inputAmount: inputAmount.toString(),
-        inputChainId,
-        inputZone,
+        inputChainId: chainId,
+        inputZone: zone,
         outputToken,
         outputAmount: outputAmount.toString(),
-        outputChainId,
-        outputZone,
+        outputChainId: chainId,
+        outputZone: zone,
         startTime: `${startTime}`,
         endTime: `${endTime}`,
         salt: `${Math.floor(Math.random() * maxSalt)}`,
-        counter,
+        counter: 0,
         toWithdraw
     }
 }
 
 export const createLimitOrder = formatIntoLimitOrder;
 export const newLimitOrder = formatIntoLimitOrder;
-
-export async function createMatchingOrder({
-    inputToken,
-    inputAmount,
-    inputChainId,
-    inputZone,
-    outputToken,
-    outputAmount,
-    outputChainId,
-    outputZone
-}: AoriOrder, {
-    offerer,
-    feeInBips = 3n
-}: {
-    offerer: string
-    feeInBips?: bigint,
-}): Promise<AoriOrder> {
-    return await formatIntoLimitOrder({
-        offerer,
-        inputToken: outputToken,
-        inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
-        inputChainId: outputChainId,
-        inputZone: outputZone,
-        outputToken: inputToken,
-        outputAmount: BigInt(inputAmount),
-        outputChainId: inputChainId,
-        outputZone: inputZone,
-        counter: 0
-    });
-}
 
 export function getOrderHash({
     offerer,
@@ -168,20 +134,9 @@ export function getOrderHash({
         "uint256", // counter
         "bool" // toWithdraw
     ], [
-        offerer,
-        inputToken,
-        inputAmount,
-        inputChainId,
-        inputZone,
-        outputToken,
-        outputAmount,
-        outputChainId,
-        outputZone,
-        startTime,
-        endTime,
-        salt,
-        counter,
-        toWithdraw
+        offerer, inputToken, inputAmount, inputChainId,
+        inputZone, outputToken, outputAmount, outputChainId,
+        outputZone, startTime, endTime, salt, counter, toWithdraw
     ]);
 }
 
@@ -195,65 +150,15 @@ export function signOrderHashSync(wallet: Wallet, orderHash: string) {
     return wallet.signMessageSync(getBytes(orderHash));
 }
 
+export async function createAndSignResponse(wallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0]): Promise<{ order: AoriOrder, orderHash: string, signature: string }> {
+    const order = await createLimitOrder(orderParams);
+    const orderHash = getOrderHash(order);
+    const signature = signOrderSync(wallet, order);
+    return { order, orderHash, signature };
+}
+
 export function getOrderSigner(order: AoriOrder, signature: string) {
     return verifyMessage(getBytes(getOrderHash(order)), signature);
-}
-
-export function withIntegerTimes(order: AoriOrder): AoriOrderWithIntegerTimes {
-    return { ...order, startTime: parseInt(order.startTime), endTime: parseInt(order.endTime) };
-}
-
-export function withStringifiedTimes(order: AoriOrderWithIntegerTimes): AoriOrder {
-    return { ...order, startTime: `${order.startTime}`, endTime: `${order.endTime}` };
-}
-
-export type DatabaseOrderView = Omit<OrderView, "order"> & { order: AoriOrderWithIntegerTimes };
-
-export function toDatabaseOrderView(orderView: OrderView): DatabaseOrderView {
-    return {
-        ...orderView,
-        order: withIntegerTimes(orderView.order)
-    };
-}
-
-export function toNormalOrderView(orderView: DatabaseOrderView): OrderView {
-    return {
-        ...orderView,
-        order: withStringifiedTimes(orderView.order)
-    };
-}
-
-export function toOrderView({
-    order,
-    signature,
-    isActive = true,
-    isPublic = true
-}: {
-    order: AoriOrder,
-    signature?: string,
-    isActive?: boolean,
-    isPublic?: boolean
-}): OrderView {
-    return {
-        orderHash: getOrderHash(order),
-        offerer: order.offerer.toLowerCase(),
-        order,
-        signature,
-        inputToken: order.inputToken.toLowerCase(),
-        inputAmount: order.inputAmount,
-        inputChainId: order.inputChainId,
-        inputZone: order.inputZone.toLowerCase(),
-        outputToken: order.outputToken.toLowerCase(),
-        outputAmount: order.outputAmount,
-        outputChainId: order.outputChainId,
-        outputZone: order.outputZone.toLowerCase(),
-
-        rate: parseFloat(order.outputAmount) / parseFloat(order.inputAmount),
-        createdAt: Date.now(),
-        lastUpdatedAt: Date.now(),
-        isActive,
-        isPublic
-    }
 }
 
 export async function validateOrder(order: AoriOrder, signature: string): Promise<string | null> {
@@ -468,25 +373,6 @@ export function toSettledMatch(
 
 export function getSeatPercentageOfFees(seatScore: number): number {
     return [0, 40, 45, 50, 55, 60][seatScore];
-}
-
-/*//////////////////////////////////////////////////////////////
-                    PROTOCOL-RELATED FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export function prepareAoriV2Deployment(deployer: Wallet, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
-    return {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [AoriV2__factory.bytecode, AoriV2__factory.createInterface().encodeDeploy(
-                [deployer.address]
-            )]
-        )]),
-        gasLimit
-    }
 }
 
 /*//////////////////////////////////////////////////////////////
