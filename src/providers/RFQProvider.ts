@@ -11,10 +11,8 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
         super();
 
         this.feedUrl = feedUrl;
-        this.feed = new WebSocket(feedUrl);
-
+        this.feed = undefined as any;
         this.keepAliveTimer = null as any;
-
         this.connect();
     }
 
