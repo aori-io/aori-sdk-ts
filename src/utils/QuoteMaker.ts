@@ -19,6 +19,7 @@ export class QuoteMaker {
     constructor({
         wallet,
         feedUrl,
+        vaultContract,
         quoter,
         defaultChainId = 42161,
         sponsorGas,
@@ -28,6 +29,7 @@ export class QuoteMaker {
     }: {
         wallet: Wallet,
         feedUrl: string,
+        vaultContract?: string,
         quoter: Quoter,
         defaultChainId: number
         sponsorGas?: boolean,
@@ -41,6 +43,7 @@ export class QuoteMaker {
 
         this.wallet = wallet;
         this.quoter = quoter;
+        this.vaultContract = vaultContract;
 
         /*//////////////////////////////////////////////////////////////
                                FEED CONFIGURATION
