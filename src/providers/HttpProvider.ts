@@ -1,3 +1,6 @@
+import axios from "axios"
+import { AORI_HTTP_API, AoriMethods } from "../utils"
+
 interface AoriPartialRequest {
     address: string,
     inputToken: string,
@@ -10,7 +13,13 @@ interface AoriPartialRequest {
 }
 
 export async function requestPriceQuote(req: AoriPartialRequest) {
-    // TODO:
+    const { data } = await axios.post(AORI_HTTP_API, {
+        id: 1,
+        method: AoriMethods.Rfq,
+        params: req
+    });
+
+    // 
 }
 
 export async function requestForQuote(req: AoriPartialRequest) {

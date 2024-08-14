@@ -4,7 +4,7 @@ import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Fa
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
-import { DetailsToExecute, SettledMatch } from "./interfaces";
+import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
 import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
@@ -72,83 +72,32 @@ export async function formatIntoLimitOrder({
     inputToken,
     inputAmount,
     chainId = 1,
-    zone,
-    inputChainId = chainId,
-    inputZone = zone || getDefaultZone(inputChainId),
+    zone = getDefaultZone(chainId),
     outputToken,
     outputAmount,
-    outputChainId = chainId,
-    outputZone = zone || getDefaultZone(outputChainId),
-    counter = 0,
     toWithdraw = true
-}: {
-    offerer: string;
-    chainId?: number;
-    zone?: string;
-    startTime?: number;
-    endTime?: number;
-    inputToken: string;
-    inputAmount: bigint;
-    inputChainId?: number;
-    inputZone?: string;
-    outputToken: string;
-    outputAmount: bigint;
-    outputChainId?: number;
-    outputZone?: string;
-    counter?: number;
-    toWithdraw?: boolean;
-}): Promise<AoriOrder> {
+}: CreateLimitOrderParams): Promise<AoriOrder> {
 
     return {
         offerer,
         inputToken,
         inputAmount: inputAmount.toString(),
-        inputChainId,
-        inputZone,
+        inputChainId: chainId,
+        inputZone: zone,
         outputToken,
         outputAmount: outputAmount.toString(),
-        outputChainId,
-        outputZone,
+        outputChainId: chainId,
+        outputZone: zone,
         startTime: `${startTime}`,
         endTime: `${endTime}`,
         salt: `${Math.floor(Math.random() * maxSalt)}`,
-        counter,
+        counter: 0,
         toWithdraw
     }
 }
 
 export const createLimitOrder = formatIntoLimitOrder;
 export const newLimitOrder = formatIntoLimitOrder;
-
-export async function createMatchingOrder({
-    inputToken,
-    inputAmount,
-    inputChainId,
-    inputZone,
-    outputToken,
-    outputAmount,
-    outputChainId,
-    outputZone
-}: AoriOrder, {
-    offerer,
-    feeInBips = 3n
-}: {
-    offerer: string
-    feeInBips?: bigint,
-}): Promise<AoriOrder> {
-    return await formatIntoLimitOrder({
-        offerer,
-        inputToken: outputToken,
-        inputAmount: BigInt(outputAmount) * (10000n + feeInBips) / 10000n,
-        inputChainId: outputChainId,
-        inputZone: outputZone,
-        outputToken: inputToken,
-        outputAmount: BigInt(inputAmount),
-        outputChainId: inputChainId,
-        outputZone: inputZone,
-        counter: 0
-    });
-}
 
 export function getOrderHash({
     offerer,
@@ -185,20 +134,9 @@ export function getOrderHash({
         "uint256", // counter
         "bool" // toWithdraw
     ], [
-        offerer,
-        inputToken,
-        inputAmount,
-        inputChainId,
-        inputZone,
-        outputToken,
-        outputAmount,
-        outputChainId,
-        outputZone,
-        startTime,
-        endTime,
-        salt,
-        counter,
-        toWithdraw
+        offerer, inputToken, inputAmount, inputChainId,
+        inputZone, outputToken, outputAmount, outputChainId,
+        outputZone, startTime, endTime, salt, counter, toWithdraw
     ]);
 }
 

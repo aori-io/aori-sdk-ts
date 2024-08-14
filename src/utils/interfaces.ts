@@ -43,11 +43,12 @@ export interface CreateLimitOrderParams {
     startTime?: number;
     endTime?: number;
     inputToken: string;
-    inputAmount: bigint | string;
+    inputAmount: bigint;
     outputToken: string;
-    outputAmount: bigint | string;
-    chainId: string | number;
+    outputAmount: bigint;
+    chainId: number;
     zone?: string;
+    toWithdraw?: boolean;
 }
 
 export interface DetailsToExecute {
@@ -97,22 +98,6 @@ export interface SettledMatch {
     transactionHash?: string;
     blockNumber?: number;
     timestamp?: number;
-}
-
-export interface FailedMatch {
-    makerOrderHash: string;
-    takerOrderHash: string;
-    maker: string;
-    taker: string;
-    inputChainId: number;
-    outputChainId: number;
-    inputZone: string;
-    outputZone: string;
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
-    outputAmount: string;
-    matchingHash: string;
 }
 
 /*//////////////////////////////////////////////////////////////
