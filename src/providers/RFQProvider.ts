@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { AoriMethods, AoriOrder, DetailsToExecute, RfqEvents, SubscriptionEvents, TypedEventEmitter } from "../utils";
+import { AORI_WS_API, AoriMethods, AoriOrder, DetailsToExecute, RfqEvents, SubscriptionEvents, TypedEventEmitter } from "../utils";
 
 export class RFQProvider extends TypedEventEmitter<RfqEvents> {
 
@@ -17,7 +17,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
     }
 
     static default(): RFQProvider {
-        return new RFQProvider("");
+        return new RFQProvider(AORI_WS_API);
     }
 
     async connect() {

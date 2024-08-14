@@ -29,7 +29,7 @@ export { JsonRpcError, JsonRpcPayload, JsonRpcResult, Wallet, ZeroAddress } from
 
 export async function rawCall<T>(url: string, method: string, params: [any] | [] ): Promise<T> {
     const { data: axiosResponseData }: { data: JsonRpcResult | JsonRpcError } = await axios.post(url, {
-        id,
+        id: 1,
         jsonrpc: "2.0",
         method,
         params
