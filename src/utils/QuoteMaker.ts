@@ -55,8 +55,15 @@ export class QuoteMaker {
             }
         });
 
-        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, (msg) => {
+        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, async ({ rfqId, detailsToExecute }) => {
+            const { makerOrderHash, takerOrderHash, to, value, data, chainId, maker } = detailsToExecute;
 
+            console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
+            try {
+                await this.settleOrders(detailsToExecute);
+            } catch (e: any) {
+                console.log(e);
+            }
         });
     }
 
