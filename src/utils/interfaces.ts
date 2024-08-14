@@ -157,7 +157,8 @@ export interface QuoteRequestedDetails {
     outputToken: string,
     inputAmount: string,
     zone: string,
-    chainId: number
+    chainId: number,
+    deadline: number
 }
 
 export type RfqEvents = {
