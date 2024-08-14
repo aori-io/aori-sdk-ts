@@ -29,6 +29,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
             this.keepAliveTimer = setInterval(() => {
                 this.feed.ping();
             }, 10_000);
+            this.subscribe("all");
             this.emit("ready");
             console.log(`🫡  Provider ready to send requests`);
         });
@@ -67,10 +68,20 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
         this.feed.send(JSON.stringify({
             id: 1,
             method: AoriMethods.Respond,
-            params: {
+            params: [{
                 rfqId,
                 ...params
-            }
+            }]
+        }));
+    }
+
+    async subscribe(rfqId: "all" | string) {
+        this.feed.send(JSON.stringify({
+            id: 1,
+            method: AoriMethods.Subscribe,
+            params: [{
+                rfqId
+            }]
         }));
     }
 }
