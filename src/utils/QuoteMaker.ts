@@ -31,7 +31,6 @@ export class QuoteMaker {
         quoter: Quoter,
         defaultChainId: number
         sponsorGas?: boolean,
-        cancelAfter?: number,
         gasLimit?: bigint,
         gasPriceMultiplier?: number,
         spreadPercentage?: bigint,
@@ -81,11 +80,6 @@ export class QuoteMaker {
         zone: string,
         chainId: number,
         retries?: number
-        sponsorGas?: boolean,
-        cancelAfter?: number,
-        gasLimit?: bigint,
-        gasPriceMultiplier?: number,
-        spreadPercentage?: bigint
     }) {
         if (inputAmount == undefined || inputAmount == "0") return;
 
