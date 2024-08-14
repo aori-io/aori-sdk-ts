@@ -11,7 +11,7 @@ interface AoriPartialRequest {
     deadline?: number
 }
 
-export async function requestPriceQuote(req: AoriPartialRequest): Promise<AoriPartialRequest & {
+export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPartialRequest & {
     inputAmount: string,
     outputAmount: string,
     zone: string,
@@ -27,7 +27,7 @@ export async function requestPriceQuote(req: AoriPartialRequest): Promise<AoriPa
 }
 
 export async function requestForQuote(wallet: Wallet, req: AoriPartialRequest) {
-    const { outputAmount } = await requestPriceQuote(req);
+    const { outputAmount } = await receivePriceQuote(req);
     
     const { order, orderHash, signature } = await createAndSignResponse(wallet, {
         offerer: wallet.address,
