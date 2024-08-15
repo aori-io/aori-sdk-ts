@@ -27,11 +27,12 @@ export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPa
     return data.result;
 }
 
-export async function requestForQuote(wallet: Wallet, req: AoriPartialRequest) {
-    const { topOutputAmount } = await receivePriceQuote(req);
+export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }) {
+    const offerer = req.address || wallet.address;
+    const { topOutputAmount } = await receivePriceQuote({ ...req, address: offerer });
     
     const { order, orderHash, signature } = await createAndSignResponse(wallet, {
-        offerer: wallet.address,
+        offerer,
         inputToken: req.inputToken,
         inputAmount: BigInt(req.inputAmount),
         outputToken: req.outputToken,
