@@ -42,7 +42,8 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
         toWithdraw: true
     });
     return {
-        quote: { take: () => {
+        quote: {
+            take: () => {
                 return axios.post(apiUrl, {
                     id: 1,
                     jsonrpc: "2.0",
