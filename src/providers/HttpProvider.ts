@@ -11,13 +11,13 @@ interface AoriPartialRequest {
     deadline?: number
 }
 
-export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPartialRequest & {
+export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API): Promise<AoriPartialRequest & {
     inputAmount: string,
     topOutputAmount: string,
     zone: string,
     deadline: number
 }> {
-    const { data } = await axios.post(AORI_HTTP_API, {
+    const { data } = await axios.post(apiUrl, {
         id: 1,
         jsonrpc: "2.0",
         method: AoriMethods.Rfq,
@@ -27,9 +27,9 @@ export async function receivePriceQuote(req: AoriPartialRequest): Promise<AoriPa
     return data.result;
 }
 
-export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }) {
+export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }, apiUrl: string = AORI_HTTP_API) {
     const offerer = req.address || wallet.address;
-    const { topOutputAmount } = await receivePriceQuote({ ...req, address: offerer });
+    const { topOutputAmount } = await receivePriceQuote({ ...req, address: offerer }, apiUrl);
     
     const { order, orderHash, signature } = await createAndSignResponse(wallet, {
         offerer,
@@ -42,7 +42,7 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
         toWithdraw: true
     });
     return { quote: { take: () => {
-        return axios.post(AORI_HTTP_API, {
+        return axios.post(apiUrl, {
             id: 1,
             jsonrpc: "2.0",
             method: AoriMethods.Rfq,
