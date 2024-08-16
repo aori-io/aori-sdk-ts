@@ -43,8 +43,8 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
     });
     return {
         quote: {
-            take: () => {
-                return axios.post(apiUrl, {
+            take: async () => {
+                await axios.post(apiUrl, {
                     id: 1,
                     jsonrpc: "2.0",
                     method: AoriMethods.Rfq,
