@@ -1,9 +1,9 @@
-import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
 import axios from "axios";
 
@@ -41,6 +41,40 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
 
     const { result: data } = axiosResponseData;
     return data;
+}
+
+export function getChainProvider(chainId: number) {
+    return new JsonRpcProvider(`${AORI_DATA_PROVIDER_API}/${chainId}`);
+}
+
+export function retry<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvider) => Promise<T>, retries = 3, loadCount = 1): Promise<T> {
+    const arr: Promise<any>[] = [];
+    for (let i = 0; i < loadCount; i++) arr.push(new Promise(async (resolve, reject) => {
+        try {
+            const requestId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const url = provider._getConnection().url;
+            console.time(`RPC Call ${requestId} - ${url}`);
+            const response = await fn(provider);
+            console.timeEnd(`RPC Call ${requestId} - ${url}`);
+            return resolve(response);
+        } catch (e) {
+            return reject(e);
+        }
+    }));
+
+    return Promise.any(arr).catch((e) => {
+        console.log(`Getting error...`);
+        console.log(e);
+        throw e.errors[0];
+    }).catch((e) => {
+        if (retries > 0) {
+            console.log(`Retrying RPC call ${4 - retries}`);
+            return retry(provider, fn, retries - 1);
+        } else {
+            console.log(`Failed retries with RPC call`);
+        }
+        throw e;
+    });
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -420,7 +454,8 @@ export async function deployVault(wallet: Wallet, {
     saltPhrase: string,
     gasLimit?: bigint
 }): Promise<string> {
-    const destinationAddress = await computeCREATE3Address(wallet.address, saltPhrase);
+
+    const destinationAddress = await computeCREATE3Address(getChainProvider(chainId), wallet.address, saltPhrase);
     
     await sendOrRetryTransaction(wallet, {
         ...((chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA) ?
@@ -527,7 +562,7 @@ export async function checkAndApproveToken(
     spender: string,
     amount: bigint
 ) {
-    const allowance = await getTokenAllowance(chainId, wallet.address, token, spender);
+    const allowance = await getTokenAllowance(getChainProvider(chainId), wallet.address, token, spender);
     if (allowance < amount) { 
         await approveToken(wallet, chainId, token, spender, amount);
     }
@@ -540,11 +575,13 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
     let attempts = 0;
     let success = false;
 
+    const provider = getChainProvider(tx.chainId);
+
     while (attempts < _retries && !success) {
 
         try {
-            const nonce = await getNonce(tx.chainId, wallet.address);
-            const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
+            const nonce = await getNonce(provider, wallet.address);
+            const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(provider);
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
