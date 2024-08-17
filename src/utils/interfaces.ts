@@ -148,6 +148,7 @@ export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     QuoteReceived = "QuoteReceived",
     CalldataToExecute = "CalldataToExecute",
+    TradeSettled = "TradeSettled"
 }
 
 export interface QuoteRequestedDetails {
@@ -165,6 +166,7 @@ export type RfqEvents = {
     [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
     [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
     [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
+    [SubscriptionEvents.TradeSettled]: [SettledMatch]
 }
 
 export const ResponseEvents = { AoriMethods };
