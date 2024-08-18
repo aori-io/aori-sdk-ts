@@ -291,12 +291,13 @@ export async function receivePriceQuote({
                         COMBINED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
-export async function createAndMakeOrder(makerWallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0], apiUrl: string = AORI_HTTP_API) {
+export async function createAndMakeOrder(makerWallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0], apiUrl: string = AORI_HTTP_API, apiKey?: string) {
     const limitOrder = await createLimitOrder(orderParams);
     
     const order = await makeOrder({
         order: limitOrder,
-        signature: await signOrderSync(makerWallet, limitOrder)
+        signature: await signOrderSync(makerWallet, limitOrder),
+        apiKey
     }, apiUrl);
 
     return {
