@@ -178,8 +178,8 @@ export class QuoteMaker {
                     outputToken: inputToken,
                     inputAmount: (outputAmount - gasInToken) * (10_000n - this.spreadPercentage) / 10_000n,
                     outputAmount: BigInt(inputAmount),
-                    chainId
-                }, this.apiUrl);
+                    chainId,
+                }, this.apiUrl, this.apiKey);
 
                 this.createdOrders.add(orderHash);
 
