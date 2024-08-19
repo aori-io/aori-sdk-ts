@@ -1,5 +1,5 @@
 import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider } from "ethers";
-import { computeCREATE3Address, getFeeData, getNonce, getTokenAllowance, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
+import { computeCREATE3Address, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
@@ -47,7 +47,7 @@ export function getChainProvider(chainId: number) {
     return new JsonRpcProvider(`${AORI_DATA_PROVIDER_API}/${chainId}`);
 }
 
-export function retry<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvider) => Promise<T>, retries = 3, loadCount = 1): Promise<T> {
+export function retryIfFail<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvider) => Promise<T>, retries = 3, loadCount = 1): Promise<T> {
     const arr: Promise<any>[] = [];
     for (let i = 0; i < loadCount; i++) arr.push(new Promise(async (resolve, reject) => {
         try {
@@ -69,7 +69,7 @@ export function retry<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvid
     }).catch((e) => {
         if (retries > 0) {
             console.log(`Retrying RPC call ${4 - retries}`);
-            return retry(provider, fn, retries - 1);
+            return retryIfFail(provider, fn, retries - 1);
         } else {
             console.log(`Failed retries with RPC call`);
         }
@@ -562,8 +562,8 @@ export async function checkAndApproveToken(
     spender: string,
     amount: bigint
 ) {
-    const allowance = await getTokenAllowance(getChainProvider(chainId), wallet.address, token, spender);
-    if (allowance < amount) { 
+    const { allowance } = await getTokenDetails(chainId, wallet.address, token, spender);
+    if (allowance && allowance < amount) { 
         await approveToken(wallet, chainId, token, spender, amount);
     }
 }
@@ -575,13 +575,11 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
     let attempts = 0;
     let success = false;
 
-    const provider = getChainProvider(tx.chainId);
-
     while (attempts < _retries && !success) {
 
         try {
-            const nonce = await getNonce(provider, wallet.address);
-            const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(provider);
+            const nonce = await getNonce(tx.chainId, wallet.address);
+            const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
