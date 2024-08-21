@@ -20,6 +20,10 @@ function DATA_URL() {
                                  CALLS
 //////////////////////////////////////////////////////////////*/
 
+export function getBlockNumber(chainIdOrProvider: number | JsonRpcProvider) {
+    return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.getBlockNumber());
+}
+
 export function getNonce(chainIdOrProvider: number | JsonRpcProvider, address: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.getTransactionCount(address, "pending"));
 }
