@@ -6,6 +6,7 @@ import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
 import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
 import axios from "axios";
+import { getChainProvider } from "./providers";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -41,10 +42,6 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
 
     const { result: data } = axiosResponseData;
     return data;
-}
-
-export function getChainProvider(chainId: number) {
-    return new JsonRpcProvider(`${AORI_DATA_PROVIDER_API}/${chainId}`);
 }
 
 export function retryIfFail<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvider) => Promise<T>, retries = 3, loadCount = 1): Promise<T> {

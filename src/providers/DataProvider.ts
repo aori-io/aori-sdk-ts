@@ -1,7 +1,8 @@
 import { BytesLike, Interface, JsonRpcProvider, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getChainProvider, getDefaultZone, rawCall, retryIfFail, SEATS_NFT_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getDefaultZone, rawCall, retryIfFail, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriDataMethods } from "../utils/interfaces";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
+import { getChainProvider } from "../utils/providers";
 
 /*//////////////////////////////////////////////////////////////
                             HELPERS
