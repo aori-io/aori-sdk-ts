@@ -238,6 +238,24 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     return null;
 }
 
+export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder): string | null {
+
+    if (takerOrder.inputChainId != makerOrder.outputChainId) return `Taker order is on chain ${takerOrder.inputChainId} but maker order is on chain ${makerOrder.outputChainId}`;
+    if (takerOrder.outputChainId != makerOrder.inputChainId) return `Taker order is on chain ${takerOrder.outputChainId} but maker order is on chain ${makerOrder.inputChainId}`;
+    if (takerOrder.inputZone.toLowerCase() != makerOrder.outputZone.toLowerCase()) return `Taker order is on zone ${takerOrder.inputZone} but maker order is on zone ${makerOrder.outputZone}`;
+    if (takerOrder.outputZone.toLowerCase() != makerOrder.inputZone.toLowerCase()) return `Taker order is on zone ${takerOrder.outputZone} but maker order is on zone ${makerOrder.inputZone}`;
+
+    // Verify that the takerOrder and the makerOrder use the same token
+    if (takerOrder.inputToken.toLowerCase() != makerOrder.outputToken.toLowerCase()) return `Taker order is on token ${takerOrder.inputToken} but maker order is on token ${makerOrder.outputToken}`;
+    if (takerOrder.outputToken.toLowerCase() != makerOrder.inputToken.toLowerCase()) return `Taker order is on token ${takerOrder.outputToken} but maker order is on token ${makerOrder.inputToken}`;
+
+    // Check that the maker and taker orders have enough inputAmounts
+    if (BigInt(takerOrder.inputAmount) < BigInt(makerOrder.outputAmount)) return `Taker order has insufficient input amount to meet maker order's output amount`;
+    if (BigInt(makerOrder.inputAmount) < BigInt(takerOrder.outputAmount)) return `Maker order has insufficient input amount to meet taker order's output amount`;
+
+    return null;
+}
+
 /*//////////////////////////////////////////////////////////////
                         MISC. SIGNATURE
 //////////////////////////////////////////////////////////////*/
@@ -407,6 +425,22 @@ export function toSettledMatch(
 
 export function getSeatPercentageOfFees(seatScore: number): number {
     return [0, 40, 45, 50, 55, 60][seatScore];
+}
+
+export function getAmountWithFee(amount: bigint | number, fee: bigint = 300n): bigint {
+    let base = 1_000_000n;
+    // t_f / M = 0.03%
+    // t_f / M = 0.0003
+    // t_f * 10 * 1000 / M = 3
+    // t_f * 1000 * 1000 / M = 300
+
+    // t_f / M = 100.03%
+    // t_f / M = 1.0003
+    // t_f * 10 * 1000 / M = 10003
+    // t_f * 1000 * 1000 / M = 1000300
+    // const thresholdBipsHundred = 300n;
+
+    return BigInt(amount) * (base + fee) / base;
 }
 
 /*//////////////////////////////////////////////////////////////
