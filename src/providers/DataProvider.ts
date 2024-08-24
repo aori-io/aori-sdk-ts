@@ -1,5 +1,5 @@
 import { BytesLike, Interface, JsonRpcProvider, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getDefaultZone, rawCall, retryIfFail, SEATS_NFT_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getDefaultZone, rawCall, retryIfFail, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriDataMethods } from "../utils/interfaces";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { getChainProvider } from "../utils/providers";
@@ -93,11 +93,11 @@ export function verifySignature(message: string, signature: string): string {
 }
 
 export function sendTransaction(signedTx: string): Promise<string> {
-    return rawCall(DATA_URL(), AoriDataMethods.SendTransaction, [{ signedTx }]);
+    return rawCall(AORI_DATA_PROVIDER_API, AoriDataMethods.SendTransaction, [{ signedTx }]);
 }
 
 export function simulateTransaction(signedTx: string): Promise<string> {
-    return rawCall(DATA_URL(), AoriDataMethods.SimulateTransaction, [{ signedTx }]);
+    return rawCall(AORI_DATA_PROVIDER_API, AoriDataMethods.SimulateTransaction, [{ signedTx }]);
 }
 
 export function staticCall(chainIdOrProvider: number | JsonRpcProvider, tx: TransactionRequest) {
