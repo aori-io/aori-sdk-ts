@@ -12,9 +12,9 @@ export class QuoteMaker {
 
     logQuotes = false;
     sponsorGas = false;
-    gasLimit: bigint = 5_000_000n;
-    gasPriceMultiplier: number = 1.1;
-    spreadPercentage: bigint = 0n;
+    gasLimit: bigint;
+    gasPriceMultiplier: number;
+    spreadPercentage: bigint;
 
     constructor({
         wallet,
@@ -25,7 +25,8 @@ export class QuoteMaker {
         sponsorGas,
         gasLimit,
         gasPriceMultiplier,
-        spreadPercentage
+        spreadPercentage,
+        logQuotes
     }: {
         wallet: Wallet,
         feedUrl: string,
@@ -36,6 +37,7 @@ export class QuoteMaker {
         gasLimit?: bigint,
         gasPriceMultiplier?: number,
         spreadPercentage?: bigint,
+        logQuotes?: boolean
     }) {
         /*//////////////////////////////////////////////////////////////
                                  SET PROPERTIES
@@ -44,6 +46,10 @@ export class QuoteMaker {
         this.wallet = wallet;
         this.quoter = quoter;
         this.vaultContract = vaultContract;
+        this.logQuotes = logQuotes || false;
+        this.gasLimit = gasLimit || 5_000_000n;
+        this.gasPriceMultiplier = gasPriceMultiplier || 1.1;
+        this.spreadPercentage = spreadPercentage || 0n;
 
         /*//////////////////////////////////////////////////////////////
                                FEED CONFIGURATION
