@@ -427,7 +427,7 @@ export function getSeatPercentageOfFees(seatScore: number): number {
     return [0, 40, 45, 50, 55, 60][seatScore];
 }
 
-export function getAmountWithFee(amount: bigint | number, fee: bigint = 300n): bigint {
+export function getAmountWithFee(amount: bigint | number | string, fee: bigint = 300n): bigint {
     let base = 1_000_000n;
     // t_f / M = 0.03%
     // t_f / M = 0.0003
