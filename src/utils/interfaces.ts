@@ -79,6 +79,14 @@ export interface DetailsToExecute {
     outputAmount: string;
 }
 
+export interface SettledOrder {
+    rfqId: string;
+    orderHash: string;
+    transactionHash?: string;
+    timestamp?: number;
+}
+
+// TODO: deprecate this
 export interface SettledMatch {
     makerOrderHash?: string;
     takerOrderHash?: string;
@@ -148,7 +156,9 @@ export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     QuoteReceived = "QuoteReceived",
     CalldataToExecute = "CalldataToExecute",
-    TradeSettled = "TradeSettled"
+    TradeSettled = "TradeSettled",
+    TradeFailed = "TradeFailed",
+    TradeExpired = "TradeExpired"
 }
 
 export interface QuoteRequestedDetails {
@@ -161,12 +171,19 @@ export interface QuoteRequestedDetails {
     chainId: number
 }
 
+export interface RfqIdAndOrderHash {
+    rfqId: string;
+    orderHash: string;
+}
+
 export type RfqEvents = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
     [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
     [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
-    [SubscriptionEvents.TradeSettled]: [SettledMatch]
+    [SubscriptionEvents.TradeSettled]: [SettledOrder],
+    [SubscriptionEvents.TradeFailed]: [RfqIdAndOrderHash],
+    [SubscriptionEvents.TradeExpired]: [RfqIdAndOrderHash]
 }
 
 export const ResponseEvents = { AoriMethods };

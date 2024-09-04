@@ -51,6 +51,12 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
                     case SubscriptionEvents.TradeSettled:
                         this.emit(SubscriptionEvents.TradeSettled, data);
                         break;
+                    case SubscriptionEvents.TradeFailed:
+                        this.emit(SubscriptionEvents.TradeFailed, data);
+                        break;
+                    case SubscriptionEvents.TradeExpired:
+                        this.emit(SubscriptionEvents.TradeExpired, data);
+                        break;
                 }
             } catch (e: any) {
                 console.log(e);
