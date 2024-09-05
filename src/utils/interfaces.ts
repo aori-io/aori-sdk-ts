@@ -79,13 +79,6 @@ export interface DetailsToExecute {
     outputAmount: string;
 }
 
-export interface SettledOrder {
-    rfqId: string;
-    orderHash: string;
-    transactionHash?: string;
-    timestamp?: number;
-}
-
 // TODO: deprecate this
 export interface SettledMatch {
     makerOrderHash?: string;
@@ -161,7 +154,7 @@ export enum SubscriptionEvents {
     TradeExpired = "TradeExpired"
 }
 
-export interface QuoteRequestedDetails {
+export interface BaseRfq {
     rfqId: string,
     address: string,
     inputToken: string,
@@ -171,6 +164,19 @@ export interface QuoteRequestedDetails {
     chainId: number
 }
 
+export interface SettledOrder {
+    rfqId: string;
+    orderHash: string;
+    transactionHash?: string;
+    timestamp?: number;
+}
+
+export type QuoteRequestedDetails = BaseRfq;
+export type QuoteReceivedDetails = BaseRfq & { outputAmount: string };
+export type CalldataToExecuteDetails = BaseRfq & { detailsToExecute: DetailsToExecute };
+export type TradeSettledDetails = SettledOrder;
+
+
 export interface RfqIdAndOrderHash {
     rfqId: string;
     orderHash: string;
@@ -179,9 +185,9 @@ export interface RfqIdAndOrderHash {
 export type RfqEvents = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
-    [SubscriptionEvents.QuoteReceived]: [QuoteRequestedDetails & { outputAmount: string }],
-    [SubscriptionEvents.CalldataToExecute]: [{ rfqId: string, detailsToExecute: DetailsToExecute }]
-    [SubscriptionEvents.TradeSettled]: [SettledOrder],
+    [SubscriptionEvents.QuoteReceived]: [QuoteReceivedDetails],
+    [SubscriptionEvents.CalldataToExecute]: [CalldataToExecuteDetails]
+    [SubscriptionEvents.TradeSettled]: [TradeSettledDetails],
     [SubscriptionEvents.TradeFailed]: [RfqIdAndOrderHash],
     [SubscriptionEvents.TradeExpired]: [RfqIdAndOrderHash]
 }
