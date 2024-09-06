@@ -29,7 +29,7 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
             this.keepAliveTimer = setInterval(() => {
                 this.feed.ping();
             }, 10_000);
-            this.subscribe("all");
+            this.subscribe("ALL");
             this.emit("ready");
             console.log(`🫡  Provider ready to send requests`);
         });
