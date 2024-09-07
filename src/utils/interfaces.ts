@@ -162,20 +162,17 @@ export interface BaseRfq {
 
 export interface SettledOrder {
     rfqId: string;
-    orderHash: string;
     transactionHash?: string;
-    timestamp?: number;
 }
 
 export type QuoteRequestedDetails = BaseRfq;
 export type QuoteReceivedDetails = BaseRfq & { outputAmount: string };
-export type CalldataToExecuteDetails = BaseRfq & { detailsToExecute: DetailsToExecute };
+export type CalldataToExecuteDetails = RfqId & DetailsToExecute;
 export type TradeSettledDetails = SettledOrder;
 
 
-export interface RfqIdAndOrderHash {
+export interface RfqId {
     rfqId: string;
-    orderHash: string;
 }
 
 export type RfqEvents = {
@@ -184,8 +181,8 @@ export type RfqEvents = {
     [SubscriptionEvents.QuoteReceived]: [QuoteReceivedDetails],
     [SubscriptionEvents.CalldataToExecute]: [CalldataToExecuteDetails]
     [SubscriptionEvents.TradeSettled]: [TradeSettledDetails],
-    [SubscriptionEvents.TradeFailed]: [RfqIdAndOrderHash],
-    [SubscriptionEvents.TradeExpired]: [RfqIdAndOrderHash]
+    [SubscriptionEvents.TradeFailed]: [RfqId],
+    [SubscriptionEvents.TradeExpired]: [RfqId]
 }
 
 export const ResponseEvents = { AoriMethods };

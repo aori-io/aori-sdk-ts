@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { DetailsToExecute, SubscriptionEvents } from "./interfaces";
+import { CalldataToExecuteDetails, DetailsToExecute, SubscriptionEvents } from "./interfaces";
 import { Quoter } from "./Quoter";
 import { getCurrentGasInToken, RFQProvider } from "../providers";
 import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
@@ -64,9 +64,8 @@ export class QuoteMaker {
             }
         });
 
-        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, async ({ rfqId, detailsToExecute }) => {
-            const { makerOrderHash, takerOrderHash, to, value, data, chainId, maker } = detailsToExecute;
-
+        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, async (detailsToExecute) => {
+            const { rfqId, makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
             console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
             try {
                 await this.settleOrders(detailsToExecute);
@@ -156,7 +155,7 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 2): Promise<void> {
+    async settleOrders(detailsToExecute: CalldataToExecuteDetails, retryCount = 2): Promise<void> {
         const { inputToken, matching, outputToken, chainId, zone } = detailsToExecute;
 
         // If no vault contract is set, settle via EOA
