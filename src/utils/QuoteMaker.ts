@@ -21,7 +21,6 @@ export class QuoteMaker {
         feedUrl,
         vaultContract,
         quoter,
-        defaultChainId = 42161,
         sponsorGas,
         gasLimit,
         gasPriceMultiplier,
@@ -32,7 +31,6 @@ export class QuoteMaker {
         feedUrl: string,
         vaultContract?: string,
         quoter: Quoter,
-        defaultChainId: number
         sponsorGas?: boolean,
         gasLimit?: bigint,
         gasPriceMultiplier?: number,
@@ -58,10 +56,7 @@ export class QuoteMaker {
         this.feedRFQ = new RFQProvider(feedUrl);
 
         this.feedRFQ.on(SubscriptionEvents.QuoteRequested, ({ rfqId, inputToken, outputToken, inputAmount, chainId, zone }) => {
-            if (chainId == defaultChainId) {
-                if (inputAmount == undefined || inputAmount == "0") return;
-                this.generateQuote({ rfqId, inputToken, inputAmount, outputToken, chainId, zone }).catch(console.log);
-            }
+            this.generateQuote({ rfqId, inputToken, inputAmount, outputToken, chainId, zone }).catch(console.log);
         });
 
         this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, async (detailsToExecute) => {
@@ -107,6 +102,11 @@ export class QuoteMaker {
 
                 const startTime = Date.now();
                 const { outputAmount } = await this.quoter.getOutputAmountQuote({ inputToken, outputToken, inputAmount, fromAddress: this.activeAddress(), chainId });
+
+                if (outputAmount == 0n) {
+                    console.log(`✍️ Quote for ${inputToken} -> ${outputToken} is 0, not posting quote`);
+                    return;
+                }
 
                 if (this.logQuotes) {
                     const endTime = Date.now();
