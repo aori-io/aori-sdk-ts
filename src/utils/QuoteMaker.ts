@@ -157,7 +157,7 @@ export class QuoteMaker {
     //////////////////////////////////////////////////////////////*/
 
     async settleOrders(detailsToExecute: DetailsToExecute, retryCount = 2): Promise<void> {
-        const { inputToken, matching, outputToken, chainId, makerZone } = detailsToExecute;
+        const { inputToken, matching, outputToken, chainId, zone } = detailsToExecute;
 
         // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
@@ -196,7 +196,7 @@ export class QuoteMaker {
             gasPriceMultiplier: this.gasPriceMultiplier,
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
-                approveTokenCall(inputToken, makerZone, 10n ** 26n),
+                approveTokenCall(inputToken, zone, 10n ** 26n),
                 approveTokenCall(outputToken, quoterTo, 10n ** 26n),
                 { to: quoterTo, value: quoterValue, data: quoterData }
             ] : [],

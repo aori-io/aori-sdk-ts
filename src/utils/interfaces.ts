@@ -57,14 +57,10 @@ export interface DetailsToExecute {
     matchingSignature: string;
 
     makerOrderHash: string;
-    makerChainId: number;
-    makerZone: string;
-
     takerOrderHash: string;
-    takerChainId: number;
-    takerZone: string;
 
     chainId: number; // this is generally just takerChainId
+    zone: string; // this is generally just takerZone
     to: string;
     value: number;
     data: string; // Default calldata if no hookdata or options being submitted

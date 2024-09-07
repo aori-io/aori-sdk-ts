@@ -335,14 +335,10 @@ export function toDetailsToExecute(
         matchingSignature,
 
         makerOrderHash: getOrderHash(matching.makerOrder),
-        makerChainId: matching.makerOrder.inputChainId,
-        makerZone: matching.makerOrder.inputZone,
-
         takerOrderHash: getOrderHash(matching.takerOrder),
-        takerChainId: matching.takerOrder.inputChainId,
-        takerZone: matching.takerOrder.inputZone,
 
         chainId: matching.takerOrder.inputChainId,
+        zone: matching.takerOrder.inputZone,
 
         to,
         value,
