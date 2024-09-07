@@ -150,6 +150,10 @@ export enum SubscriptionEvents {
     TradeExpired = "TradeExpired"
 }
 
+export interface RfqId {
+    rfqId: string;
+}
+
 export interface BaseRfq {
     rfqId: string,
     address: string,
@@ -160,20 +164,10 @@ export interface BaseRfq {
     chainId: number
 }
 
-export interface SettledOrder {
-    rfqId: string;
-    transactionHash?: string;
-}
-
 export type QuoteRequestedDetails = BaseRfq;
 export type QuoteReceivedDetails = BaseRfq & { outputAmount: string };
 export type CalldataToExecuteDetails = RfqId & DetailsToExecute;
-export type TradeSettledDetails = SettledOrder;
-
-
-export interface RfqId {
-    rfqId: string;
-}
+export type TradeSettledDetails = RfqId & { transactionHash?: string };
 
 export type RfqEvents = {
     ["ready"]: [],
