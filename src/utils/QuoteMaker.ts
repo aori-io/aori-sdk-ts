@@ -110,7 +110,7 @@ export class QuoteMaker {
 
                 if (this.logQuotes) {
                     const endTime = Date.now();
-                    console.log(`✍️ ${this.quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} is ${outputAmount} ${outputToken} in ${Math.round(endTime - startTime)}ms`);
+                    console.log(`✍️ ${this.quoter.name()} quote for ${inputAmount} ${inputToken} -> ${outputToken} (${chainId}) is ${outputAmount} ${outputToken} in ${Math.round(endTime - startTime)}ms`);
                 }
 
                 /*//////////////////////////////////////////////////////////////
