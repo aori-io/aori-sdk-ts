@@ -1,5 +1,10 @@
 import axios from "axios"
-import { AORI_HTTP_API, AoriMethods, createAndSignResponse, createLimitOrder, Wallet } from "../utils"
+import { AORI_HTTP_API, AoriMethods, AoriOrder, createAndSignResponse, createLimitOrder, Wallet } from "../utils"
+
+interface AoriFullRequest {
+    order: AoriOrder,
+    signature: string
+}
 
 interface AoriPartialRequest {
     address: string,
@@ -44,15 +49,10 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
     return {
         quote: {
             take: async () => {
-                await axios.post(apiUrl, {
-                    id: 1,
-                    jsonrpc: "2.0",
-                    method: AoriMethods.Rfq,
-                    params: [{
-                        order,
-                        signature
-                    }]
-                }); 
+                await sendIntent({
+                    order,
+                    signature
+                }, apiUrl);
             },
             order
         },
@@ -63,4 +63,14 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
         zone: req.zone,
         deadline: req.deadline,
     };
+}
+
+export async function sendIntent(req: AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
+    const { data } = await axios.post(apiUrl, {
+        id: 1,
+        jsonrpc: "2.0",
+        method: AoriMethods.Rfq,
+        params: [req]
+    });
+    return data;
 }
