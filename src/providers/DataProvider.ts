@@ -39,7 +39,7 @@ export function estimateGas(chainIdOrProvider: number | JsonRpcProvider, tx: Tra
 
 export function hasOrderSettled(chainIdOrProvider: number | JsonRpcProvider, orderHash: string, zone?: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => {
-        const contract = AoriV2__factory.connect(getDefaultZone(Number(provider._network.chainId)), provider);
+        const contract = AoriV2__factory.connect(zone || getDefaultZone(Number(provider._network.chainId)), provider);
         return contract.hasOrderSettled(orderHash);
     });
 }
