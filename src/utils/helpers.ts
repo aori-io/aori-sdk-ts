@@ -590,7 +590,7 @@ export async function checkAndApproveToken(
     amount: bigint
 ) {
     const { allowance } = await getTokenDetails(chainId, token, wallet.address, spender);
-    if (allowance && allowance < amount) { 
+    if (allowance != undefined && allowance < amount) { 
         await approveToken(wallet, chainId, token, spender, amount);
     }
 }
