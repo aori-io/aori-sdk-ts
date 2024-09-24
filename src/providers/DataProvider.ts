@@ -13,10 +13,6 @@ function resolveProvider(chainIdOrProvider: number | JsonRpcProvider): JsonRpcPr
     return chainIdOrProvider;
 }
 
-function DATA_URL() {
-    return AORI_DATA_PROVIDER_APIS[Math.floor(Math.random() * AORI_DATA_PROVIDER_APIS.length)]
-}
-
 /*//////////////////////////////////////////////////////////////
                                  CALLS
 //////////////////////////////////////////////////////////////*/
@@ -64,7 +60,7 @@ export async function getTokenDetails(chainIdOrProvider: number | JsonRpcProvide
 export async function isValidSignature(chainIdOrProvider: number | JsonRpcProvider, address: string, hash: BytesLike, signature: string): Promise<boolean> {
     return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
         const contract = AoriVault__factory.connect(address, provider);
-        return await contract.isValidSignature(hash, signature) == ZeroAddress;
+        return await contract.isValidSignature(hash, signature) != ZeroAddress;
     });   
 }
 
