@@ -60,7 +60,7 @@ export async function getTokenDetails(chainIdOrProvider: number | JsonRpcProvide
 export async function isValidSignature(chainIdOrProvider: number | JsonRpcProvider, address: string, hash: BytesLike, signature: string): Promise<boolean> {
     return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
         const contract = AoriVault__factory.connect(address, provider);
-        return await contract.isValidSignature(hash, signature) != ZeroAddress;
+        return await contract.isValidSignature(hash, signature) != "0x00000000";
     });   
 }
 
