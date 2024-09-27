@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { IAoriV2 } from "../types/AoriV2";
 
 /*//////////////////////////////////////////////////////////////
                          NATIVE TYPES
@@ -8,16 +9,15 @@ export interface AoriOrder {
     offerer: string;
     inputToken: string;
     inputAmount: string;
-    inputChainId: number;
-    inputZone: string;
     outputToken: string;
     outputAmount: string;
-    outputChainId: number;
-    outputZone: string;
+    recipient: string;
+    // ===== 
+    zone: string;
+    chainId: number;
     startTime: string;
     endTime: string;
-    salt: string;
-    counter: number;
+    // =====
     toWithdraw: boolean;
 }
 
@@ -27,11 +27,9 @@ export interface AoriMatchingDetails {
 
     makerSignature: string;
     takerSignature: string;
-    blockDeadline: number;
 
-    seatNumber: number;
-    seatHolder: string;
-    seatPercentOfFees: number;
+    feeTag: string;
+    feeRecipient: string;
 }
 
 /*//////////////////////////////////////////////////////////////

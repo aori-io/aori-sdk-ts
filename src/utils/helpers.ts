@@ -7,6 +7,7 @@ import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, C
 import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
 import axios from "axios";
 import { getChainProvider } from "./providers";
+import { IAoriV2 } from "../types/AoriV2";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -113,16 +114,13 @@ export async function formatIntoLimitOrder({
         offerer,
         inputToken,
         inputAmount: inputAmount.toString(),
-        inputChainId: chainId,
-        inputZone: zone,
         outputToken,
         outputAmount: outputAmount.toString(),
-        outputChainId: chainId,
-        outputZone: zone,
+        recipient: offerer,
+        zone,
+        chainId,
         startTime: `${startTime}`,
         endTime: `${endTime}`,
-        salt: `${Math.floor(Math.random() * maxSalt)}`,
-        counter: 0,
         toWithdraw
     }
 }
@@ -134,16 +132,13 @@ export function getOrderHash({
     offerer,
     inputToken,
     inputAmount,
-    inputChainId,
-    inputZone,
     outputToken,
     outputAmount,
-    outputChainId,
-    outputZone,
+    recipient,
+    zone,
+    chainId,
     startTime,
     endTime,
-    salt,
-    counter,
     toWithdraw
 }: AoriOrder): string {
     return solidityPackedKeccak256([
@@ -151,23 +146,19 @@ export function getOrderHash({
         // Input
         "address", // inputToken
         "uint256", // inputAmount
-        "uint256", // inputChainId
-        "address", // inputZone
         // Output
         "address", // outputToken
         "uint256", // outputAmount
-        "uint256", // outputChainId
-        "address", // outputZone
+        "address", // recipient
+        "address", // zone
+        "uint256", // chainId
         // Other details
         "uint256", // startTime
         "uint256", // endTime
-        "uint256", // salt
-        "uint256", // counter
         "bool" // toWithdraw
     ], [
-        offerer, inputToken, inputAmount, inputChainId,
-        inputZone, outputToken, outputAmount, outputChainId,
-        outputZone, startTime, endTime, salt, counter, toWithdraw
+        offerer, inputToken, inputAmount, outputToken, outputAmount, recipient, zone, chainId,
+        startTime, endTime, toWithdraw
     ]);
 }
 
@@ -195,20 +186,15 @@ export function getOrderSigner(order: AoriOrder, signature: string) {
 export async function validateOrder(order: AoriOrder, signature: string): Promise<string | null> {
 
     // Check if chain is supported
-    if (!SUPPORTED_AORI_CHAINS.has(order.inputChainId)) return `Input chain ${order.inputChainId} not supported`;
-    if (!SUPPORTED_AORI_CHAINS.has(order.outputChainId)) return `Output chain ${order.outputChainId} not supported`;
+    if (!SUPPORTED_AORI_CHAINS.has(order.chainId)) return `Chain ${order.chainId} not supported`;
 
     if (signature == undefined || signature == "" || signature == null) return "No signature provided";
-
-    if (order.inputToken === order.outputToken && order.inputChainId === order.outputChainId)
-        return `Input (${order.inputToken}) and output (${order.outputToken}) tokens must be different if they are on the same chain`;
 
     // TODO: reconsider this
     if (order.inputAmount == "0") return `Input amount cannot be zero`;
     if (order.outputAmount == "0") return `Output amount cannot be zero`;
 
-    if (!isZoneSupported(order.inputChainId, order.inputZone)) return `Input zone ${order.inputZone} on ${order.inputChainId} not supported`;
-    if (!isZoneSupported(order.outputChainId, order.outputZone)) return `Output zone ${order.outputZone} on ${order.outputChainId} not supported`;
+    if (!isZoneSupported(order.chainId, order.zone)) return `Zone ${order.zone} on ${order.chainId} not supported`;
 
     if (BigInt(order.startTime) > BigInt(order.endTime)) return `Start time (${order.startTime}) cannot be after end (${order.endTime}) time`;
     if (BigInt(order.endTime) < BigInt(Math.floor(Date.now() / 1000))) return `End time (${order.endTime}) cannot be in the past`;
@@ -224,8 +210,8 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     try {
         // make isValidSignature call too
         if (orderMessageSigner.toLowerCase() !== order.offerer.toLowerCase()) {
-            if (!(await isValidSignature(order.inputChainId, order.offerer, getOrderHash(order), signature))) {
-                return `Signature (${signature}) appears to be invalid via calling isValidSignature on ${order.offerer} on chain ${order.inputChainId} - order hash: ${getOrderHash(order)}`
+            if (!(await isValidSignature(order.chainId, order.offerer, getOrderHash(order), signature))) {
+                return `Signature (${signature}) appears to be invalid via calling isValidSignature on ${order.offerer} on chain ${order.chainId} - order hash: ${getOrderHash(order)}`
             }
         }
     } catch (e: any) {
@@ -237,10 +223,8 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
 
 export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder): string | null {
 
-    if (takerOrder.inputChainId != makerOrder.outputChainId) return `Taker order is on chain ${takerOrder.inputChainId} but maker order is on chain ${makerOrder.outputChainId}`;
-    if (takerOrder.outputChainId != makerOrder.inputChainId) return `Taker order is on chain ${takerOrder.outputChainId} but maker order is on chain ${makerOrder.inputChainId}`;
-    if (takerOrder.inputZone.toLowerCase() != makerOrder.outputZone.toLowerCase()) return `Taker order is on zone ${takerOrder.inputZone} but maker order is on zone ${makerOrder.outputZone}`;
-    if (takerOrder.outputZone.toLowerCase() != makerOrder.inputZone.toLowerCase()) return `Taker order is on zone ${takerOrder.outputZone} but maker order is on zone ${makerOrder.inputZone}`;
+    if (takerOrder.chainId != makerOrder.chainId) return `Taker order is on chain ${takerOrder.chainId} but maker order is on chain ${makerOrder.chainId}`;
+    if (takerOrder.zone.toLowerCase() != makerOrder.zone.toLowerCase()) return `Taker order is on zone ${takerOrder.zone} but maker order is on zone ${makerOrder.zone}`;
 
     // Verify that the takerOrder and the makerOrder use the same token
     if (takerOrder.inputToken.toLowerCase() != makerOrder.outputToken.toLowerCase()) return `Taker order is on token ${takerOrder.inputToken} but maker order is on token ${makerOrder.outputToken}`;
@@ -268,25 +252,19 @@ export function signAddressSync(wallet: Wallet, address: string) {
 export function getMatchingHash({
     makerSignature,
     takerSignature,
-    blockDeadline,
-    seatNumber,
-    seatHolder,
-    seatPercentOfFees
+    feeTag,
+    feeRecipient
 }: AoriMatchingDetails): string {
     return solidityPackedKeccak256([
         "bytes",
         "bytes",
-        "uint256",
-        "uint256",
+        "string",
         "address",
-        "uint256"
     ], [
         makerSignature,
         takerSignature,
-        blockDeadline,
-        seatNumber,
-        seatHolder,
-        seatPercentOfFees
+        feeTag,
+        feeRecipient
     ])
 }
 
@@ -304,21 +282,17 @@ export function calldataToSettleOrders({
     takerOrder,
     makerSignature,
     takerSignature,
-    blockDeadline,
-    seatNumber,
-    seatHolder,
-    seatPercentOfFees,
-}: AoriMatchingDetails, signature: string, hookData: string = "0x", options: string = "0x") {
+    feeTag,
+    feeRecipient
+}: AoriMatchingDetails, signature: string, hookData: string = "0x") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         makerOrder,
         takerOrder,
         makerSignature,
         takerSignature,
-        blockDeadline,
-        seatNumber,
-        seatHolder,
-        seatPercentOfFees
-    }, signature, hookData, options]);
+        feeTag,
+        feeRecipient
+    }, signature, hookData]);
 }
 
 export function toDetailsToExecute(
@@ -337,8 +311,8 @@ export function toDetailsToExecute(
         makerOrderHash: getOrderHash(matching.makerOrder),
         takerOrderHash: getOrderHash(matching.takerOrder),
 
-        chainId: matching.takerOrder.inputChainId,
-        zone: matching.takerOrder.inputZone,
+        chainId: matching.takerOrder.chainId,
+        zone: matching.takerOrder.zone,
 
         to,
         value,
@@ -411,30 +385,6 @@ export function toSettledMatch(
             ...(blockNumber ? { blockNumber } : {})
         }
     }
-
-/*//////////////////////////////////////////////////////////////
-                    SEAT-RELATED FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export function getSeatPercentageOfFees(seatScore: number): number {
-    return [0, 40, 45, 50, 55, 60][seatScore];
-}
-
-export function getAmountWithFee(amount: bigint | number | string, fee: bigint = 300n): bigint {
-    let base = 1_000_000n;
-    // t_f / M = 0.03%
-    // t_f / M = 0.0003
-    // t_f * 10 * 1000 / M = 3
-    // t_f * 1000 * 1000 / M = 300
-
-    // t_f / M = 100.03%
-    // t_f / M = 1.0003
-    // t_f * 10 * 1000 / M = 10003
-    // t_f * 1000 * 1000 / M = 1000300
-    // const thresholdBipsHundred = 300n;
-
-    return BigInt(amount) * (base + fee) / base;
-}
 
 /*//////////////////////////////////////////////////////////////
                     VAULT-RELATED FUNCTIONS
@@ -663,7 +613,7 @@ export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: Det
             encodeInstructions(
                 preSwapInstructions,
                 postSwapInstructions
-            ), "0x"
+            )
         ),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId

@@ -28,16 +28,13 @@ export declare namespace IAoriV2 {
     offerer: AddressLike;
     inputToken: AddressLike;
     inputAmount: BigNumberish;
-    inputChainId: BigNumberish;
-    inputZone: AddressLike;
     outputToken: AddressLike;
     outputAmount: BigNumberish;
-    outputChainId: BigNumberish;
-    outputZone: AddressLike;
+    recipient: AddressLike;
+    zone: AddressLike;
+    chainId: BigNumberish;
     startTime: BigNumberish;
     endTime: BigNumberish;
-    salt: BigNumberish;
-    counter: BigNumberish;
     toWithdraw: boolean;
   };
 
@@ -45,31 +42,25 @@ export declare namespace IAoriV2 {
     offerer: string,
     inputToken: string,
     inputAmount: bigint,
-    inputChainId: bigint,
-    inputZone: string,
     outputToken: string,
     outputAmount: bigint,
-    outputChainId: bigint,
-    outputZone: string,
+    recipient: string,
+    zone: string,
+    chainId: bigint,
     startTime: bigint,
     endTime: bigint,
-    salt: bigint,
-    counter: bigint,
     toWithdraw: boolean
   ] & {
     offerer: string;
     inputToken: string;
     inputAmount: bigint;
-    inputChainId: bigint;
-    inputZone: string;
     outputToken: string;
     outputAmount: bigint;
-    outputChainId: bigint;
-    outputZone: string;
+    recipient: string;
+    zone: string;
+    chainId: bigint;
     startTime: bigint;
     endTime: bigint;
-    salt: bigint;
-    counter: bigint;
     toWithdraw: boolean;
   };
 
@@ -78,10 +69,8 @@ export declare namespace IAoriV2 {
     takerOrder: IAoriV2.OrderStruct;
     makerSignature: BytesLike;
     takerSignature: BytesLike;
-    blockDeadline: BigNumberish;
-    seatNumber: BigNumberish;
-    seatHolder: AddressLike;
-    seatPercentOfFees: BigNumberish;
+    feeTag: string;
+    feeRecipient: AddressLike;
   };
 
   export type MatchingDetailsStructOutput = [
@@ -89,19 +78,15 @@ export declare namespace IAoriV2 {
     takerOrder: IAoriV2.OrderStructOutput,
     makerSignature: string,
     takerSignature: string,
-    blockDeadline: bigint,
-    seatNumber: bigint,
-    seatHolder: string,
-    seatPercentOfFees: bigint
+    feeTag: string,
+    feeRecipient: string
   ] & {
     makerOrder: IAoriV2.OrderStructOutput;
     takerOrder: IAoriV2.OrderStructOutput;
     makerSignature: string;
     takerSignature: string;
-    blockDeadline: bigint;
-    seatNumber: bigint;
-    seatHolder: string;
-    seatPercentOfFees: bigint;
+    feeTag: string;
+    feeRecipient: string;
   };
 }
 
@@ -111,18 +96,17 @@ export interface AoriV2Interface extends Interface {
       | "balanceOf"
       | "deposit"
       | "flashLoan"
-      | "getCounter"
       | "getMatchingHash"
       | "getOrderHash"
       | "hasOrderSettled"
-      | "incrementCounter"
-      | "setTakerFee"
       | "settleOrders"
       | "signatureIntoComponents"
       | "withdraw"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "OrdersSettled"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "FeeReceived" | "OrdersSettled"
+  ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "balanceOf",
@@ -137,10 +121,6 @@ export interface AoriV2Interface extends Interface {
     values: [AddressLike, AddressLike, BigNumberish, BytesLike, boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "getCounter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getMatchingHash",
     values: [IAoriV2.MatchingDetailsStruct]
   ): string;
@@ -153,16 +133,8 @@ export interface AoriV2Interface extends Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "incrementCounter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTakerFee",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "settleOrders",
-    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike, BytesLike]
+    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "signatureIntoComponents",
@@ -176,7 +148,6 @@ export interface AoriV2Interface extends Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getCounter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getMatchingHash",
     data: BytesLike
@@ -190,14 +161,6 @@ export interface AoriV2Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "incrementCounter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTakerFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "settleOrders",
     data: BytesLike
   ): Result;
@@ -208,20 +171,49 @@ export interface AoriV2Interface extends Interface {
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
+export namespace FeeReceivedEvent {
+  export type InputTuple = [
+    feeRecipient: AddressLike,
+    feeTag: string,
+    inputToken: AddressLike,
+    inputAmount: BigNumberish,
+    outputToken: AddressLike,
+    outputAmount: BigNumberish
+  ];
+  export type OutputTuple = [
+    feeRecipient: string,
+    feeTag: string,
+    inputToken: string,
+    inputAmount: bigint,
+    outputToken: string,
+    outputAmount: bigint
+  ];
+  export interface OutputObject {
+    feeRecipient: string;
+    feeTag: string;
+    inputToken: string;
+    inputAmount: bigint;
+    outputToken: string;
+    outputAmount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace OrdersSettledEvent {
   export type InputTuple = [
     makerHash: BytesLike,
     takerHash: BytesLike,
     maker: AddressLike,
     taker: AddressLike,
-    inputChainId: BigNumberish,
-    outputChainId: BigNumberish,
-    inputZone: AddressLike,
-    outputZone: AddressLike,
     inputToken: AddressLike,
     outputToken: AddressLike,
     inputAmount: BigNumberish,
     outputAmount: BigNumberish,
+    zone: AddressLike,
+    chainId: BigNumberish,
     matchingHash: BytesLike
   ];
   export type OutputTuple = [
@@ -229,14 +221,12 @@ export namespace OrdersSettledEvent {
     takerHash: string,
     maker: string,
     taker: string,
-    inputChainId: bigint,
-    outputChainId: bigint,
-    inputZone: string,
-    outputZone: string,
     inputToken: string,
     outputToken: string,
     inputAmount: bigint,
     outputAmount: bigint,
+    zone: string,
+    chainId: bigint,
     matchingHash: string
   ];
   export interface OutputObject {
@@ -244,14 +234,12 @@ export namespace OrdersSettledEvent {
     takerHash: string;
     maker: string;
     taker: string;
-    inputChainId: bigint;
-    outputChainId: bigint;
-    inputZone: string;
-    outputZone: string;
     inputToken: string;
     outputToken: string;
     inputAmount: bigint;
     outputAmount: bigint;
+    zone: string;
+    chainId: bigint;
     matchingHash: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -327,8 +315,6 @@ export interface AoriV2 extends BaseContract {
     "nonpayable"
   >;
 
-  getCounter: TypedContractMethod<[], [bigint], "view">;
-
   getMatchingHash: TypedContractMethod<
     [matching: IAoriV2.MatchingDetailsStruct],
     [string],
@@ -347,20 +333,11 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
-  incrementCounter: TypedContractMethod<[], [void], "nonpayable">;
-
-  setTakerFee: TypedContractMethod<
-    [_takerFeeBips: BigNumberish, _takerFeeAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   settleOrders: TypedContractMethod<
     [
       matching: IAoriV2.MatchingDetailsStruct,
       serverSignature: BytesLike,
-      hookData: BytesLike,
-      options: BytesLike
+      hookData: BytesLike
     ],
     [void],
     "payable"
@@ -410,9 +387,6 @@ export interface AoriV2 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "getCounter"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "getMatchingHash"
   ): TypedContractMethod<
     [matching: IAoriV2.MatchingDetailsStruct],
@@ -426,23 +400,12 @@ export interface AoriV2 extends BaseContract {
     nameOrSignature: "hasOrderSettled"
   ): TypedContractMethod<[orderHash: BytesLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "incrementCounter"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setTakerFee"
-  ): TypedContractMethod<
-    [_takerFeeBips: BigNumberish, _takerFeeAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "settleOrders"
   ): TypedContractMethod<
     [
       matching: IAoriV2.MatchingDetailsStruct,
       serverSignature: BytesLike,
-      hookData: BytesLike,
-      options: BytesLike
+      hookData: BytesLike
     ],
     [void],
     "payable"
@@ -463,6 +426,13 @@ export interface AoriV2 extends BaseContract {
   >;
 
   getEvent(
+    key: "FeeReceived"
+  ): TypedContractEvent<
+    FeeReceivedEvent.InputTuple,
+    FeeReceivedEvent.OutputTuple,
+    FeeReceivedEvent.OutputObject
+  >;
+  getEvent(
     key: "OrdersSettled"
   ): TypedContractEvent<
     OrdersSettledEvent.InputTuple,
@@ -471,7 +441,18 @@ export interface AoriV2 extends BaseContract {
   >;
 
   filters: {
-    "OrdersSettled(bytes32,bytes32,address,address,uint256,uint256,address,address,address,address,uint256,uint256,bytes32)": TypedContractEvent<
+    "FeeReceived(address,string,address,uint256,address,uint256)": TypedContractEvent<
+      FeeReceivedEvent.InputTuple,
+      FeeReceivedEvent.OutputTuple,
+      FeeReceivedEvent.OutputObject
+    >;
+    FeeReceived: TypedContractEvent<
+      FeeReceivedEvent.InputTuple,
+      FeeReceivedEvent.OutputTuple,
+      FeeReceivedEvent.OutputObject
+    >;
+
+    "OrdersSettled(bytes32,bytes32,address,address,address,address,uint256,uint256,address,uint160,bytes32)": TypedContractEvent<
       OrdersSettledEvent.InputTuple,
       OrdersSettledEvent.OutputTuple,
       OrdersSettledEvent.OutputObject
