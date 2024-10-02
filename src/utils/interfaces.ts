@@ -73,28 +73,6 @@ export interface DetailsToExecute {
     outputAmount: string;
 }
 
-// TODO: deprecate this
-export interface SettledMatch {
-    makerOrderHash?: string;
-    takerOrderHash?: string;
-    maker: string;
-    taker: string;
-    inputChainId: number;
-    outputChainId: number;
-    inputZone: string;
-    outputZone: string;
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
-    outputAmount: string;
-    matchingHash: string;
-
-    // Details from the input chain
-    transactionHash?: string;
-    blockNumber?: number;
-    timestamp?: number;
-}
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/

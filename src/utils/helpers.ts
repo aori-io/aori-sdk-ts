@@ -4,7 +4,7 @@ import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Fa
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
-import { CreateLimitOrderParams, DetailsToExecute, SettledMatch } from "./interfaces";
+import { CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
 import { getChainProvider } from "./providers";
 import { IAoriV2 } from "../types/AoriV2";
@@ -329,62 +329,6 @@ export function toDetailsToExecute(
         outputAmount: matching.takerOrder.inputAmount
     }
 }
-
-export function decodeSettledMatch(eventData: string): SettledMatch {
-    const [
-        maker,
-        taker,
-        inputChainId,
-        outputChainId,
-        inputZone,
-        outputZone,
-        inputToken,
-        outputToken,
-        inputAmount,
-        outputAmount,
-        matchingHash
-    ] = AbiCoder.defaultAbiCoder().decode([
-        "address",
-        "address",
-        "uint256",
-        "uint256",
-        "address",
-        "address",
-        "address",
-        "address",
-        "uint256",
-        "uint256",
-        "bytes32"
-    ], eventData);
-    return {
-        maker,
-        taker,
-        inputChainId,
-        outputChainId,
-        inputZone,
-        outputZone,
-        inputToken,
-        outputToken,
-        inputAmount,
-        outputAmount,
-        matchingHash
-    }
-}
-
-export function toSettledMatch(
-    makerOrderHash: string,
-    takerOrderHash: string,
-    eventData: string,
-    { transactionHash, blockNumber }: { transactionHash?: string, blockNumber?: number }): SettledMatch {
-        return {
-            makerOrderHash,
-            takerOrderHash,
-            blockNumber,
-            ...decodeSettledMatch(eventData),
-            ...(transactionHash ? { transactionHash } : {}),
-            ...(blockNumber ? { blockNumber } : {})
-        }
-    }
 
 /*//////////////////////////////////////////////////////////////
                     VAULT-RELATED FUNCTIONS
