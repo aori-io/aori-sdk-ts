@@ -138,17 +138,11 @@ export const AORI_WS_API: string = "wss://rfq.aori.io";
 export const AORI_DATA_PROVIDER_API: string = "https://provider.aori.io";
 export const AORI_DATA_PROVIDER_2_API: string = "https://provider2.aori.io";
 export const AORI_DATA_PROVIDER_3_API: string = "https://provider3.aori.io";
-export const AORI_DATA_PROVIDER_4_API: string = "https://provider4.aori.io";
-export const AORI_DATA_PROVIDER_5_API: string = "https://provider5.aori.io";
-export const AORI_DATA_PROVIDER_6_API: string = "https://provider6.aori.io";
 
 export const AORI_DATA_PROVIDER_APIS: string[] = [
     AORI_DATA_PROVIDER_API,
     AORI_DATA_PROVIDER_2_API,
     AORI_DATA_PROVIDER_3_API,
-    AORI_DATA_PROVIDER_4_API,
-    AORI_DATA_PROVIDER_5_API,
-    AORI_DATA_PROVIDER_6_API
 ];
 
 // Pricing Provider API
