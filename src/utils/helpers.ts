@@ -3,7 +3,7 @@ import { computeCREATE3Address, getFeeData, getNonce, getTokenDetails, isValidSi
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, maxSalt, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, SUPPORTED_AORI_CHAINS } from "./constants";
 import { CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
 import { getChainProvider } from "./providers";
