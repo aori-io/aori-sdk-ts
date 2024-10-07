@@ -49,30 +49,6 @@ export interface CreateLimitOrderParams {
     toWithdraw?: boolean;
 }
 
-export interface DetailsToExecute {
-    matchingHash: string;
-    matching: AoriMatchingDetails;
-    matchingSignature: string;
-
-    makerOrderHash: string;
-    takerOrderHash: string;
-
-    chainId: number; // this is generally just takerChainId
-    zone: string; // this is generally just takerZone
-    to: string;
-    value: number;
-    data: string; // Default calldata if no hookdata or options being submitted
-    takerPermitSignature?: string;
-
-    maker: string;
-    taker: string;
-
-    inputToken: string;
-    inputAmount: string;
-    outputToken: string;
-    outputAmount: string;
-}
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -96,8 +72,6 @@ export enum AoriDataMethods {
     GetNonce = "aori_getNonce",
     GetSeaportCounter = "aori_getSeaportCounter",
     GetSeatDetails = "aori_getSeatDetails",
-    GetSeatOwned = "aori_getSeatOwned",
-    GetOrderHash = "aori_getOrderHash",
     GetTokenBalance = "aori_getTokenBalance",
     GetTokenDetails = "aori_getTokenDetails",
     GetTokenAllowance = "aori_getTokenAllowance",
@@ -119,40 +93,51 @@ export enum AoriPricingMethods {
 
 export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
+    OrderCancelled = "OrderCancelled",
     QuoteReceived = "QuoteReceived",
-    CalldataToExecute = "CalldataToExecute",
+    TradeMatched = "TradeMatched",
     TradeSettled = "TradeSettled",
-    TradeFailed = "TradeFailed",
-    TradeExpired = "TradeExpired"
-}
-
-export interface RfqId {
-    rfqId: string;
+    TradeFailed = "TradeFailed"
 }
 
 export interface BaseRfq {
-    rfqId: string,
-    address: string,
+    tradeId?: string,
+    taker: string,
     inputToken: string,
     outputToken: string,
     inputAmount: string,
     zone: string,
-    chainId: number
+    chainId: number,
+    deadline: number
 }
 
-export type QuoteRequestedDetails = BaseRfq;
-export type QuoteReceivedDetails = BaseRfq & { outputAmount: string };
-export type CalldataToExecuteDetails = RfqId & DetailsToExecute;
-export type TradeSettledDetails = RfqId & { transactionHash?: string };
+export interface DetailsToExecute {
+    matching: AoriMatchingDetails;
+    matchingSignature: string;
+
+    chainId: number;
+    zone: string;
+    to: string;
+    value: number;
+    data: string; // Default calldata if no hookdata or options being submitted
+    takerPermitSignature?: string;
+}
+
+export type QuoteRequestedDetails = BaseRfq & { minOutputAmount?: string };
+export type QuoteReceivedDetails = BaseRfq & { maker: string, outputAmount: string };
+export type OrderCancelledDetails = BaseRfq & { maker: string };
+export type TradeMatchedDetails = BaseRfq & { maker: string, outputAmount: string, detailsToExecute: DetailsToExecute }
+export type TradeSettledDetails = BaseRfq & { maker: string, outputAmount: string, transactionHash: string };
+export type TradeExpiredDetails = BaseRfq & { maker: string, outputAmount: string };
 
 export type RfqEvents = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
     [SubscriptionEvents.QuoteReceived]: [QuoteReceivedDetails],
-    [SubscriptionEvents.CalldataToExecute]: [CalldataToExecuteDetails]
+    [SubscriptionEvents.OrderCancelled]: [OrderCancelledDetails],
+    [SubscriptionEvents.TradeMatched]: [TradeMatchedDetails]
     [SubscriptionEvents.TradeSettled]: [TradeSettledDetails],
-    [SubscriptionEvents.TradeFailed]: [RfqId],
-    [SubscriptionEvents.TradeExpired]: [RfqId]
+    [SubscriptionEvents.TradeFailed]: [TradeExpiredDetails],
 }
 
 export const ResponseEvents = { AoriMethods };

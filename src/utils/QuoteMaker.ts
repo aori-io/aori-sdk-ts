@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { CalldataToExecuteDetails, DetailsToExecute, SubscriptionEvents } from "./interfaces";
+import { QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
 import { Quoter } from "./Quoter";
 import { getCurrentGasInToken, RFQProvider } from "../providers";
 import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
@@ -55,13 +55,13 @@ export class QuoteMaker {
 
         this.feedRFQ = new RFQProvider(feedUrl);
 
-        this.feedRFQ.on(SubscriptionEvents.QuoteRequested, ({ rfqId, inputToken, outputToken, inputAmount, chainId, zone }) => {
-            this.generateQuote({ rfqId, inputToken, inputAmount, outputToken, chainId, zone }).catch(console.log);
+        this.feedRFQ.on(SubscriptionEvents.QuoteRequested, (requestDetails) => {
+            this.generateQuote(requestDetails).catch(console.log);
         });
 
-        this.feedRFQ.on(SubscriptionEvents.CalldataToExecute, async (detailsToExecute) => {
-            const { rfqId, makerOrderHash, takerOrderHash, to, value, data, chainId } = detailsToExecute;
-            console.log(`📦 Received an Order-To-Execute:`, { makerOrderHash, takerOrderHash, to, value, data, chainId });
+        this.feedRFQ.on(SubscriptionEvents.TradeMatched, async (detailsToExecute) => {
+            const { tradeId, detailsToExecute: { to, value, data }, chainId } = detailsToExecute;
+            console.log(`📦 Received an Order-To-Execute:`, { tradeId, to, value, data, chainId });
             try {
                 await this.settleOrders(detailsToExecute);
             } catch (e: any) {
@@ -75,23 +75,15 @@ export class QuoteMaker {
     }
 
     async generateQuote({
-        rfqId,
+        tradeId,
         inputToken,
         outputToken,
         inputAmount, // Amount that the user is willing to pay
         chainId,
         zone,
         retries = 3,
-    }: {
-        rfqId: string,
-        inputToken: string;
-        outputToken: string;
-        inputAmount: string;
-        zone: string,
-        chainId: number,
-        retries?: number
-    }) {
-        if (inputAmount == undefined || inputAmount == "0") return;
+    }: QuoteRequestedDetails & { retries?: number }) {
+        if (tradeId == undefined || inputAmount == undefined || inputAmount == "0") return;
 
         let count = 0;
         while (count <= retries) {
@@ -134,7 +126,7 @@ export class QuoteMaker {
                     chainId
                 });
 
-                this.feedRFQ.respond(rfqId, {
+                this.feedRFQ.respond(tradeId, {
                     order: responseOrder,
                     signature: responseSignature
                 });
@@ -155,8 +147,8 @@ export class QuoteMaker {
                              SETTLE ORDERS
     //////////////////////////////////////////////////////////////*/
 
-    async settleOrders(detailsToExecute: CalldataToExecuteDetails, retryCount = 2): Promise<void> {
-        const { inputToken, matching, outputToken, chainId, zone } = detailsToExecute;
+    async settleOrders(tradeMatchedDetails: TradeMatchedDetails, retryCount = 2): Promise<void> {
+        const { inputToken, outputAmount: _outputForUser, outputToken, detailsToExecute, chainId, zone } = tradeMatchedDetails;
 
         // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
@@ -164,7 +156,7 @@ export class QuoteMaker {
                 console.log(`Successfully sent transaction`);
                 return;
             } else {
-                if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
+                if (retryCount != 0) return await this.settleOrders(tradeMatchedDetails, retryCount - 1);
                 throw new Error("Failed to settle transaction");
             }
         }
@@ -174,7 +166,7 @@ export class QuoteMaker {
             // Generate calldata for quoter
             const { to, value, data, outputAmount } = await this.quoter.generateCalldata({
                 inputToken: outputToken,
-                inputAmount: matching.makerOrder.outputAmount,
+                inputAmount: _outputForUser,
                 outputToken: inputToken,
                 chainId,
                 fromAddress: this.activeAddress()
@@ -182,7 +174,7 @@ export class QuoteMaker {
             quoterTo = to; quoterValue = value; quoterData = data;
             if (outputAmount == 0n) throw new Error("Output amount is zero");
         } catch (e: any) {
-            if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
+            if (retryCount != 0) return await this.settleOrders(tradeMatchedDetails, retryCount - 1);
             throw new Error(`Failed to generate calldata for quoter: ${e}`);
         }
 
@@ -203,11 +195,8 @@ export class QuoteMaker {
         })) {
             console.log(`Successfully sent transaction`);
         } else {
-            if (retryCount != 0) return await this.settleOrders(detailsToExecute, retryCount - 1);
+            if (retryCount != 0) return await this.settleOrders(tradeMatchedDetails, retryCount - 1);
             throw new Error("Failed to settle transaction via vault");
         }
-    }
-
-    
+    }    
 }
-

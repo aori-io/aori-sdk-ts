@@ -304,12 +304,8 @@ export function toDetailsToExecute(
     takerPermitSignature?: string
 ): DetailsToExecute {
     return {
-        matchingHash: getMatchingHash(matching),
         matching,
         matchingSignature,
-
-        makerOrderHash: getOrderHash(matching.makerOrder),
-        takerOrderHash: getOrderHash(matching.takerOrder),
 
         chainId: matching.takerOrder.chainId,
         zone: matching.takerOrder.zone,
@@ -319,14 +315,6 @@ export function toDetailsToExecute(
         data,
 
         takerPermitSignature, // In case the taker would like to make use of a gasless permit
-
-        maker: matching.makerOrder.offerer,
-        taker: matching.takerOrder.offerer,
-
-        inputToken: matching.makerOrder.inputToken,
-        inputAmount: matching.makerOrder.inputAmount,
-        outputToken: matching.takerOrder.inputToken,
-        outputAmount: matching.takerOrder.inputAmount
     }
 }
 

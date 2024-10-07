@@ -36,26 +36,26 @@ export class RFQProvider extends TypedEventEmitter<RfqEvents> {
 
         this.feed.on("message", (msg) => {
             try {
-                const { rfqId, type, data } = JSON.parse(msg.toString());
+                const { tradeId, event, data } = JSON.parse(msg.toString());
 
-                switch (type) {
+                switch (event) {
                     case SubscriptionEvents.QuoteRequested:
-                        this.emit(SubscriptionEvents.QuoteRequested, data);
+                        this.emit(SubscriptionEvents.QuoteRequested,  { tradeId, ...data });
                         break;
                     case SubscriptionEvents.QuoteReceived:
-                        this.emit(SubscriptionEvents.QuoteReceived, data);
+                        this.emit(SubscriptionEvents.QuoteReceived,  { tradeId, ...data });
                         break;
-                    case SubscriptionEvents.CalldataToExecute:
-                        this.emit(SubscriptionEvents.CalldataToExecute, data);
+                    case SubscriptionEvents.TradeMatched:
+                        this.emit(SubscriptionEvents.TradeMatched, { tradeId, ...data });
                         break;
                     case SubscriptionEvents.TradeSettled:
-                        this.emit(SubscriptionEvents.TradeSettled, data);
+                        this.emit(SubscriptionEvents.TradeSettled, { tradeId, ...data });
                         break;
                     case SubscriptionEvents.TradeFailed:
-                        this.emit(SubscriptionEvents.TradeFailed, data);
+                        this.emit(SubscriptionEvents.TradeFailed, { tradeId, ...data });
                         break;
-                    case SubscriptionEvents.TradeExpired:
-                        this.emit(SubscriptionEvents.TradeExpired, data);
+                    case SubscriptionEvents.OrderCancelled:
+                        this.emit(SubscriptionEvents.OrderCancelled, { tradeId, ...data });
                         break;
                 }
             } catch (e: any) {
