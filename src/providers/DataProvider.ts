@@ -1,7 +1,7 @@
 import { BytesLike, Interface, JsonRpcProvider, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getDefaultZone, rawCall, retryIfFail, SEATS_NFT_ADDRESS } from "../utils";
-import { AoriDataMethods } from "../utils/interfaces";
+import { AORI_DATA_PROVIDER_API, AORI_DATA_PROVIDER_APIS, CREATE3FACTORY_DEPLOYED_ADDRESS, getDefaultZone, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
+import { AoriDataMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
 
 /*//////////////////////////////////////////////////////////////
@@ -11,6 +11,36 @@ import { getChainProvider } from "../utils/providers";
 function resolveProvider(chainIdOrProvider: number | JsonRpcProvider): JsonRpcProvider {
     if (typeof chainIdOrProvider == "number") return getChainProvider(chainIdOrProvider);
     return chainIdOrProvider;
+}
+
+export function retryIfFail<T>(provider: JsonRpcProvider, fn: (provider: JsonRpcProvider) => Promise<T>, retries = 3, loadCount = 1): Promise<T> {
+    const arr: Promise<any>[] = [];
+    for (let i = 0; i < loadCount; i++) arr.push(new Promise(async (resolve, reject) => {
+        try {
+            const requestId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const url = provider._getConnection().url;
+            console.time(`RPC Call ${requestId} - ${url}`);
+            const response = await fn(provider);
+            console.timeEnd(`RPC Call ${requestId} - ${url}`);
+            return resolve(response);
+        } catch (e) {
+            return reject(e);
+        }
+    }));
+
+    return Promise.any(arr).catch((e) => {
+        console.log(`Getting error...`);
+        console.log(e);
+        throw e.errors[0];
+    }).catch((e) => {
+        if (retries > 0) {
+            console.log(`Retrying RPC call ${4 - retries}`);
+            return retryIfFail(provider, fn, retries - 1);
+        } else {
+            console.log(`Failed retries with RPC call`);
+        }
+        throw e;
+    });
 }
 
 /*//////////////////////////////////////////////////////////////

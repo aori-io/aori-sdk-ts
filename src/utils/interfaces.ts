@@ -58,31 +58,15 @@ export enum AoriMethods {
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     Rfq = "aori_rfq",
+    Cancel = "aori_cancel",
     Respond = "aori_respond",
-    Subscribe = "aori_subscribe"
+    Subscribe = "aori_subscribe",
+    Fail = "aori_fail"
 }
 
 export enum AoriDataMethods {
-    Ping = "aori_ping",
-    SupportedChains = "aori_supportedChains",
-    Create3Address = "aori_create3Address",
-    IsContract = "aori_isContract",
-    GetAoriCounter = "aori_getAoriCounter",
-    GetBlockNumber = "aori_getBlockNumber",
-    GetNonce = "aori_getNonce",
-    GetSeaportCounter = "aori_getSeaportCounter",
-    GetSeatDetails = "aori_getSeatDetails",
-    GetTokenBalance = "aori_getTokenBalance",
-    GetTokenDetails = "aori_getTokenDetails",
-    GetTokenAllowance = "aori_getTokenAllowance",
-    GetNativeBalance = "aori_getNativeBalance",
-    HasOrderSettled = "aori_hasOrderSettled",
-    IsValidSignature = "aori_isValidSignature",
-    GetFeeData = "aori_getFeeData",
-    EstimateGas = "aori_estimateGas",
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
-    StaticCall = "aori_staticCall"
 }
 
 export enum AoriPricingMethods {
@@ -101,14 +85,15 @@ export enum SubscriptionEvents {
 }
 
 export interface BaseRfq {
-    tradeId?: string,
-    taker: string,
-    inputToken: string,
-    outputToken: string,
-    inputAmount: string,
-    zone: string,
-    chainId: number,
-    deadline: number
+    tradeId?: string;
+    taker: string;
+    inputToken: string;
+    outputToken: string;
+    inputAmount: string;
+    recipient: string;
+    zone: string;
+    chainId: number;
+    deadline: number;
 }
 
 export interface DetailsToExecute {
