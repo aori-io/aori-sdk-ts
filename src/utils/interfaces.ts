@@ -83,10 +83,6 @@ export enum SubscriptionEvents {
     TradeFailed = "TradeFailed"
 }
 
-export interface BaseRfq {
-    tradeId?: string;
-}
-
 export interface DetailsToExecute {
     matching: AoriMatchingDetails;
     matchingSignature: string;
@@ -105,9 +101,9 @@ export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEven
 export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
 export type QuoteReceivedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder, detailsToExecute: DetailsToExecute });
-export type TradeSettledDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string });
-export type TradeFailedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder });
+export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
+export type TradeSettledDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string };
+export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
 
 export type AoriWebsocketEventData = {
     ["ready"]: [],

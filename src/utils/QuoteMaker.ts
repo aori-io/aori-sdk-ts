@@ -187,13 +187,13 @@ export class QuoteMaker {
     //////////////////////////////////////////////////////////////*/
 
     async settleOrders(tradeMatchedDetails: TradeMatchedDetails, retryCount = 2): Promise<void> {
-        const { orderType, makerOrder, takerOrder, detailsToExecute } = tradeMatchedDetails;
+        const { orderType, makerOrder, takerOrder } = tradeMatchedDetails;
 
         const myOrder = orderType == "rfq" ? makerOrder : takerOrder;
 
         // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
-            if (await settleOrders(this.wallet, detailsToExecute, { gasLimit: this.gasLimit, gasPriceMultiplier: this.gasPriceMultiplier })) {
+            if (await settleOrders(this.wallet, tradeMatchedDetails, { gasLimit: this.gasLimit, gasPriceMultiplier: this.gasPriceMultiplier })) {
                 console.log(`Successfully sent transaction`);
                 return;
             } else {
@@ -224,7 +224,7 @@ export class QuoteMaker {
         //////////////////////////////////////////////////////////////*/
 
         // Attempt to settle it via the vault
-        if (await settleOrdersViaVault(this.wallet, detailsToExecute, {
+        if (await settleOrdersViaVault(this.wallet, tradeMatchedDetails, {
             gasPriceMultiplier: this.gasPriceMultiplier,
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
