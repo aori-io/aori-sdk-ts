@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
-import { AORI_WS_API, AoriMethods, AoriOrder, DetailsToExecute, RfqEvents, SubscriptionEvents, TypedEventEmitter } from "../utils";
+import { AORI_WS_API, AoriMethods, AoriOrder, AoriWebsocketEventData, SubscriptionEvents, TypedEventEmitter } from "../utils";
 
-export class RFQProvider extends TypedEventEmitter<RfqEvents> {
+export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
 
     feedUrl: string;
     feed: WebSocket;

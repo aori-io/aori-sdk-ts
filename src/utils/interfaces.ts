@@ -86,14 +86,6 @@ export enum SubscriptionEvents {
 
 export interface BaseRfq {
     tradeId?: string;
-    taker: string;
-    inputToken: string;
-    outputToken: string;
-    inputAmount: string;
-    recipient: string;
-    zone: string;
-    chainId: number;
-    deadline: number;
 }
 
 export interface DetailsToExecute {
@@ -108,24 +100,24 @@ export interface DetailsToExecute {
     takerPermitSignature?: string;
 }
 
-export type QuoteRequestedDetails = BaseRfq & { minOutputAmount?: string };
-export type QuoteReceivedDetails = BaseRfq & { maker: string, outputAmount: string };
-export type OrderCancelledDetails = BaseRfq & { maker: string };
-export type TradeMatchedDetails = BaseRfq & { maker: string, outputAmount: string, detailsToExecute: DetailsToExecute }
-export type TradeSettledDetails = BaseRfq & { maker: string, outputAmount: string, transactionHash: string };
-export type TradeExpiredDetails = BaseRfq & { maker: string, outputAmount: string };
+export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
-export type RfqEvents = {
+export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrder } | { orderType: "limit", makerOrder: AoriOrder });
+export type QuoteReceivedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder });
+export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrder } | { orderType: "limit", makerOrder: AoriOrder });
+export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder, detailsToExecute: DetailsToExecute });
+export type TradeSettledDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string });
+export type TradeFailedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder });
+
+export type AoriWebsocketEventData = {
     ["ready"]: [],
-    [SubscriptionEvents.QuoteRequested]: [QuoteRequestedDetails],
-    [SubscriptionEvents.QuoteReceived]: [QuoteReceivedDetails],
-    [SubscriptionEvents.OrderCancelled]: [OrderCancelledDetails],
-    [SubscriptionEvents.TradeMatched]: [TradeMatchedDetails]
-    [SubscriptionEvents.TradeSettled]: [TradeSettledDetails],
-    [SubscriptionEvents.TradeFailed]: [TradeExpiredDetails],
+    [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
+    [SubscriptionEvents.QuoteReceived]: [WithEventDetails<SubscriptionEvents.QuoteReceived, QuoteReceivedDetails>],
+    [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
+    [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>],
+    [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
+    [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
 }
-
-export const ResponseEvents = { AoriMethods };
 
 /*//////////////////////////////////////////////////////////////
                         EVENT EMITTER DATA

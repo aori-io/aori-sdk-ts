@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
+import { AoriOrder, QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
 import { getCurrentGasInToken, RFQProvider } from "../providers";
 import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
 
@@ -94,15 +94,15 @@ export class QuoteMaker {
 
         this.feedRFQ = new RFQProvider(feedUrl);
 
-        this.feedRFQ.on(SubscriptionEvents.QuoteRequested, (requestDetails) => {
-            this.generateQuote(requestDetails).catch(console.log);
+        this.feedRFQ.on(SubscriptionEvents.QuoteRequested, ({ tradeId, data }) => {
+            const { orderType } = data;
+            this.generateQuote({ tradeId, ...(orderType == "rfq" ? data.takerOrder : data.makerOrder) }).catch(console.log);
         });
 
-        this.feedRFQ.on(SubscriptionEvents.TradeMatched, async (detailsToExecute) => {
-            const { tradeId, detailsToExecute: { to, value, data }, chainId } = detailsToExecute;
-            console.log(`📦 Received an Order-To-Execute:`, { tradeId, to, value, data, chainId });
+        this.feedRFQ.on(SubscriptionEvents.TradeMatched, async ({ tradeId, data }) => {
+            console.log(`📦 Received an Order-To-Execute:`, { tradeId });
             try {
-                await this.settleOrders(detailsToExecute);
+                await this.settleOrders(data);
             } catch (e: any) {
                 console.log(e);
             }
@@ -121,7 +121,7 @@ export class QuoteMaker {
         chainId,
         zone,
         retries = 3,
-    }: QuoteRequestedDetails & { retries?: number }) {
+    }: AoriOrder & { tradeId: string, retries?: number }) {
         if (tradeId == undefined || inputAmount == undefined || inputAmount == "0") return;
 
         let count = 0;
@@ -145,7 +145,7 @@ export class QuoteMaker {
                 }
 
                 /*//////////////////////////////////////////////////////////////
-                                        SPONSOR GAS
+                                           SPONSOR GAS
                 //////////////////////////////////////////////////////////////*/
 
                 let gasInToken = 0n;
@@ -187,7 +187,9 @@ export class QuoteMaker {
     //////////////////////////////////////////////////////////////*/
 
     async settleOrders(tradeMatchedDetails: TradeMatchedDetails, retryCount = 2): Promise<void> {
-        const { inputToken, outputAmount: _outputForUser, outputToken, detailsToExecute, chainId, zone } = tradeMatchedDetails;
+        const { orderType, makerOrder, takerOrder, detailsToExecute } = tradeMatchedDetails;
+
+        const myOrder = orderType == "rfq" ? makerOrder : takerOrder;
 
         // If no vault contract is set, settle via EOA
         if (this.vaultContract == undefined) {
@@ -204,10 +206,10 @@ export class QuoteMaker {
         try {
             // Generate calldata for quoter
             const { to, value, data, outputAmount } = await this.quoter.generateCalldata({
-                inputToken: outputToken,
-                inputAmount: _outputForUser,
-                outputToken: inputToken,
-                chainId,
+                inputToken: myOrder.outputToken,
+                inputAmount: myOrder.outputAmount,
+                outputToken: myOrder.inputToken,
+                chainId: myOrder.chainId,
                 fromAddress: this.activeAddress()
             });
             quoterTo = to; quoterValue = value; quoterData = data;
@@ -226,8 +228,8 @@ export class QuoteMaker {
             gasPriceMultiplier: this.gasPriceMultiplier,
             gasLimit: this.gasLimit,
             preSwapInstructions: (quoterTo != this.activeAddress() && quoterTo != "") ? [
-                approveTokenCall(inputToken, zone, 10n ** 26n),
-                approveTokenCall(outputToken, quoterTo, 10n ** 26n),
+                approveTokenCall(myOrder.inputToken, myOrder.zone, 10n ** 26n),
+                approveTokenCall(myOrder.outputToken, quoterTo, 10n ** 26n),
                 { to: quoterTo, value: quoterValue, data: quoterData }
             ] : [],
             postSwapInstructions: []
