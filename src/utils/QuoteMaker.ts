@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { AoriOrder, QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
+import { AoriOrder, AoriOrderWithOptionalOutputAmount, QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
 import { getCurrentGasInToken, RFQProvider } from "../providers";
 import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
 
@@ -121,7 +121,7 @@ export class QuoteMaker {
         chainId,
         zone,
         retries = 3,
-    }: AoriOrder & { tradeId: string, retries?: number }) {
+    }: AoriOrderWithOptionalOutputAmount & { tradeId: string, retries?: number }) {
         if (tradeId == undefined || inputAmount == undefined || inputAmount == "0") return;
 
         let count = 0;
