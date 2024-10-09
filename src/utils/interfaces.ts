@@ -115,6 +115,31 @@ export type AoriWebsocketEventData = {
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
 }
 
+export type TradeRecord = {
+    tradeId: string;
+    data: {
+        // After QuoteRequested
+        orderType: "rfq" | "limit";
+        takerOrder?: AoriOrderWithOptionalOutputAmount;
+        makerOrder?: AoriOrder;
+
+        // After TradeMatched
+        matching?: AoriMatchingDetails;
+        matchingSignature?: string;
+        to?: string;
+        value?: number;
+        data?: string;
+        makerUsdValue?: number;
+        takerUsdValue?: number;
+
+        // After TradeSettled
+        transactionHash?: string;
+    }
+    events: {
+        [key in SubscriptionEvents]?: number;
+    }
+}
+
 /*//////////////////////////////////////////////////////////////
                         EVENT EMITTER DATA
 //////////////////////////////////////////////////////////////*/
