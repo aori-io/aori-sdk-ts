@@ -129,6 +129,8 @@ export type TradeRecord = {
         to?: string;
         value?: number;
         data?: string;
+        feeTag?: string;
+        feeRecipient?: string;
         makerUsdValue?: number;
         takerUsdValue?: number;
 
