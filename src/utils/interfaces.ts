@@ -99,8 +99,8 @@ export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> 
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
 export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type QuoteReceivedDetails = { orderType: "rfq" | "limit" } & ({ makerOrder: AoriOrder, takerOrder: AoriOrder });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
+export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
 export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
 export type TradeSettledDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string };
 export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
@@ -108,8 +108,8 @@ export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: 
 export type AoriWebsocketEventData = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
-    [SubscriptionEvents.QuoteReceived]: [WithEventDetails<SubscriptionEvents.QuoteReceived, QuoteReceivedDetails>],
     [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
+    [SubscriptionEvents.QuoteReceived]: [WithEventDetails<SubscriptionEvents.QuoteReceived, QuoteReceivedDetails>],
     [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>],
     [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
