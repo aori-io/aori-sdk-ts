@@ -114,6 +114,7 @@ export type AoriWebsocketEventData = {
     [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
 }
+export type AoriEventData<T extends SubscriptionEvents> = AoriWebsocketEventData[T][0]["data"];
 
 export type TradeRecord = {
     tradeId: string;
