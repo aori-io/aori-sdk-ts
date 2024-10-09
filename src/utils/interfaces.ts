@@ -91,7 +91,7 @@ export interface DetailsToExecute {
     zone: string;
     to: string;
     value: number;
-    data: string; // Default calldata if no hookdata or options being submitted
+    data: string;
     takerPermitSignature?: string;
 }
 
