@@ -248,6 +248,7 @@ export function getMatchingSigner(matching: AoriMatchingDetails, signature: stri
 }
 
 export function calldataToSettleOrders({
+    tradeId,
     makerOrder,
     takerOrder,
     makerSignature,
@@ -256,6 +257,7 @@ export function calldataToSettleOrders({
     feeRecipient
 }: AoriMatchingDetails, signature: string, hookData: string = "0x") {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
+        tradeId,
         makerOrder,
         takerOrder,
         makerSignature,
