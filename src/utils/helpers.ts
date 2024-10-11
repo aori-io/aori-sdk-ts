@@ -64,6 +64,20 @@ export function isZoneSupported(chainId: number, address: string) {
 }
 
 /*//////////////////////////////////////////////////////////////
+                             FEE
+//////////////////////////////////////////////////////////////*/
+
+export const BIPS_DENOMINATOR = 10_000n;
+
+export function withFee(amount: bigint, feeInBips: bigint) {
+    return amount * (BIPS_DENOMINATOR + feeInBips) / BIPS_DENOMINATOR;
+}
+
+export function withoutFee(amount: bigint, feeInBips: bigint) {
+    return amount * BIPS_DENOMINATOR / (BIPS_DENOMINATOR + feeInBips);
+}
+
+/*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
@@ -191,7 +205,7 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     return null;
 }
 
-export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder): string | null {
+export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder, feeInBips: bigint = 0n): string | null {
 
     if (takerOrder.chainId != makerOrder.chainId) return `Taker order is on chain ${takerOrder.chainId} but maker order is on chain ${makerOrder.chainId}`;
     if (takerOrder.zone.toLowerCase() != makerOrder.zone.toLowerCase()) return `Taker order is on zone ${takerOrder.zone} but maker order is on zone ${makerOrder.zone}`;
@@ -201,7 +215,7 @@ export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, taker
     if (takerOrder.outputToken.toLowerCase() != makerOrder.inputToken.toLowerCase()) return `Taker order is on token ${takerOrder.outputToken} but maker order is on token ${makerOrder.inputToken}`;
 
     // Check that the maker and taker orders have enough inputAmounts
-    if (BigInt(takerOrder.inputAmount) < BigInt(makerOrder.outputAmount)) return `Taker order has insufficient input amount to meet maker order's output amount`;
+    if (BigInt(takerOrder.inputAmount) < withFee(BigInt(makerOrder.outputAmount), feeInBips)) return `Taker order has insufficient input amount to meet maker order's output amount`;
     if (BigInt(makerOrder.inputAmount) < BigInt(takerOrder.outputAmount)) return `Maker order has insufficient input amount to meet taker order's output amount`;
 
     return null;

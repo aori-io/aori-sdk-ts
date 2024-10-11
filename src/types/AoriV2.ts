@@ -101,10 +101,14 @@ export interface AoriV2Interface extends Interface {
       | "flashLoan"
       | "getMatchingHash"
       | "getOrderHash"
+      | "getTakerFee"
       | "hasOrderSettled"
+      | "setTakerFee"
       | "settleOrders"
       | "signatureIntoComponents"
+      | "withFee"
       | "withdraw"
+      | "withoutFee"
   ): FunctionFragment;
 
   getEvent(
@@ -132,8 +136,16 @@ export interface AoriV2Interface extends Interface {
     values: [IAoriV2.OrderStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "getTakerFee",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasOrderSettled",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTakerFee",
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "settleOrders",
@@ -144,8 +156,16 @@ export interface AoriV2Interface extends Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "withFee",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdraw",
     values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withoutFee",
+    values: [BigNumberish, BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -160,7 +180,15 @@ export interface AoriV2Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getTakerFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "hasOrderSettled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTakerFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -171,7 +199,9 @@ export interface AoriV2Interface extends Interface {
     functionFragment: "signatureIntoComponents",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "withFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "withoutFee", data: BytesLike): Result;
 }
 
 export namespace FeeReceivedEvent {
@@ -321,10 +351,22 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
+  getTakerFee: TypedContractMethod<
+    [],
+    [[string, bigint] & { feeRecipient: string; feeInBips: bigint }],
+    "view"
+  >;
+
   hasOrderSettled: TypedContractMethod<
     [orderHash: BytesLike],
     [boolean],
     "view"
+  >;
+
+  setTakerFee: TypedContractMethod<
+    [_newFeeRecipient: AddressLike, _newFeeInBips: BigNumberish],
+    [void],
+    "nonpayable"
   >;
 
   settleOrders: TypedContractMethod<
@@ -343,10 +385,22 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
+  withFee: TypedContractMethod<
+    [amount: BigNumberish, feeInBips: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   withdraw: TypedContractMethod<
     [_token: AddressLike, _amount: BigNumberish],
     [void],
     "nonpayable"
+  >;
+
+  withoutFee: TypedContractMethod<
+    [amount: BigNumberish, feeInBips: BigNumberish],
+    [bigint],
+    "view"
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -391,8 +445,22 @@ export interface AoriV2 extends BaseContract {
     nameOrSignature: "getOrderHash"
   ): TypedContractMethod<[order: IAoriV2.OrderStruct], [string], "view">;
   getFunction(
+    nameOrSignature: "getTakerFee"
+  ): TypedContractMethod<
+    [],
+    [[string, bigint] & { feeRecipient: string; feeInBips: bigint }],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "hasOrderSettled"
   ): TypedContractMethod<[orderHash: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "setTakerFee"
+  ): TypedContractMethod<
+    [_newFeeRecipient: AddressLike, _newFeeInBips: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "settleOrders"
   ): TypedContractMethod<
@@ -412,11 +480,25 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "withFee"
+  ): TypedContractMethod<
+    [amount: BigNumberish, feeInBips: BigNumberish],
+    [bigint],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<
     [_token: AddressLike, _amount: BigNumberish],
     [void],
     "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "withoutFee"
+  ): TypedContractMethod<
+    [amount: BigNumberish, feeInBips: BigNumberish],
+    [bigint],
+    "view"
   >;
 
   getEvent(
