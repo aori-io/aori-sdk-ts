@@ -20,10 +20,10 @@ export function toRpcResponse<T = any>(id: number | null, result: T): JsonRpcRes
     } as JsonRpcResult
 }
 
-export function toRpcError(id: number, error: JsonRpcError["error"]): JsonRpcError {
+export function toRpcError(id: number, error: string | JsonRpcError["error"]): JsonRpcError {
     return {
         id,
-        error
+        error: typeof error === "string" ? { code: -32603, message: error } : error
     }
 }
 
