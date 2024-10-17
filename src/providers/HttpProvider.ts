@@ -1,5 +1,5 @@
 import axios from "axios"
-import { AORI_HTTP_API, AoriMethods, AoriOrder, createAndSignResponse, createLimitOrder, QuoteRequestedDetails, rawCall, Wallet } from "../utils"
+import { AORI_HTTP_API, AoriEventData, AoriMethods, AoriOrder, createAndSignResponse, createLimitOrder, QuoteRequestedDetails, rawCall, SubscriptionEvents, Wallet } from "../utils"
 
 interface AoriFullRequest {
     order: AoriOrder,
@@ -16,8 +16,10 @@ interface AoriPartialRequest {
     deadline?: number,
 }
 
-export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API): Promise<QuoteRequestedDetails & { orderType: "rfq" }> {
-    return await rawCall<QuoteRequestedDetails & { orderType: "rfq" }>(apiUrl, AoriMethods.Rfq, [req]);
+export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API) {
+    const { data } = await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
+    if (data.orderType !== "rfq") throw new Error("Order type is not rfq");
+    return data;
 }
 
 export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }, apiUrl: string = AORI_HTTP_API) {
@@ -50,5 +52,5 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
 }
 
 export async function sendIntent(req: AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<QuoteRequestedDetails>(apiUrl, AoriMethods.Rfq, [req]);
+    return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Rfq, [req]);
 }
