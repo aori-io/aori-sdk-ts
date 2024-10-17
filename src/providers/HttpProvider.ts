@@ -3,7 +3,8 @@ import { AORI_HTTP_API, AoriEventData, AoriMethods, AoriOrder, createAndSignResp
 
 interface AoriFullRequest {
     order: AoriOrder,
-    signature: string
+    signature: string,
+    isPrivate?: boolean
 }
 
 interface AoriPartialRequest {
@@ -53,4 +54,8 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
 
 export async function sendIntent(req: AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
     return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Rfq, [req]);
+}
+
+export async function sendLimitOrder(req: AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
+    return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Make, [req]);
 }

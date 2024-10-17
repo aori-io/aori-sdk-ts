@@ -59,9 +59,12 @@ export enum AoriMethods {
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     Rfq = "aori_rfq",
-    Cancel = "aori_cancel",
     Respond = "aori_respond",
     Subscribe = "aori_subscribe",
+    // =====
+    Make = "aori_make",
+    Take = "aori_take",
+    Cancel = "aori_cancel",
     Fail = "aori_fail"
 }
 
