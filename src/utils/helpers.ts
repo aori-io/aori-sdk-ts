@@ -174,10 +174,6 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
 
     if (signature == undefined || signature == "" || signature == null) return "No signature provided";
 
-    // TODO: reconsider this
-    if (order.inputAmount == "0") return `Input amount cannot be zero`;
-    if (order.outputAmount == "0") return `Output amount cannot be zero`;
-
     if (!isZoneSupported(order.chainId, order.zone)) return `Zone ${order.zone} on ${order.chainId} not supported`;
 
     if (BigInt(order.startTime) > BigInt(order.endTime)) return `Start time (${order.startTime}) cannot be after end (${order.endTime}) time`;
