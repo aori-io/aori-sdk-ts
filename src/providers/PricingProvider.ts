@@ -14,7 +14,10 @@ interface GetTokenResponse {
     chainId: number,
     price: AssetDetails,
     amount?: string,
-    amountUSD?: number
+    amountUSD?: number,
+    base?: string,
+    inBaseAmount?: string,
+    inBaseAmountUSD?: number
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -23,8 +26,8 @@ interface GetTokenResponse {
 
 const PRICING_API = AORI_PRICING_PROVIDER_API;
 
-export function getTokenPrice(chainId: number, token: string, amount: string): Promise<GetTokenResponse> {
-    return rawCall(PRICING_API, AoriPricingMethods.GetToken, [{ chainId, token, amount }]);
+export function getTokenPrice(chainId: number, token: string, amount?: string, base?: string): Promise<GetTokenResponse> {
+    return rawCall(PRICING_API, AoriPricingMethods.GetToken, [{ chainId, token, amount, base }]);
 }
 
 export async function calculateGasInToken(chainId: number, gas: number, token: string): Promise<bigint> {
