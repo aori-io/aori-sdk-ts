@@ -1,4 +1,4 @@
-import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider } from "ethers";
+import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider, ContractFactory } from "ethers";
 import { computeCREATE3Address, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
@@ -304,34 +304,17 @@ export function toDetailsToExecute(
                     VAULT-RELATED FUNCTIONS
 //////////////////////////////////////////////////////////////*/
 
-export function prepareVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
-    return {
+export async function deployViaCREATE3<T extends ContractFactory>(wallet: Wallet, chainId: number, factory: T, constructorData: string[], saltPhrase: string, gasLimit: bigint = 10_000_000n) {
+    await sendOrRetryTransaction(wallet, {
         to: CREATE3FACTORY_DEPLOYED_ADDRESS,
         data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [AoriVault__factory.bytecode, AoriVault__factory.createInterface().encodeDeploy(
-                [deployer.address, aoriProtocol],
-            )])
-        ]),
+            ["bytes", "bytes"], [factory.bytecode, factory.interface.encodeDeploy(constructorData)]
+        )]),
+        chainId,
         gasLimit
-    }
-}
+    });
 
-export function prepareBlastVaultDeployment(deployer: Wallet, aoriProtocol: string, saltPhrase: string, gasLimit: bigint = 10_000_000n): { to: string, data: string, gasLimit: bigint } {
-    return {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            [
-                "bytes",
-                "bytes"
-            ], [AoriVaultBlast__factory.bytecode, AoriVaultBlast__factory.createInterface().encodeDeploy(
-                [deployer.address, aoriProtocol],
-            )])
-        ]),
-        gasLimit
-    }
+    return await computeCREATE3Address(getChainProvider(chainId), wallet.address, saltPhrase);
 }
 
 export async function deployVault(wallet: Wallet, {
@@ -346,16 +329,16 @@ export async function deployVault(wallet: Wallet, {
     gasLimit?: bigint
 }): Promise<string> {
 
-    const destinationAddress = await computeCREATE3Address(getChainProvider(chainId), wallet.address, saltPhrase);
-    
-    await sendOrRetryTransaction(wallet, {
-        ...((chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA) ?
-            prepareBlastVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit) :
-            prepareVaultDeployment(wallet, aoriProtocol, saltPhrase, gasLimit)),
-        chainId
-    });
-
-    return destinationAddress;
+    return await deployViaCREATE3(
+        wallet,
+        chainId,
+        (chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA)
+            ? new AoriVaultBlast__factory()
+            : new AoriVault__factory(),
+        [wallet.address, aoriProtocol],
+        saltPhrase,
+        gasLimit
+    );
 }
 
 const InstructionTypeABI = {
