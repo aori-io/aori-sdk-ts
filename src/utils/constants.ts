@@ -35,92 +35,23 @@ export enum ChainId {
     BLAST_SEPOLIA = 168587773
 }
 
-export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, Set<string>>([
+export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
 
     /*//////////////////////////////////////////////////////////////
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.ETHEREUM_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
+    [ChainId.ETHEREUM_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
 
-    [ChainId.OPTIMISM_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
+    [ChainId.BASE_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
 
-    [ChainId.BINANCE_SMART_CHAIN, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.GNOSIS_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.POLYGON_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.BASE_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.ARBITRUM_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
-    ])],
-
-    [ChainId.CELO_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.AVAX_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.LINEA_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.BLAST_MAINNET, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase()
-    ])],
-
-    [ChainId.SCROLL_MAINNET, new Set([
-        // "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(), - to deploy
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-    ])],
+    [ChainId.ARBITRUM_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
 
     /*//////////////////////////////////////////////////////////////
                                 TESTNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.ARBITRUM_SEPOLIA, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
-    ])],
-
-    [ChainId.SEPOLIA, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-        "0x6A979916234013AbA003d906e4e7136496B90AA6".toLowerCase()
-    ])],
-    [ChainId.BERACHAIN_ARTIO, new Set([
-        "0x0AD86842EadEe5b484E31db60716EB6867B46e21".toLowerCase(),
-        "0xcc1A0DA89593441571f35Dd99a0aC1856d3F1FB5".toLowerCase(),
-    ])]
+    [ChainId.SEPOLIA, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
 ]);
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());

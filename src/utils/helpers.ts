@@ -50,17 +50,15 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
 //////////////////////////////////////////////////////////////*/
 
 export function getDefaultZone(chainId: number) {
-    const zonesOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
-    if (!zonesOnChain) {
-        throw new Error(`Chain ${chainId} is not supported yet!`);
-    }
-    return [...zonesOnChain][0];
+    const zoneOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
+    if (!zoneOnChain) throw new Error(`Chain ${chainId} is not supported yet!`);
+    return zoneOnChain;
 }
 
 export function isZoneSupported(chainId: number, address: string) {
-    const zonesOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
-    if (!zonesOnChain) return false;
-    return zonesOnChain.has(address.toLowerCase());
+    const zoneOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
+    if (!zoneOnChain) return false;
+    return zoneOnChain.toLowerCase() == address.toLowerCase();
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -230,17 +228,20 @@ export function signAddressSync(wallet: Wallet, address: string) {
 //////////////////////////////////////////////////////////////*/
 
 export function getMatchingHash({
+    tradeId,
     makerSignature,
     takerSignature,
     feeTag,
     feeRecipient
 }: AoriMatchingDetails): string {
     return solidityPackedKeccak256([
+        "string",
         "bytes",
         "bytes",
         "string",
         "address",
     ], [
+        tradeId,
         makerSignature,
         takerSignature,
         feeTag,
