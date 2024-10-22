@@ -62,8 +62,8 @@ export const CREATE3FACTORY_DEPLOYED_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072
                         WEBSOCKET URLS
 //////////////////////////////////////////////////////////////*/
 
-export const AORI_HTTP_API: string = "https://rfq.aori.io";
-export const AORI_WS_API: string = "wss://rfq.aori.io";
+export const AORI_HTTP_API: string = "https://api.aori.io";
+export const AORI_WS_API: string = "wss://api.aori.io";
 
 // Data Provider API
 export const AORI_DATA_PROVIDER_API: string = "https://provider.aori.io";
