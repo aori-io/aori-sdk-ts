@@ -74,12 +74,23 @@ export const AORI_DATA_PROVIDER_APIS: string[] = [
 export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 
 /*//////////////////////////////////////////////////////////////
-                            SEATS
+                                FEE
 //////////////////////////////////////////////////////////////*/
 
-export const DEFAULT_SEAT_ID = 0;
-export const DEFAULT_SEAT_SCORE = 1;
-export const DEFAULT_SEAT_HOLDER = "0x2EDEB6E06E81020F48d930FA7444a592ebE9FaB6";
+// Used to calculate the amount that an incoming taker must pay to take a limit order
+export function getAmountPlusFee(amount: string, feeInBips: number) {
+    return (BigInt(amount) * (10000n + BigInt(feeInBips)) / 10000n);
+}
 
+// Used to calculate the amount in the outputAmount that the taker gets less of
+export function getAmountMinusFee(amount: string, feeInBips: number) {
+    return (BigInt(amount) * 10000n / (10000n + BigInt(feeInBips)));
+}
+
+export const AORI_DEFAULT_FEE_TAG = "aori";
+export const AORI_DEFAULT_FEE_IN_BIPS = 3;
+export const AORI_DEFAULT_FEE_RECIPIENT = "0xB1a2f2A4c79C7C7Ba1Ac161ad0BDeCf11350dAa7";
+
+// Seats
 export const SEATS_NFT_ADDRESS = "0xD539e71371414F027Af025fd1EfFb6e11b5C902A";
 export const SEATS_DAO_ADDRESS = "0x6E0Fd80bA37EC02855E4A8D7574f685984d83a5E";

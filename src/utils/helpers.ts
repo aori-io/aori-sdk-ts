@@ -3,7 +3,7 @@ import { getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransactio
 import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
 import { CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
 
