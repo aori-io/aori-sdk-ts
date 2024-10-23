@@ -37,25 +37,26 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
         this.feed.on("message", (msg) => {
             try {
                 const { tradeId, event, data, timestamp } = JSON.parse(msg.toString());
+                const eventDetails = { tradeId, event, data, timestamp };
 
                 switch (event) {
                     case SubscriptionEvents.QuoteRequested:
-                        this.emit(SubscriptionEvents.QuoteRequested,  { tradeId, ...data });
+                        this.emit(SubscriptionEvents.QuoteRequested,  eventDetails);
                         break;
                     case SubscriptionEvents.QuoteReceived:
-                        this.emit(SubscriptionEvents.QuoteReceived,  { tradeId, ...data });
+                        this.emit(SubscriptionEvents.QuoteReceived,  eventDetails);
                         break;
                     case SubscriptionEvents.TradeMatched:
-                        this.emit(SubscriptionEvents.TradeMatched, { tradeId, ...data });
+                        this.emit(SubscriptionEvents.TradeMatched, eventDetails);
                         break;
                     case SubscriptionEvents.TradeSettled:
-                        this.emit(SubscriptionEvents.TradeSettled, { tradeId, ...data });
+                        this.emit(SubscriptionEvents.TradeSettled, eventDetails);
                         break;
                     case SubscriptionEvents.TradeFailed:
-                        this.emit(SubscriptionEvents.TradeFailed, { tradeId, ...data });
+                        this.emit(SubscriptionEvents.TradeFailed, eventDetails);
                         break;
                     case SubscriptionEvents.OrderCancelled:
-                        this.emit(SubscriptionEvents.OrderCancelled, { tradeId, ...data });
+                        this.emit(SubscriptionEvents.OrderCancelled, eventDetails);
                         break;
                 }
             } catch (e: any) {
@@ -72,26 +73,24 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
         });
     }
 
-    async respond(rfqId: string, params: { order: AoriOrder, signature: string }) {
+    async respond(tradeId: string, params: { order: AoriOrder, signature: string }) {
         this.feed.send(JSON.stringify({
             id: 1,
             jsonrpc: "2.0",
             method: AoriMethods.Respond,
             params: [{
-                rfqId,
+                tradeId,
                 ...params
             }]
         }));
     }
 
-    async subscribe(rfqId: "all" | string) {
+    async subscribe(tradeId: "all" | string) {
         this.feed.send(JSON.stringify({
             id: 1,
             jsonrpc: "2.0",
             method: AoriMethods.Subscribe,
-            params: [{
-                rfqId
-            }]
+            params: [{ tradeId }]
         }));
     }
 }
