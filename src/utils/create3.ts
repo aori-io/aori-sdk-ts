@@ -38,11 +38,12 @@ export async function deployViaCREATE3(wallet: Wallet, chainId: string | number,
 }
 
 export async function isDeployedCREATE3(wallet: Wallet, chainId: string | number, saltString: string) {
-    if (!wallet.provider) throw new Error("Wallet has no provider");
-    const address = await computeCREATE3Address(wallet, chainId, saltString);
+    const walletWithProvider = wallet.connect(getChainProvider(chainId));
+    if (!walletWithProvider.provider) throw new Error("Wallet has no provider");
+    const address = await computeCREATE3Address(walletWithProvider, chainId, saltString);
     return {
         address,
-        deployed: await wallet.provider.getCode(address) !== "0x",
+        deployed: await walletWithProvider.provider.getCode(address) !== "0x",
     }
 }
 
