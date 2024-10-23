@@ -54,7 +54,7 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
-export const CREATEX_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072D8b3F23183";
+export const CREATEX_ADDRESS = "0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed";
 
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
