@@ -1,13 +1,14 @@
-import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider, ContractFactory } from "ethers";
-import { computeCREATE3Address, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
+import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider, ContractFactory, keccak256 } from "ethers";
+import { getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATE3Factory__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, CREATE3FACTORY_DEPLOYED_ADDRESS, SUPPORTED_AORI_CHAINS } from "./constants";
+import { AORI_DATA_PROVIDER_API, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, ChainId, SUPPORTED_AORI_CHAINS } from "./constants";
 import { CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
 import { getChainProvider } from "./providers";
 import { IAoriV2 } from "../types/AoriV2";
+import { aoriVaultBlastInitCode, aoriVaultInitCode, computeCREATE3Address, deployViaCREATE3 } from "./create3";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -299,47 +300,6 @@ export function toDetailsToExecute(
 
         takerPermitSignature, // In case the taker would like to make use of a gasless permit
     }
-}
-
-/*//////////////////////////////////////////////////////////////
-                    VAULT-RELATED FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export async function deployViaCREATE3<T extends ContractFactory>(wallet: Wallet, chainId: number, factory: T, constructorData: string[], saltPhrase: string, gasLimit: bigint = 10_000_000n) {
-    await sendOrRetryTransaction(wallet, {
-        to: CREATE3FACTORY_DEPLOYED_ADDRESS,
-        data: CREATE3Factory__factory.createInterface().encodeFunctionData("deploy", [id(saltPhrase), solidityPacked(
-            ["bytes", "bytes"], [factory.bytecode, factory.interface.encodeDeploy(constructorData)]
-        )]),
-        chainId,
-        gasLimit
-    });
-
-    return await computeCREATE3Address(getChainProvider(chainId), wallet.address, saltPhrase);
-}
-
-export async function deployVault(wallet: Wallet, {
-    chainId = ChainId.ARBITRUM_MAINNET,
-    aoriProtocol = getDefaultZone(chainId),
-    saltPhrase = `aori-vault-${Math.random().toString(36).substring(2, 7)}`,
-    gasLimit = 10_000_000n
-}: {
-    chainId?: ChainId,
-    aoriProtocol: string,
-    saltPhrase: string,
-    gasLimit?: bigint
-}): Promise<string> {
-
-    return await deployViaCREATE3(
-        wallet,
-        chainId,
-        (chainId == ChainId.BLAST_MAINNET || chainId == ChainId.BLAST_SEPOLIA)
-            ? new AoriVaultBlast__factory()
-            : new AoriVault__factory(),
-        [wallet.address, aoriProtocol],
-        saltPhrase,
-        gasLimit
-    );
 }
 
 const InstructionTypeABI = {

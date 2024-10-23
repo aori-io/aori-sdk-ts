@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from "ethers";
+import { JsonRpcProvider, Wallet } from "ethers";
 
 const publicClients = {
     // Mainnet

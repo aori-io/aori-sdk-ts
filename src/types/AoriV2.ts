@@ -103,6 +103,7 @@ export interface AoriV2Interface extends Interface {
       | "getOrderHash"
       | "getTakerFee"
       | "hasOrderSettled"
+      | "serverSigner"
       | "setTakerFee"
       | "settleOrders"
       | "signatureIntoComponents"
@@ -142,6 +143,10 @@ export interface AoriV2Interface extends Interface {
   encodeFunctionData(
     functionFragment: "hasOrderSettled",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "serverSigner",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "setTakerFee",
@@ -185,6 +190,10 @@ export interface AoriV2Interface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "hasOrderSettled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "serverSigner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -363,6 +372,8 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
+  serverSigner: TypedContractMethod<[], [string], "view">;
+
   setTakerFee: TypedContractMethod<
     [_newFeeRecipient: AddressLike, _newFeeInBips: BigNumberish],
     [void],
@@ -454,6 +465,9 @@ export interface AoriV2 extends BaseContract {
   getFunction(
     nameOrSignature: "hasOrderSettled"
   ): TypedContractMethod<[orderHash: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "serverSigner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "setTakerFee"
   ): TypedContractMethod<

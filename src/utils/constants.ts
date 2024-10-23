@@ -41,22 +41,20 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.ETHEREUM_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
+    [ChainId.BASE_MAINNET, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
 
-    [ChainId.BASE_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
-
-    [ChainId.ARBITRUM_MAINNET, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
+    [ChainId.ARBITRUM_MAINNET, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
 
     /*//////////////////////////////////////////////////////////////
                                 TESTNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.SEPOLIA, "0xD5E8C18c5220B4d07d496fac5Fd973a3cE99b506"],
+    [ChainId.SEPOLIA, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
 ]);
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
-export const CREATE3FACTORY_DEPLOYED_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072D8b3F23183";
+export const CREATEX_ADDRESS = "0x2Dfcc7415D89af828cbef005F0d072D8b3F23183";
 
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
