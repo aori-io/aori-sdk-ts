@@ -40,16 +40,13 @@ export declare namespace IAoriV2 {
     offerer: AddressLike;
     inputToken: AddressLike;
     inputAmount: BigNumberish;
-    inputChainId: BigNumberish;
-    inputZone: AddressLike;
     outputToken: AddressLike;
     outputAmount: BigNumberish;
-    outputChainId: BigNumberish;
-    outputZone: AddressLike;
+    recipient: AddressLike;
+    zone: AddressLike;
+    chainId: BigNumberish;
     startTime: BigNumberish;
     endTime: BigNumberish;
-    salt: BigNumberish;
-    counter: BigNumberish;
     toWithdraw: boolean;
   };
 
@@ -57,63 +54,54 @@ export declare namespace IAoriV2 {
     offerer: string,
     inputToken: string,
     inputAmount: bigint,
-    inputChainId: bigint,
-    inputZone: string,
     outputToken: string,
     outputAmount: bigint,
-    outputChainId: bigint,
-    outputZone: string,
+    recipient: string,
+    zone: string,
+    chainId: bigint,
     startTime: bigint,
     endTime: bigint,
-    salt: bigint,
-    counter: bigint,
     toWithdraw: boolean
   ] & {
     offerer: string;
     inputToken: string;
     inputAmount: bigint;
-    inputChainId: bigint;
-    inputZone: string;
     outputToken: string;
     outputAmount: bigint;
-    outputChainId: bigint;
-    outputZone: string;
+    recipient: string;
+    zone: string;
+    chainId: bigint;
     startTime: bigint;
     endTime: bigint;
-    salt: bigint;
-    counter: bigint;
     toWithdraw: boolean;
   };
 
   export type MatchingDetailsStruct = {
+    tradeId: string;
     makerOrder: IAoriV2.OrderStruct;
     takerOrder: IAoriV2.OrderStruct;
     makerSignature: BytesLike;
     takerSignature: BytesLike;
-    blockDeadline: BigNumberish;
-    seatNumber: BigNumberish;
-    seatHolder: AddressLike;
-    seatPercentOfFees: BigNumberish;
+    feeTag: string;
+    feeRecipient: AddressLike;
   };
 
   export type MatchingDetailsStructOutput = [
+    tradeId: string,
     makerOrder: IAoriV2.OrderStructOutput,
     takerOrder: IAoriV2.OrderStructOutput,
     makerSignature: string,
     takerSignature: string,
-    blockDeadline: bigint,
-    seatNumber: bigint,
-    seatHolder: string,
-    seatPercentOfFees: bigint
+    feeTag: string,
+    feeRecipient: string
   ] & {
+    tradeId: string;
     makerOrder: IAoriV2.OrderStructOutput;
     takerOrder: IAoriV2.OrderStructOutput;
     makerSignature: string;
     takerSignature: string;
-    blockDeadline: bigint;
-    seatNumber: bigint;
-    seatHolder: string;
-    seatPercentOfFees: bigint;
+    feeTag: string;
+    feeRecipient: string;
   };
 }
 

@@ -40,16 +40,13 @@ export declare namespace IAoriV2 {
     offerer: AddressLike;
     inputToken: AddressLike;
     inputAmount: BigNumberish;
-    inputChainId: BigNumberish;
-    inputZone: AddressLike;
     outputToken: AddressLike;
     outputAmount: BigNumberish;
-    outputChainId: BigNumberish;
-    outputZone: AddressLike;
+    recipient: AddressLike;
+    zone: AddressLike;
+    chainId: BigNumberish;
     startTime: BigNumberish;
     endTime: BigNumberish;
-    salt: BigNumberish;
-    counter: BigNumberish;
     toWithdraw: boolean;
   };
 
@@ -57,69 +54,61 @@ export declare namespace IAoriV2 {
     offerer: string,
     inputToken: string,
     inputAmount: bigint,
-    inputChainId: bigint,
-    inputZone: string,
     outputToken: string,
     outputAmount: bigint,
-    outputChainId: bigint,
-    outputZone: string,
+    recipient: string,
+    zone: string,
+    chainId: bigint,
     startTime: bigint,
     endTime: bigint,
-    salt: bigint,
-    counter: bigint,
     toWithdraw: boolean
   ] & {
     offerer: string;
     inputToken: string;
     inputAmount: bigint;
-    inputChainId: bigint;
-    inputZone: string;
     outputToken: string;
     outputAmount: bigint;
-    outputChainId: bigint;
-    outputZone: string;
+    recipient: string;
+    zone: string;
+    chainId: bigint;
     startTime: bigint;
     endTime: bigint;
-    salt: bigint;
-    counter: bigint;
     toWithdraw: boolean;
   };
 
   export type MatchingDetailsStruct = {
+    tradeId: string;
     makerOrder: IAoriV2.OrderStruct;
     takerOrder: IAoriV2.OrderStruct;
     makerSignature: BytesLike;
     takerSignature: BytesLike;
-    blockDeadline: BigNumberish;
-    seatNumber: BigNumberish;
-    seatHolder: AddressLike;
-    seatPercentOfFees: BigNumberish;
+    feeTag: string;
+    feeRecipient: AddressLike;
   };
 
   export type MatchingDetailsStructOutput = [
+    tradeId: string,
     makerOrder: IAoriV2.OrderStructOutput,
     takerOrder: IAoriV2.OrderStructOutput,
     makerSignature: string,
     takerSignature: string,
-    blockDeadline: bigint,
-    seatNumber: bigint,
-    seatHolder: string,
-    seatPercentOfFees: bigint
+    feeTag: string,
+    feeRecipient: string
   ] & {
+    tradeId: string;
     makerOrder: IAoriV2.OrderStructOutput;
     takerOrder: IAoriV2.OrderStructOutput;
     makerSignature: string;
     takerSignature: string;
-    blockDeadline: bigint;
-    seatNumber: bigint;
-    seatHolder: string;
-    seatPercentOfFees: bigint;
+    feeTag: string;
+    feeRecipient: string;
   };
 }
 
 export interface AoriVaultInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "BLAST"
       | "afterAoriTrade"
       | "aoriProtocol"
       | "beforeAoriTrade"
@@ -134,6 +123,7 @@ export interface AoriVaultInterface extends Interface {
 
   getEvent(nameOrSignatureOrTopic: "Call"): EventFragment;
 
+  encodeFunctionData(functionFragment: "BLAST", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "afterAoriTrade",
     values: [IAoriV2.MatchingDetailsStruct, BytesLike]
@@ -175,6 +165,7 @@ export interface AoriVaultInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
 
+  decodeFunctionResult(functionFragment: "BLAST", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "afterAoriTrade",
     data: BytesLike
@@ -269,6 +260,8 @@ export interface AoriVault extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  BLAST: TypedContractMethod<[], [string], "view">;
+
   afterAoriTrade: TypedContractMethod<
     [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
     [boolean],
@@ -325,6 +318,9 @@ export interface AoriVault extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "BLAST"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "afterAoriTrade"
   ): TypedContractMethod<
