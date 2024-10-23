@@ -123,18 +123,17 @@ export function getOrderHash({
 }: AoriOrder): string {
     return solidityPackedKeccak256([
         "address", // offerer
-        // Input
         "address", // inputToken
         "uint256", // inputAmount
-        // Output
         "address", // outputToken
         "uint256", // outputAmount
         "address", // recipient
+        // =====
         "address", // zone
-        "uint256", // chainId
-        // Other details
-        "uint256", // startTime
-        "uint256", // endTime
+        "uint160", // chainId
+        // =====
+        "uint32", // startTime
+        "uint32", // endTime
         "bool" // toWithdraw
     ], [
         offerer, inputToken, inputAmount, outputToken, outputAmount, recipient, zone, chainId,
