@@ -108,7 +108,6 @@ export declare namespace IAoriV2 {
 export interface AoriVaultBlastInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "BLAST"
       | "afterAoriTrade"
       | "aoriProtocol"
       | "beforeAoriTrade"
@@ -123,7 +122,6 @@ export interface AoriVaultBlastInterface extends Interface {
 
   getEvent(nameOrSignatureOrTopic: "Call"): EventFragment;
 
-  encodeFunctionData(functionFragment: "BLAST", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "afterAoriTrade",
     values: [IAoriV2.MatchingDetailsStruct, BytesLike]
@@ -165,7 +163,6 @@ export interface AoriVaultBlastInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "BLAST", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "afterAoriTrade",
     data: BytesLike
@@ -260,8 +257,6 @@ export interface AoriVaultBlast extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  BLAST: TypedContractMethod<[], [string], "view">;
-
   afterAoriTrade: TypedContractMethod<
     [matching: IAoriV2.MatchingDetailsStruct, hookData: BytesLike],
     [boolean],
@@ -318,9 +313,6 @@ export interface AoriVaultBlast extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
-  getFunction(
-    nameOrSignature: "BLAST"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "afterAoriTrade"
   ): TypedContractMethod<
