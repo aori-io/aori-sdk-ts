@@ -4,7 +4,7 @@ import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
-import { CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
+import { AoriOrderWithOptionalOutputAmount, CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     return null;
 }
 
-export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder): string | null {
+export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder | AoriOrderWithOptionalOutputAmount): string | null {
     if (takerOrder.chainId != makerOrder.chainId) return `Taker order is on chain ${takerOrder.chainId} but maker order is on chain ${makerOrder.chainId}`;
     if (takerOrder.zone.toLowerCase() != makerOrder.zone.toLowerCase()) return `Taker order is on zone ${takerOrder.zone} but maker order is on zone ${makerOrder.zone}`;
 
