@@ -1,4 +1,4 @@
-import { AORI_HTTP_API, AoriEventData, AoriMethods, AoriOrder, CreateLimitOrderParams, rawCall, SubscriptionEvents, Wallet } from "../utils"
+import { AORI_HTTP_API, AoriEventData, AoriMethods, AoriOrder, AoriWebsocketEventData, CreateLimitOrderParams, rawCall, SubscriptionEvents, Wallet } from "../utils"
 import { getDefaultZone } from "../utils/validation";
 import { getBytes, solidityPackedKeccak256 } from "ethers";
 
@@ -61,6 +61,9 @@ export async function sendLimitOrder(req: AoriFullRequest, apiUrl: string = AORI
     return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Make, [req]);
 }
 
+export async function respondToOrder(req: { tradeId: string } & AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
+    return await rawCall<AoriEventData<SubscriptionEvents.TradeMatched>>(apiUrl, AoriMethods.Respond, [req]);
+}
 
 /*//////////////////////////////////////////////////////////////
                     ORDER HELPER FUNCTIONS
