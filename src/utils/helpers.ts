@@ -257,8 +257,15 @@ export function calldataToSettleOrders({
     makerSignature,
     takerSignature,
     feeTag,
-    feeRecipient
-}: AoriMatchingDetails, signature: string, hookData: string = "0x") {
+    feeRecipient,
+    serverSignature,
+    hookData = "0x"
+}: AoriMatchingDetails & {
+    makerOrder: AoriOrder,
+    takerOrder: AoriOrder,
+    serverSignature: string,
+    hookData?: string
+}) {
     return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
         tradeId,
         makerOrder,
@@ -267,30 +274,7 @@ export function calldataToSettleOrders({
         takerSignature,
         feeTag,
         feeRecipient
-    }, signature, hookData]);
-}
-
-export function toDetailsToExecute(
-    matching: AoriMatchingDetails,
-    matchingSignature: string,
-    to: string,
-    value: number,
-    data: string,
-    takerPermitSignature?: string
-): DetailsToExecute {
-    return {
-        matching,
-        matchingSignature,
-
-        chainId: matching.takerOrder.chainId,
-        zone: matching.takerOrder.zone,
-
-        to,
-        value,
-        data,
-
-        takerPermitSignature, // In case the taker would like to make use of a gasless permit
-    }
+    }, serverSignature, hookData]);
 }
 
 const InstructionTypeABI = {
@@ -442,7 +426,7 @@ export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToEx
     });
 }
 
-export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute, {
+export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute & { makerOrder: AoriOrder, takerOrder: AoriOrder }, {
     gasPriceMultiplier,
     gasLimit = 2_000_000n,
     preSwapInstructions = [],
@@ -456,14 +440,16 @@ export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: Det
     return await sendOrRetryTransaction(wallet, {
         to: detailsToExecute.to,
         value: detailsToExecute.value,
-        data: calldataToSettleOrders(
-            detailsToExecute.matching,
-            detailsToExecute.matchingSignature,
-            encodeInstructions(
+        data: calldataToSettleOrders({
+            makerOrder: detailsToExecute.makerOrder,
+            takerOrder: detailsToExecute.takerOrder,
+            ...detailsToExecute.matching,
+            serverSignature: detailsToExecute.matchingSignature,
+            hookData: encodeInstructions(
                 preSwapInstructions,
                 postSwapInstructions
             )
-        ),
+        }),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
     }, {

@@ -22,9 +22,6 @@ export interface AoriOrder {
 
 export interface AoriMatchingDetails {
     tradeId: string;
-    
-    makerOrder: AoriOrder;
-    takerOrder: AoriOrder;
 
     makerSignature: string;
     takerSignature: string;
