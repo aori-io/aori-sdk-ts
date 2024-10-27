@@ -1,7 +1,7 @@
 import { Wallet } from "ethers";
 import { AoriOrder, AoriOrderWithOptionalOutputAmount, QuoteRequestedDetails, SubscriptionEvents, TradeMatchedDetails } from "./interfaces";
-import { getCurrentGasInToken, RFQProvider } from "../providers";
-import { approveTokenCall, createAndSignResponse, settleOrders, settleOrdersViaVault } from "./helpers";
+import { createAndSignResponse, getCurrentGasInToken, RFQProvider } from "../providers";
+import { approveTokenCall, settleOrders, settleOrdersViaVault } from "./helpers";
 
 /*//////////////////////////////////////////////////////////////
                                TYPES

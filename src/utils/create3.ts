@@ -2,7 +2,7 @@ import { AbiCoder, id, keccak256, solidityPacked, Wallet } from "ethers";
 import { ChainId, CREATEX_ADDRESS } from "./constants";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATEX__factory } from "../types";
 import { getChainProvider } from "./providers";
-import { getDefaultZone } from "./helpers";
+import { getDefaultZone } from "./validation";
 
 /*//////////////////////////////////////////////////////////////
                         CREATE3 HELPERS

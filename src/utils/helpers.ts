@@ -1,11 +1,12 @@
 import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider, ContractFactory, keccak256 } from "ethers";
-import { getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
+import { createLimitOrder, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
 import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithOptionalOutputAmount, CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
+import { getDefaultZone } from "./validation";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
@@ -41,170 +42,6 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
 
     const { result: data } = axiosResponseData;
     return data;
-}
-
-/*//////////////////////////////////////////////////////////////
-                            ZONE
-//////////////////////////////////////////////////////////////*/
-
-export function getDefaultZone(chainId: number) {
-    const zoneOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
-    if (!zoneOnChain) throw new Error(`Chain ${chainId} is not supported yet!`);
-    return zoneOnChain;
-}
-
-export function isZoneSupported(chainId: number, address: string) {
-    const zoneOnChain = AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.get(chainId);
-    if (!zoneOnChain) return false;
-    return zoneOnChain.toLowerCase() == address.toLowerCase();
-}
-
-/*//////////////////////////////////////////////////////////////
-                             FEE
-//////////////////////////////////////////////////////////////*/
-
-export const BIPS_DENOMINATOR = 10_000n;
-
-export function withFee(amount: bigint, feeInBips: bigint) {
-    return amount * (BIPS_DENOMINATOR + feeInBips) / BIPS_DENOMINATOR;
-}
-
-export function withoutFee(amount: bigint, feeInBips: bigint) {
-    return amount * BIPS_DENOMINATOR / (BIPS_DENOMINATOR + feeInBips);
-}
-
-/*//////////////////////////////////////////////////////////////
-                    ORDER HELPER FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export async function formatIntoLimitOrder({
-    offerer,
-    startTime = Math.floor((Date.now() - 10 * 60 * 1000) / 1000), // Start 10 minutes in the past
-    endTime = Math.floor((Date.now() + 10 * 60 * 1000) / 1000), // End 10 minutes in the future 
-    inputToken,
-    inputAmount,
-    chainId = 1,
-    zone = getDefaultZone(chainId),
-    outputToken,
-    outputAmount,
-    toWithdraw = true
-}: CreateLimitOrderParams): Promise<AoriOrder> {
-
-    return {
-        offerer,
-        inputToken,
-        inputAmount: inputAmount.toString(),
-        outputToken,
-        outputAmount: outputAmount.toString(),
-        recipient: offerer,
-        zone,
-        chainId,
-        startTime: `${startTime}`,
-        endTime: `${endTime}`,
-        toWithdraw
-    }
-}
-
-export const createLimitOrder = formatIntoLimitOrder;
-export const newLimitOrder = formatIntoLimitOrder;
-
-export function getOrderHash({
-    offerer,
-    inputToken,
-    inputAmount,
-    outputToken,
-    outputAmount,
-    recipient,
-    zone,
-    chainId,
-    startTime,
-    endTime,
-    toWithdraw
-}: AoriOrder): string {
-    return solidityPackedKeccak256([
-        "address", // offerer
-        "address", // inputToken
-        "uint256", // inputAmount
-        "address", // outputToken
-        "uint256", // outputAmount
-        "address", // recipient
-        // =====
-        "address", // zone
-        "uint160", // chainId
-        // =====
-        "uint32", // startTime
-        "uint32", // endTime
-        "bool" // toWithdraw
-    ], [
-        offerer, inputToken, inputAmount, outputToken, outputAmount, recipient, zone, chainId,
-        startTime, endTime, toWithdraw
-    ]);
-}
-
-export function signOrderSync(wallet: Wallet, order: AoriOrder) {
-    const orderHash = getOrderHash(order);
-    return signOrderHashSync(wallet, orderHash);
-}
-export const signOrder = signOrderSync;
-
-export function signOrderHashSync(wallet: Wallet, orderHash: string) {
-    return wallet.signMessageSync(getBytes(orderHash));
-}
-
-export async function createAndSignResponse(wallet: Wallet, orderParams: Parameters<typeof createLimitOrder>[0]): Promise<{ order: AoriOrder, orderHash: string, signature: string }> {
-    const order = await createLimitOrder(orderParams);
-    const orderHash = getOrderHash(order);
-    const signature = signOrderSync(wallet, order);
-    return { order, orderHash, signature };
-}
-
-export function getOrderSigner(order: AoriOrder, signature: string) {
-    return verifyMessage(getBytes(getOrderHash(order)), signature);
-}
-
-export async function validateOrder(order: AoriOrder, signature: string): Promise<string | null> {
-
-    // Check if chain is supported
-    if (!SUPPORTED_AORI_CHAINS.has(order.chainId)) return `Chain ${order.chainId} not supported`;
-
-    if (signature == undefined || signature == "" || signature == null) return "No signature provided";
-
-    if (!isZoneSupported(order.chainId, order.zone)) return `Zone ${order.zone} on ${order.chainId} not supported`;
-
-    if (BigInt(order.startTime) > BigInt(order.endTime)) return `Start time (${order.startTime}) cannot be after end (${order.endTime}) time`;
-    if (BigInt(order.endTime) < BigInt(Math.floor(Date.now() / 1000))) return `End time (${order.endTime}) cannot be in the past`;
-
-    // Verify that the signature of the taker order is valid
-    let orderMessageSigner;
-    try {
-        orderMessageSigner = getOrderSigner(order, signature);
-    } catch (e: any) {
-        return `Signature signer could not be retrieved: ${e.message}`;
-    }
-
-    try {
-        // make isValidSignature call too
-        if (orderMessageSigner.toLowerCase() !== order.offerer.toLowerCase()) {
-            if (!(await isValidSignature(order.chainId, order.offerer, getOrderHash(order), signature))) {
-                return `Signature (${signature}) appears to be invalid via calling isValidSignature on ${order.offerer} on chain ${order.chainId} - order hash: ${getOrderHash(order)}`
-            }
-        }
-    } catch (e: any) {
-        return `isValidSignature call failed: ${e.message}`;
-    }
-
-    return null;
-}
-
-export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder | AoriOrderWithOptionalOutputAmount): string | null {
-    if (takerOrder.chainId != makerOrder.chainId) return `Taker order is on chain ${takerOrder.chainId} but maker order is on chain ${makerOrder.chainId}`;
-    if (takerOrder.zone.toLowerCase() != makerOrder.zone.toLowerCase()) return `Taker order is on zone ${takerOrder.zone} but maker order is on zone ${makerOrder.zone}`;
-
-    // Verify that the takerOrder and the makerOrder use the same token
-    if (takerOrder.inputToken.toLowerCase() != makerOrder.outputToken.toLowerCase()) return `Taker order is on token ${takerOrder.inputToken} but maker order is on token ${makerOrder.outputToken}`;
-    if (takerOrder.outputToken.toLowerCase() != makerOrder.inputToken.toLowerCase()) return `Taker order is on token ${takerOrder.outputToken} but maker order is on token ${makerOrder.inputToken}`;
-
-    return null;
 }
 
 /*//////////////////////////////////////////////////////////////
