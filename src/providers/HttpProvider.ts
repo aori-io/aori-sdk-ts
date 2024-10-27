@@ -62,7 +62,7 @@ export async function sendLimitOrder(req: AoriFullRequest, apiUrl: string = AORI
 }
 
 export async function respondToOrder(req: { tradeId: string } & AoriFullRequest, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<AoriEventData<SubscriptionEvents.TradeMatched>>(apiUrl, AoriMethods.Respond, [req]);
+    return await rawCall<AoriEventData<SubscriptionEvents.TradeMatched | SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Respond, [req]);
 }
 
 /*//////////////////////////////////////////////////////////////
