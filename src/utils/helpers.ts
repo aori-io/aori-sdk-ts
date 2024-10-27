@@ -196,18 +196,13 @@ export async function validateOrder(order: AoriOrder, signature: string): Promis
     return null;
 }
 
-export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder, feeInBips: bigint = 0n): string | null {
-
+export function validateMakerOrderMatchesTakerOrder(makerOrder: AoriOrder, takerOrder: AoriOrder): string | null {
     if (takerOrder.chainId != makerOrder.chainId) return `Taker order is on chain ${takerOrder.chainId} but maker order is on chain ${makerOrder.chainId}`;
     if (takerOrder.zone.toLowerCase() != makerOrder.zone.toLowerCase()) return `Taker order is on zone ${takerOrder.zone} but maker order is on zone ${makerOrder.zone}`;
 
     // Verify that the takerOrder and the makerOrder use the same token
     if (takerOrder.inputToken.toLowerCase() != makerOrder.outputToken.toLowerCase()) return `Taker order is on token ${takerOrder.inputToken} but maker order is on token ${makerOrder.outputToken}`;
     if (takerOrder.outputToken.toLowerCase() != makerOrder.inputToken.toLowerCase()) return `Taker order is on token ${takerOrder.outputToken} but maker order is on token ${makerOrder.inputToken}`;
-
-    // Check that the maker and taker orders have enough inputAmounts
-    if (BigInt(takerOrder.inputAmount) < withFee(BigInt(makerOrder.outputAmount), feeInBips)) return `Taker order has insufficient input amount to meet maker order's output amount`;
-    if (BigInt(makerOrder.inputAmount) < BigInt(takerOrder.outputAmount)) return `Maker order has insufficient input amount to meet taker order's output amount`;
 
     return null;
 }
