@@ -6,7 +6,6 @@ import { AoriMatchingDetails, AoriOrder } from "../utils";
 import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithOptionalOutputAmount, CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
-import { getDefaultZone } from "./validation";
 
 /*//////////////////////////////////////////////////////////////
                         RPC RESPONSE
