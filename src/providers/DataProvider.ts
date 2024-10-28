@@ -1,8 +1,9 @@
 import { BytesLike, Interface, JsonRpcProvider, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { AoriDataMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
+import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
                             HELPERS
@@ -132,4 +133,17 @@ export function staticCall(chainIdOrProvider: number | JsonRpcProvider, tx: Tran
 
 export async function isContract(chainIdOrProvider: number | JsonRpcProvider, address: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.getCode(address).then(code => code != "0x"))
+}
+
+export async function getSettlementStatus(orderHashes: string[]): Promise<{ [orderHash: string]: { settled: true, transactionHash: string, maker: string, taker: string } | { settled: false } }> {
+    const { data }: { data: { [orderHash: string]: {
+        settled: true,
+        transactionHash: string,
+        maker: string,
+        taker: string
+    } | { settled: false } } } = await axios.post(AORI_SETTLEMENT_PROVIDER_API, {
+        orderHashes
+    });
+
+    return data;
 }
