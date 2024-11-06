@@ -1,6 +1,14 @@
 import { WebSocket } from "ws";
 import { AORI_WS_API, AoriMethods, AoriOrder, AoriWebsocketEventData, SubscriptionEvents, TypedEventEmitter } from "../utils";
 
+export interface AoriSubscribeParams {
+    tradeId?: string;
+    address?: string;
+    token?: string;
+    orderType?: "rfq" | "limit";
+    chainId?: number;
+}
+
 export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
 
     feedUrl: string;
@@ -29,7 +37,7 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
             this.keepAliveTimer = setInterval(() => {
                 this.feed.ping();
             }, 10_000);
-            this.subscribe("ALL");
+            this.subscribe({});
             this.emit("ready");
             console.log(`🫡  Provider ready to send requests`);
         });
@@ -85,12 +93,12 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
         }));
     }
 
-    async subscribe(tradeId: "all" | string) {
+    async subscribe(params: AoriSubscribeParams) {
         this.feed.send(JSON.stringify({
             id: 1,
             jsonrpc: "2.0",
             method: AoriMethods.Subscribe,
-            params: [{ tradeId }]
+            params: [params]
         }));
     }
 }
