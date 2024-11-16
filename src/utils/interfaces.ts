@@ -65,9 +65,13 @@ export enum AoriMethods {
     Fail = "aori_fail"
 }
 
-export enum AoriDataMethods {
+export enum AoriDataProviderMethods {
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
+}
+
+export enum AoriDataServerMethods {
+    ViewTrades = "aori_viewTrades"
 }
 
 export enum AoriPricingMethods {

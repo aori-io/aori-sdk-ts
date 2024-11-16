@@ -70,6 +70,10 @@ export const AORI_DATA_PROVIDER_APIS: string[] = [
     AORI_DATA_PROVIDER_API,
 ];
 
+// Data Server API 
+export const AORI_DATA_SERVER_API: string = "https://data.aori.io/";
+
+
 // Pricing Provider API
 export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 
