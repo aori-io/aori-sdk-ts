@@ -246,32 +246,32 @@ export namespace FeeReceivedEvent {
 
 export namespace OrdersSettledEvent {
   export type InputTuple = [
+    makerOrderHash: BytesLike,
+    takerOrderHash: BytesLike,
+    matchingHash: BytesLike,
     tradeId: string,
     maker: AddressLike,
     taker: AddressLike,
-    matchingHash: BytesLike,
-    makerOrderHash: BytesLike,
-    takerOrderHash: BytesLike,
     zone: AddressLike,
     chainId: BigNumberish
   ];
   export type OutputTuple = [
+    makerOrderHash: string,
+    takerOrderHash: string,
+    matchingHash: string,
     tradeId: string,
     maker: string,
     taker: string,
-    matchingHash: string,
-    makerOrderHash: string,
-    takerOrderHash: string,
     zone: string,
     chainId: bigint
   ];
   export interface OutputObject {
+    makerOrderHash: string;
+    takerOrderHash: string;
+    matchingHash: string;
     tradeId: string;
     maker: string;
     taker: string;
-    matchingHash: string;
-    makerOrderHash: string;
-    takerOrderHash: string;
     zone: string;
     chainId: bigint;
   }
@@ -542,7 +542,7 @@ export interface AoriV2 extends BaseContract {
       FeeReceivedEvent.OutputObject
     >;
 
-    "OrdersSettled(string,address,address,bytes32,bytes32,bytes32,address,uint160)": TypedContractEvent<
+    "OrdersSettled(bytes32,bytes32,bytes32,string,address,address,address,uint160)": TypedContractEvent<
       OrdersSettledEvent.InputTuple,
       OrdersSettledEvent.OutputTuple,
       OrdersSettledEvent.OutputObject
