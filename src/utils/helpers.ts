@@ -2,7 +2,7 @@ import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidi
 import { createLimitOrder, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
 import { AoriV2__factory, ERC20__factory } from "../types";
 import { InstructionStruct } from "../types/AoriVault";
-import { AoriMatchingDetails, AoriOrder } from "../utils";
+import { AoriMatchingDetails, AoriOrder, getChainProvider } from "../utils";
 import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
 import { AoriOrderWithOptionalOutputAmount, CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
 import axios from "axios";
@@ -226,13 +226,13 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
         try {
             const nonce = await getNonce(tx.chainId, wallet.address);
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
-            if (retries != 0) await simulateTransaction(tx);
+            if (retries != 0) await simulateTransaction({ ...tx, from: wallet.address });
 
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
                 gasPrice: Math.round(Number(gasPrice) * _gasPriceMultiplier),
-                ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n })
+                ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 3_000_000n })
             });
             await sendTransaction(signedTx);
             success = true;
