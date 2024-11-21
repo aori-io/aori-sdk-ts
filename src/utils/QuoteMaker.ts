@@ -84,7 +84,7 @@ export class QuoteMaker {
         this.quoter = quoter;
         this.vaultContract = vaultContract;
         this.logQuotes = logQuotes || false;
-        this.gasLimit = gasLimit || 5_000_000n;
+        this.gasLimit = gasLimit || 3_000_000n;
         this.gasPriceMultiplier = gasPriceMultiplier || 1.1;
         this.spreadPercentage = spreadPercentage || 0n;
 
