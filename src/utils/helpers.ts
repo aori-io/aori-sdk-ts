@@ -86,33 +86,6 @@ export function getMatchingSigner(matching: AoriMatchingDetails, signature: stri
     return verifyMessage(getMatchingHash(matching), signature);
 }
 
-export function calldataToSettleOrders({
-    tradeId,
-    makerOrder,
-    takerOrder,
-    makerSignature,
-    takerSignature,
-    feeTag,
-    feeRecipient,
-    serverSignature,
-    hookData = "0x"
-}: AoriMatchingDetails & {
-    makerOrder: AoriOrder,
-    takerOrder: AoriOrder,
-    serverSignature: string,
-    hookData?: string
-}) {
-    return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
-        tradeId,
-        makerOrder,
-        takerOrder,
-        makerSignature,
-        takerSignature,
-        feeTag,
-        feeRecipient
-    }, serverSignature, hookData]);
-}
-
 const InstructionTypeABI = {
     "components": [
         {
@@ -254,37 +227,6 @@ export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToEx
         to: detailsToExecute.to,
         value: detailsToExecute.value,
         data: detailsToExecute.data,
-        gasLimit: gasLimit,
-        chainId: detailsToExecute.chainId
-    }, {
-        gasPriceMultiplier
-    });
-}
-
-export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute & { makerOrder: AoriOrder, takerOrder: AoriOrder }, {
-    gasPriceMultiplier,
-    gasLimit = 2_000_000n,
-    preSwapInstructions = [],
-    postSwapInstructions = []
-}: {
-    gasPriceMultiplier?: number,
-    gasLimit?: bigint,
-    preSwapInstructions?: InstructionStruct[],
-    postSwapInstructions?: InstructionStruct[]
-}) {
-    return await sendOrRetryTransaction(wallet, {
-        to: detailsToExecute.to,
-        value: detailsToExecute.value,
-        data: calldataToSettleOrders({
-            makerOrder: detailsToExecute.makerOrder,
-            takerOrder: detailsToExecute.takerOrder,
-            ...detailsToExecute.matching,
-            serverSignature: detailsToExecute.matchingSignature,
-            hookData: encodeInstructions(
-                preSwapInstructions,
-                postSwapInstructions
-            )
-        }),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
     }, {
