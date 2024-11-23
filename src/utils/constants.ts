@@ -41,19 +41,19 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.BASE_MAINNET, "0xa2a5C93Ba2680fD27EA65A688e531b665F8189c1"],
+    [ChainId.BASE_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 
-    [ChainId.ARBITRUM_MAINNET, "0xa2a5C93Ba2680fD27EA65A688e531b665F8189c1"],
+    [ChainId.ARBITRUM_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 
     /*//////////////////////////////////////////////////////////////
                                 TESTNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.SEPOLIA, "0xa2a5C93Ba2680fD27EA65A688e531b665F8189c1"],
+    [ChainId.SEPOLIA, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 ]);
 
-export const AORI_V2_ADDRESS = "0xa2a5C93Ba2680fD27EA65A688e531b665F8189c1";
-export const AORI_V2_MATCH_ZONE_ADDRESS = "0xeb6f60eE507fD202d08a6A80eB717E35709294e8";
+export const AORI_V2_ADDRESS = "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f";
+export const AORI_V2_PRINCIPAL_MATCH_ZONE = "0x06EDDbe3e5C87AD84360684dCAE6121bd603dfA6";
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
