@@ -16,8 +16,9 @@ export function getOrderMessage(order: SignedOrder) {
     )
 }
 
-export async function signOrderWithExtradata(wallet: Wallet, order: AoriOrder, extraData: string = "0x") {
-    return wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData, signature: "" })));
+export function signOrderWithExtradata(wallet: Wallet, order: AoriOrder, extraData: string = "0x"): SignedOrder {
+    const signature = wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData, signature: "" })));
+    return { order, extraData, signature };
 }
 
 export function verifyOrderSignature(signedOrder: SignedOrder): boolean {
@@ -42,7 +43,8 @@ export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
     )
 }
 
-export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string = "0x"): string {
+export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string = "0x"): { orders: SignedOrder[], extraData: string, signature: string } {
     const sequenceMessage = getSequenceMessage(orders, extraData);
-    return wallet.signMessageSync(getBytes(sequenceMessage));
+    const signature = wallet.signMessageSync(getBytes(sequenceMessage));
+    return { orders, extraData, signature };
 }
