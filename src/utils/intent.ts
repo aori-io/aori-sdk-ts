@@ -2,7 +2,8 @@ import { AoriOrder, SignedOrder } from "./interfaces"
 
 export type IntentSubscriptionEvent = {
     zone: string,
-    timestamp: number
+    timestamp: number,
+    chainId: number,
 } & ({
         event: "intent",
         data: {
