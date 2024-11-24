@@ -1,6 +1,48 @@
-import { Wallet } from "ethers";
+import { solidityPackedKeccak256, Wallet } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
 import { signOrderWithExtradata } from "./signature";
+import { AORI_V2_ADDRESS } from "./constants";
+
+/*//////////////////////////////////////////////////////////////
+                        ORDER SIGNATURE
+//////////////////////////////////////////////////////////////*/
+
+export function getOrderHash({
+    offerer,
+    inputToken,
+    inputAmount,
+    outputToken,
+    outputAmount,
+    recipient,
+    zone,
+    chainId,
+    startTime,
+    endTime,
+    toWithdraw
+}: AoriOrder): string {
+    return solidityPackedKeccak256([
+        "address", // offerer
+        "address", // inputToken
+        "uint256", // inputAmount
+        "address", // outputToken
+        "uint256", // outputAmount
+        "address", // recipient
+        // =====
+        "address", // zone
+        "uint160", // chainId
+        // =====
+        "uint32", // startTime
+        "uint32", // endTime
+        "bool" // toWithdraw
+    ], [
+        offerer, inputToken, inputAmount, outputToken, outputAmount, recipient, zone, chainId,
+        startTime, endTime, toWithdraw
+    ]);
+}
+
+/*//////////////////////////////////////////////////////////////
+                        CREATE ORDER
+//////////////////////////////////////////////////////////////*/
 
 export type CreateOrderParams = {
     offerer: string;
@@ -8,7 +50,7 @@ export type CreateOrderParams = {
     inputAmount: string;
     outputToken: string;
     outputAmount: string;
-    zone: string;
+    zone?: string;
     chainId: number;
     recipient?: string;
     startTime?: string;
@@ -27,7 +69,7 @@ export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefin
         outputToken,
         outputAmount,
         recipient,
-        zone,
+        zone = AORI_V2_ADDRESS,
         startTime,
         endTime,
         chainId,

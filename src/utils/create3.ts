@@ -1,8 +1,7 @@
 import { AbiCoder, id, keccak256, solidityPacked, Wallet } from "ethers";
-import { ChainId, CREATEX_ADDRESS } from "./constants";
+import { AORI_V2_ADDRESS, ChainId, CREATEX_ADDRESS } from "./constants";
 import { AoriV2__factory, AoriVault__factory, AoriVaultBlast__factory, CREATEX__factory } from "../types";
 import { getChainProvider } from "./providers";
-import { getDefaultZone } from "./validation";
 
 /*//////////////////////////////////////////////////////////////
                         CREATE3 HELPERS
@@ -96,7 +95,7 @@ export function aoriVaultBlastInitCode(owner: string, aoriProtocol: string) {
 
 export async function deployVault(wallet: Wallet, {
     chainId = ChainId.ARBITRUM_MAINNET,
-    aoriProtocol = getDefaultZone(chainId),
+    aoriProtocol = AORI_V2_ADDRESS,
     saltPhrase = `aori-vault-${Math.random().toString(36).substring(2, 7)}`,
 }: {
     chainId?: ChainId,

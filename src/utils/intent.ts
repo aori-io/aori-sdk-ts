@@ -31,7 +31,7 @@ export type IntentSubscriptionEvent = {
             orderHash: string,
             order: AoriOrder,
             extraData: string,
-            transactionHash: string
+            transactionHash?: string
         }
     } | {
         event: "settled",
