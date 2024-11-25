@@ -80,6 +80,10 @@ export enum AoriPricingMethods {
     CalculateGasInToken = "aori_calculateGasInToken",
 }
 
+export enum AoriQuoterMethods {
+    PriceQuote = "aori_priceQuote"
+}
+
 export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     OrderCancelled = "OrderCancelled",

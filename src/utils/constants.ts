@@ -80,6 +80,9 @@ export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 // Settlement Provider API
 export const AORI_SETTLEMENT_PROVIDER_API: string = "https://settlement.aori.io";
 
+// Quoter API
+export const AORI_QUOTER_API: string = 'https://quoter.aori.io/'
+
 /*//////////////////////////////////////////////////////////////
                                 FEE
 //////////////////////////////////////////////////////////////*/
