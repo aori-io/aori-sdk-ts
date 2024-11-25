@@ -1,5 +1,5 @@
 import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_DATA_SERVER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
