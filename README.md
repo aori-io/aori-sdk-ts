@@ -12,7 +12,6 @@ Other packages are available for more periphery use cases of Aori to help develo
 | --- | --- |
 | [**@aori-io/sdk**](https://github.com/aori-io/aori-sdk-ts) | For interacting with the Aori API. These are in the form of `Provider`s that are lightweight clients to help structure calls. |
 | [@aori-io/adapters](https://github.com/aori-io/aori-adapters-ts) | Adapters for Aggregators, Decentralised Exchanges and Liquidity Sources on-chain. Logic and quoters for `QuoteMakers` can also be found here. |
-| [@aori-io/indexing](https://github.com/aori-io/aori-indexers-ts) | Helpers for indexing orders from the eventstream to rebuild local orderbooks for trading and secondary-source data querying such as frontends and dashboards. |
 
 This SDK is released under the [MIT License](LICENSE).
 

@@ -41,16 +41,19 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.BASE_MAINNET, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
+    [ChainId.BASE_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 
-    [ChainId.ARBITRUM_MAINNET, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
+    [ChainId.ARBITRUM_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 
     /*//////////////////////////////////////////////////////////////
                                 TESTNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.SEPOLIA, "0xD5722c275ebB125e26f191b8F0FB3B514aA429Cb"],
+    [ChainId.SEPOLIA, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
 ]);
+
+export const AORI_V2_ADDRESS = "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f";
+export const AORI_V2_PRINCIPAL_MATCH_ZONE = "0x06EDDbe3e5C87AD84360684dCAE6121bd603dfA6";
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 

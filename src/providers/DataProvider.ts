@@ -1,5 +1,5 @@
-import { BytesLike, Interface, JsonRpcProvider, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS, AORI_DATA_SERVER_API } from "../utils";
+import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
+import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
@@ -76,10 +76,10 @@ export function estimateGas(chainIdOrProvider: number | JsonRpcProvider, tx: Tra
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.estimateGas(tx));
 }
 
-export function hasOrderSettled(chainIdOrProvider: number | JsonRpcProvider, orderHash: string, zone: string) {
+export function hasOrderSettled(chainIdOrProvider: number | JsonRpcProvider, offerer: string, orderHash: string, instance: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => {
-        const contract = AoriV2__factory.connect(zone, provider);
-        return contract.hasOrderSettled(orderHash);
+        const contract = AoriV2__factory.connect(instance, provider);
+        return contract.hasSettled(offerer, orderHash);
     });
 }
 
@@ -135,8 +135,8 @@ export function sendTransaction(signedTx: string): Promise<string> {
     return rawCall(AORI_DATA_PROVIDER_API, AoriDataProviderMethods.SendTransaction, [{ signedTx }]);
 }
 
-export function simulateTransaction(signedTx: string): Promise<string> {
-    return rawCall(AORI_DATA_PROVIDER_API, AoriDataProviderMethods.SimulateTransaction, [{ signedTx }]);
+export function simulateTransaction(tx: TransactionRequest & { chainId: number }): Promise<string> {
+    return staticCall(tx.chainId, tx);
 }
 
 export function staticCall(chainIdOrProvider: number | JsonRpcProvider, tx: TransactionRequest) {

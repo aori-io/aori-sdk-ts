@@ -1,10 +1,8 @@
-import { AbiCoder, getBytes, getAddress, id, JsonRpcError, JsonRpcResult, solidityPacked, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet, JsonRpcProvider, ContractFactory, keccak256 } from "ethers";
-import { createLimitOrder, getFeeData, getNonce, getTokenDetails, isValidSignature, sendTransaction, simulateTransaction } from "../providers";
-import { AoriV2__factory, ERC20__factory } from "../types";
-import { InstructionStruct } from "../types/AoriVault";
-import { AoriMatchingDetails, AoriOrder } from "../utils";
-import { AORI_DEFAULT_FEE_IN_BIPS, AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES, getAmountMinusFee, SUPPORTED_AORI_CHAINS } from "./constants";
-import { AoriOrderWithOptionalOutputAmount, CreateLimitOrderParams, DetailsToExecute } from "./interfaces";
+import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { getFeeData, getNonce, getTokenDetails, sendTransaction, simulateTransaction } from "../providers";
+import { ERC20__factory } from "../types";
+import { AoriMatchingDetails } from "../utils";
+import { DetailsToExecute } from "./interfaces";
 import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
@@ -86,91 +84,6 @@ export function getMatchingSigner(matching: AoriMatchingDetails, signature: stri
     return verifyMessage(getMatchingHash(matching), signature);
 }
 
-export function calldataToSettleOrders({
-    tradeId,
-    makerOrder,
-    takerOrder,
-    makerSignature,
-    takerSignature,
-    feeTag,
-    feeRecipient,
-    serverSignature,
-    hookData = "0x"
-}: AoriMatchingDetails & {
-    makerOrder: AoriOrder,
-    takerOrder: AoriOrder,
-    serverSignature: string,
-    hookData?: string
-}) {
-    return AoriV2__factory.createInterface().encodeFunctionData("settleOrders", [{
-        tradeId,
-        makerOrder,
-        takerOrder,
-        makerSignature,
-        takerSignature,
-        feeTag,
-        feeRecipient
-    }, serverSignature, hookData]);
-}
-
-const InstructionTypeABI = {
-    "components": [
-        {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-        },
-        {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-        },
-        {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-        }
-    ],
-    "internalType": "struct Instruction[]",
-    "name": "instructions",
-    "type": "tuple[]"
-}
-
-export function encodeInstructions(
-    preSwapInstructions: InstructionStruct[],
-    postSwapInstructions: InstructionStruct[]
-) {
-    return AbiCoder.defaultAbiCoder().encode(
-        // @ts-ignore
-        [InstructionTypeABI, InstructionTypeABI],
-        [preSwapInstructions, postSwapInstructions]
-    )
-}
-
-export function encodePreSwapInstructions(preSwapInstructions: InstructionStruct[]) {
-    return AbiCoder.defaultAbiCoder().encode(
-        // @ts-ignore
-        [InstructionTypeABI, InstructionTypeABI],
-        [preSwapInstructions, []]
-    )
-}
-
-export function encodePostSwapCalldata(postSwapInstructions: InstructionStruct[]) {
-    return AbiCoder.defaultAbiCoder().encode(
-        // @ts-ignore
-        [InstructionTypeABI, InstructionTypeABI],
-        [[], postSwapInstructions]
-    )
-}
-
-export function decodeInstructions(encoded: string) {
-    return AbiCoder.defaultAbiCoder().decode(
-        // @ts-ignore
-        [InstructionTypeABI, InstructionTypeABI],
-        encoded
-    )
-}
-
 /*//////////////////////////////////////////////////////////////
                             WALLET
 //////////////////////////////////////////////////////////////*/
@@ -226,15 +139,14 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
         try {
             const nonce = await getNonce(tx.chainId, wallet.address);
             const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await getFeeData(tx.chainId);
+            if (retries != 0) await simulateTransaction({ ...tx, from: wallet.address });
+
             const signedTx = await wallet.signTransaction({
                 ...tx,
                 nonce,
                 gasPrice: Math.round(Number(gasPrice) * _gasPriceMultiplier),
-                ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 8_000_000n })
+                ...(maxFeePerGas != null ? { maxFeePerGas, maxPriorityFeePerGas } : { gasLimit: 3_000_000n })
             });
-
-            // On last try, just send the transaction
-            if (retries != 0) await simulateTransaction(signedTx);
             await sendTransaction(signedTx);
             success = true;
         } catch (e: any) {
@@ -255,37 +167,6 @@ export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToEx
         to: detailsToExecute.to,
         value: detailsToExecute.value,
         data: detailsToExecute.data,
-        gasLimit: gasLimit,
-        chainId: detailsToExecute.chainId
-    }, {
-        gasPriceMultiplier
-    });
-}
-
-export async function settleOrdersViaVault(wallet: Wallet, detailsToExecute: DetailsToExecute & { makerOrder: AoriOrder, takerOrder: AoriOrder }, {
-    gasPriceMultiplier,
-    gasLimit = 2_000_000n,
-    preSwapInstructions = [],
-    postSwapInstructions = []
-}: {
-    gasPriceMultiplier?: number,
-    gasLimit?: bigint,
-    preSwapInstructions?: InstructionStruct[],
-    postSwapInstructions?: InstructionStruct[]
-}) {
-    return await sendOrRetryTransaction(wallet, {
-        to: detailsToExecute.to,
-        value: detailsToExecute.value,
-        data: calldataToSettleOrders({
-            makerOrder: detailsToExecute.makerOrder,
-            takerOrder: detailsToExecute.takerOrder,
-            ...detailsToExecute.matching,
-            serverSignature: detailsToExecute.matchingSignature,
-            hookData: encodeInstructions(
-                preSwapInstructions,
-                postSwapInstructions
-            )
-        }),
         gasLimit: gasLimit,
         chainId: detailsToExecute.chainId
     }, {

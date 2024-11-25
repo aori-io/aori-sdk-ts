@@ -20,6 +20,12 @@ export interface AoriOrder {
     toWithdraw: boolean;
 }
 
+export interface SignedOrder {
+    order: AoriOrder;
+    extraData: string;
+    signature: string;
+}
+
 export interface AoriMatchingDetails {
     tradeId: string;
 

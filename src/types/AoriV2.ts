@@ -23,7 +23,7 @@ import type {
   TypedContractMethod,
 } from "./common";
 
-export declare namespace IAoriV2 {
+export declare namespace IClearing {
   export type OrderStruct = {
     offerer: AddressLike;
     inputToken: AddressLike;
@@ -64,32 +64,20 @@ export declare namespace IAoriV2 {
     toWithdraw: boolean;
   };
 
-  export type MatchingDetailsStruct = {
-    tradeId: string;
-    makerOrder: IAoriV2.OrderStruct;
-    takerOrder: IAoriV2.OrderStruct;
-    makerSignature: BytesLike;
-    takerSignature: BytesLike;
-    feeTag: string;
-    feeRecipient: AddressLike;
+  export type SignedOrderStruct = {
+    order: IClearing.OrderStruct;
+    extraData: BytesLike;
+    signature: BytesLike;
   };
 
-  export type MatchingDetailsStructOutput = [
-    tradeId: string,
-    makerOrder: IAoriV2.OrderStructOutput,
-    takerOrder: IAoriV2.OrderStructOutput,
-    makerSignature: string,
-    takerSignature: string,
-    feeTag: string,
-    feeRecipient: string
+  export type SignedOrderStructOutput = [
+    order: IClearing.OrderStructOutput,
+    extraData: string,
+    signature: string
   ] & {
-    tradeId: string;
-    makerOrder: IAoriV2.OrderStructOutput;
-    takerOrder: IAoriV2.OrderStructOutput;
-    makerSignature: string;
-    takerSignature: string;
-    feeTag: string;
-    feeRecipient: string;
+    order: IClearing.OrderStructOutput;
+    extraData: string;
+    signature: string;
   };
 }
 
@@ -97,23 +85,29 @@ export interface AoriV2Interface extends Interface {
   getFunction(
     nameOrSignature:
       | "balanceOf"
+      | "cancel"
       | "deposit"
-      | "flashLoan"
-      | "getMatchingHash"
+      | "eip712Domain"
+      | "escrow"
+      | "flash"
       | "getOrderHash"
-      | "getTakerFee"
-      | "hasOrderSettled"
-      | "serverSigner"
-      | "setTakerFee"
-      | "settleOrders"
-      | "signatureIntoComponents"
-      | "withFee"
+      | "getSignatureMessage"
+      | "hasSettled"
+      | "isCancelled"
+      | "move"
+      | "release"
+      | "settle"
+      | "verifyOrderSignature"
       | "withdraw"
-      | "withoutFee"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "FeeReceived" | "OrdersSettled"
+    nameOrSignatureOrTopic:
+      | "Cancelled"
+      | "Deposit"
+      | "Settled"
+      | "Transfer"
+      | "Withdraw"
   ): EventFragment;
 
   encodeFunctionData(
@@ -121,122 +115,115 @@ export interface AoriV2Interface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "deposit",
-    values: [AddressLike, AddressLike, BigNumberish]
+    functionFragment: "cancel",
+    values: [IClearing.SignedOrderStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "flashLoan",
+    functionFragment: "deposit",
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "eip712Domain",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "escrow",
+    values: [IClearing.SignedOrderStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "flash",
     values: [AddressLike, AddressLike, BigNumberish, BytesLike, boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "getMatchingHash",
-    values: [IAoriV2.MatchingDetailsStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getOrderHash",
-    values: [IAoriV2.OrderStruct]
+    values: [IClearing.OrderStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "getTakerFee",
-    values?: undefined
+    functionFragment: "getSignatureMessage",
+    values: [IClearing.SignedOrderStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasOrderSettled",
-    values: [BytesLike]
+    functionFragment: "hasSettled",
+    values: [AddressLike, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "serverSigner",
-    values?: undefined
+    functionFragment: "isCancelled",
+    values: [AddressLike, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTakerFee",
-    values: [AddressLike, BigNumberish]
+    functionFragment: "move",
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "settleOrders",
-    values: [IAoriV2.MatchingDetailsStruct, BytesLike, BytesLike]
+    functionFragment: "release",
+    values: [IClearing.SignedOrderStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "signatureIntoComponents",
-    values: [BytesLike]
+    functionFragment: "settle",
+    values: [IClearing.SignedOrderStruct[], BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "withFee",
-    values: [BigNumberish, BigNumberish]
+    functionFragment: "verifyOrderSignature",
+    values: [IClearing.SignedOrderStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withoutFee",
-    values: [BigNumberish, BigNumberish]
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getMatchingHash",
+    functionFragment: "eip712Domain",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "escrow", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "flash", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getOrderHash",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getTakerFee",
+    functionFragment: "getSignatureMessage",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "hasSettled", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "hasOrderSettled",
+    functionFragment: "isCancelled",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "move", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "release", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "serverSigner",
+    functionFragment: "verifyOrderSignature",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTakerFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "settleOrders",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "signatureIntoComponents",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withoutFee", data: BytesLike): Result;
 }
 
-export namespace FeeReceivedEvent {
+export namespace CancelledEvent {
   export type InputTuple = [
-    feeRecipient: AddressLike,
-    feeTag: string,
-    inputToken: AddressLike,
-    inputAmount: BigNumberish,
-    outputToken: AddressLike,
-    outputAmount: BigNumberish
+    orderHash: BytesLike,
+    zone: AddressLike,
+    offerer: AddressLike,
+    order: IClearing.OrderStruct,
+    extraData: BytesLike
   ];
   export type OutputTuple = [
-    feeRecipient: string,
-    feeTag: string,
-    inputToken: string,
-    inputAmount: bigint,
-    outputToken: string,
-    outputAmount: bigint
+    orderHash: string,
+    zone: string,
+    offerer: string,
+    order: IClearing.OrderStructOutput,
+    extraData: string
   ];
   export interface OutputObject {
-    feeRecipient: string;
-    feeTag: string;
-    inputToken: string;
-    inputAmount: bigint;
-    outputToken: string;
-    outputAmount: bigint;
+    orderHash: string;
+    zone: string;
+    offerer: string;
+    order: IClearing.OrderStructOutput;
+    extraData: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -244,36 +231,111 @@ export namespace FeeReceivedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace OrdersSettledEvent {
+export namespace DepositEvent {
   export type InputTuple = [
-    tradeId: string,
-    maker: AddressLike,
-    taker: AddressLike,
-    matchingHash: BytesLike,
-    makerOrderHash: BytesLike,
-    takerOrderHash: BytesLike,
-    zone: AddressLike,
-    chainId: BigNumberish
+    from: AddressLike,
+    account: AddressLike,
+    token: AddressLike,
+    amount: BigNumberish,
+    extraData: BytesLike
   ];
   export type OutputTuple = [
-    tradeId: string,
-    maker: string,
-    taker: string,
-    matchingHash: string,
-    makerOrderHash: string,
-    takerOrderHash: string,
-    zone: string,
-    chainId: bigint
+    from: string,
+    account: string,
+    token: string,
+    amount: bigint,
+    extraData: string
   ];
   export interface OutputObject {
-    tradeId: string;
-    maker: string;
-    taker: string;
-    matchingHash: string;
-    makerOrderHash: string;
-    takerOrderHash: string;
+    from: string;
+    account: string;
+    token: string;
+    amount: bigint;
+    extraData: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SettledEvent {
+  export type InputTuple = [
+    orderHash: BytesLike,
+    zone: AddressLike,
+    offerer: AddressLike,
+    order: IClearing.OrderStruct,
+    extraData: BytesLike
+  ];
+  export type OutputTuple = [
+    orderHash: string,
+    zone: string,
+    offerer: string,
+    order: IClearing.OrderStructOutput,
+    extraData: string
+  ];
+  export interface OutputObject {
+    orderHash: string;
     zone: string;
-    chainId: bigint;
+    offerer: string;
+    order: IClearing.OrderStructOutput;
+    extraData: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TransferEvent {
+  export type InputTuple = [
+    from: AddressLike,
+    account: AddressLike,
+    token: AddressLike,
+    amount: BigNumberish,
+    extraData: BytesLike
+  ];
+  export type OutputTuple = [
+    from: string,
+    account: string,
+    token: string,
+    amount: bigint,
+    extraData: string
+  ];
+  export interface OutputObject {
+    from: string;
+    account: string;
+    token: string;
+    amount: bigint;
+    extraData: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace WithdrawEvent {
+  export type InputTuple = [
+    from: AddressLike,
+    account: AddressLike,
+    token: AddressLike,
+    amount: BigNumberish,
+    extraData: BytesLike
+  ];
+  export type OutputTuple = [
+    from: string,
+    account: string,
+    token: string,
+    amount: bigint,
+    extraData: string
+  ];
+  export interface OutputObject {
+    from: string;
+    account: string;
+    token: string;
+    amount: bigint;
+    extraData: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -330,13 +392,46 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
 
-  deposit: TypedContractMethod<
-    [_account: AddressLike, _token: AddressLike, _amount: BigNumberish],
+  cancel: TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
     [void],
     "nonpayable"
   >;
 
-  flashLoan: TypedContractMethod<
+  deposit: TypedContractMethod<
+    [
+      _account: AddressLike,
+      _token: AddressLike,
+      _amount: BigNumberish,
+      _extraData: BytesLike
+    ],
+    [void],
+    "payable"
+  >;
+
+  eip712Domain: TypedContractMethod<
+    [],
+    [
+      [string, string, string, bigint, string, string, bigint[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: bigint;
+        verifyingContract: string;
+        salt: string;
+        extensions: bigint[];
+      }
+    ],
+    "view"
+  >;
+
+  escrow: TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [void],
+    "nonpayable"
+  >;
+
+  flash: TypedContractMethod<
     [
       recipient: AddressLike,
       token: AddressLike,
@@ -348,70 +443,72 @@ export interface AoriV2 extends BaseContract {
     "nonpayable"
   >;
 
-  getMatchingHash: TypedContractMethod<
-    [matching: IAoriV2.MatchingDetailsStruct],
-    [string],
-    "view"
-  >;
-
   getOrderHash: TypedContractMethod<
-    [order: IAoriV2.OrderStruct],
+    [order: IClearing.OrderStruct],
     [string],
     "view"
   >;
 
-  getTakerFee: TypedContractMethod<
-    [],
-    [[string, bigint] & { feeRecipient: string; feeInBips: bigint }],
+  getSignatureMessage: TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [string],
     "view"
   >;
 
-  hasOrderSettled: TypedContractMethod<
-    [orderHash: BytesLike],
+  hasSettled: TypedContractMethod<
+    [offerer: AddressLike, orderHash: BytesLike],
     [boolean],
     "view"
   >;
 
-  serverSigner: TypedContractMethod<[], [string], "view">;
+  isCancelled: TypedContractMethod<
+    [offerer: AddressLike, orderHash: BytesLike],
+    [boolean],
+    "view"
+  >;
 
-  setTakerFee: TypedContractMethod<
-    [_newFeeRecipient: AddressLike, _newFeeInBips: BigNumberish],
+  move: TypedContractMethod<
+    [
+      to: AddressLike,
+      token: AddressLike,
+      amount: BigNumberish,
+      extraData: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
 
-  settleOrders: TypedContractMethod<
+  release: TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [void],
+    "nonpayable"
+  >;
+
+  settle: TypedContractMethod<
     [
-      matching: IAoriV2.MatchingDetailsStruct,
-      serverSignature: BytesLike,
-      hookData: BytesLike
+      orders: IClearing.SignedOrderStruct[],
+      extraData: BytesLike,
+      witness: BytesLike
     ],
     [void],
     "payable"
   >;
 
-  signatureIntoComponents: TypedContractMethod<
-    [signature: BytesLike],
-    [[bigint, string, string] & { v: bigint; r: string; s: string }],
-    "view"
-  >;
-
-  withFee: TypedContractMethod<
-    [amount: BigNumberish, feeInBips: BigNumberish],
-    [bigint],
+  verifyOrderSignature: TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [boolean],
     "view"
   >;
 
   withdraw: TypedContractMethod<
-    [_token: AddressLike, _amount: BigNumberish],
+    [
+      _to: AddressLike,
+      _token: AddressLike,
+      _amount: BigNumberish,
+      _extraData: BytesLike
+    ],
     [void],
     "nonpayable"
-  >;
-
-  withoutFee: TypedContractMethod<
-    [amount: BigNumberish, feeInBips: BigNumberish],
-    [bigint],
-    "view"
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -426,14 +523,50 @@ export interface AoriV2 extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "deposit"
+    nameOrSignature: "cancel"
   ): TypedContractMethod<
-    [_account: AddressLike, _token: AddressLike, _amount: BigNumberish],
+    [signedOrder: IClearing.SignedOrderStruct],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "flashLoan"
+    nameOrSignature: "deposit"
+  ): TypedContractMethod<
+    [
+      _account: AddressLike,
+      _token: AddressLike,
+      _amount: BigNumberish,
+      _extraData: BytesLike
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "eip712Domain"
+  ): TypedContractMethod<
+    [],
+    [
+      [string, string, string, bigint, string, string, bigint[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: bigint;
+        verifyingContract: string;
+        salt: string;
+        extensions: bigint[];
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "escrow"
+  ): TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "flash"
   ): TypedContractMethod<
     [
       recipient: AddressLike,
@@ -446,111 +579,169 @@ export interface AoriV2 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "getMatchingHash"
+    nameOrSignature: "getOrderHash"
+  ): TypedContractMethod<[order: IClearing.OrderStruct], [string], "view">;
+  getFunction(
+    nameOrSignature: "getSignatureMessage"
   ): TypedContractMethod<
-    [matching: IAoriV2.MatchingDetailsStruct],
+    [signedOrder: IClearing.SignedOrderStruct],
     [string],
     "view"
   >;
   getFunction(
-    nameOrSignature: "getOrderHash"
-  ): TypedContractMethod<[order: IAoriV2.OrderStruct], [string], "view">;
-  getFunction(
-    nameOrSignature: "getTakerFee"
+    nameOrSignature: "hasSettled"
   ): TypedContractMethod<
-    [],
-    [[string, bigint] & { feeRecipient: string; feeInBips: bigint }],
+    [offerer: AddressLike, orderHash: BytesLike],
+    [boolean],
     "view"
   >;
   getFunction(
-    nameOrSignature: "hasOrderSettled"
-  ): TypedContractMethod<[orderHash: BytesLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "serverSigner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "setTakerFee"
+    nameOrSignature: "isCancelled"
   ): TypedContractMethod<
-    [_newFeeRecipient: AddressLike, _newFeeInBips: BigNumberish],
+    [offerer: AddressLike, orderHash: BytesLike],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "move"
+  ): TypedContractMethod<
+    [
+      to: AddressLike,
+      token: AddressLike,
+      amount: BigNumberish,
+      extraData: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "settleOrders"
+    nameOrSignature: "release"
+  ): TypedContractMethod<
+    [signedOrder: IClearing.SignedOrderStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "settle"
   ): TypedContractMethod<
     [
-      matching: IAoriV2.MatchingDetailsStruct,
-      serverSignature: BytesLike,
-      hookData: BytesLike
+      orders: IClearing.SignedOrderStruct[],
+      extraData: BytesLike,
+      witness: BytesLike
     ],
     [void],
     "payable"
   >;
   getFunction(
-    nameOrSignature: "signatureIntoComponents"
+    nameOrSignature: "verifyOrderSignature"
   ): TypedContractMethod<
-    [signature: BytesLike],
-    [[bigint, string, string] & { v: bigint; r: string; s: string }],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "withFee"
-  ): TypedContractMethod<
-    [amount: BigNumberish, feeInBips: BigNumberish],
-    [bigint],
+    [signedOrder: IClearing.SignedOrderStruct],
+    [boolean],
     "view"
   >;
   getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<
-    [_token: AddressLike, _amount: BigNumberish],
+    [
+      _to: AddressLike,
+      _token: AddressLike,
+      _amount: BigNumberish,
+      _extraData: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "withoutFee"
-  ): TypedContractMethod<
-    [amount: BigNumberish, feeInBips: BigNumberish],
-    [bigint],
-    "view"
-  >;
 
   getEvent(
-    key: "FeeReceived"
+    key: "Cancelled"
   ): TypedContractEvent<
-    FeeReceivedEvent.InputTuple,
-    FeeReceivedEvent.OutputTuple,
-    FeeReceivedEvent.OutputObject
+    CancelledEvent.InputTuple,
+    CancelledEvent.OutputTuple,
+    CancelledEvent.OutputObject
   >;
   getEvent(
-    key: "OrdersSettled"
+    key: "Deposit"
   ): TypedContractEvent<
-    OrdersSettledEvent.InputTuple,
-    OrdersSettledEvent.OutputTuple,
-    OrdersSettledEvent.OutputObject
+    DepositEvent.InputTuple,
+    DepositEvent.OutputTuple,
+    DepositEvent.OutputObject
+  >;
+  getEvent(
+    key: "Settled"
+  ): TypedContractEvent<
+    SettledEvent.InputTuple,
+    SettledEvent.OutputTuple,
+    SettledEvent.OutputObject
+  >;
+  getEvent(
+    key: "Transfer"
+  ): TypedContractEvent<
+    TransferEvent.InputTuple,
+    TransferEvent.OutputTuple,
+    TransferEvent.OutputObject
+  >;
+  getEvent(
+    key: "Withdraw"
+  ): TypedContractEvent<
+    WithdrawEvent.InputTuple,
+    WithdrawEvent.OutputTuple,
+    WithdrawEvent.OutputObject
   >;
 
   filters: {
-    "FeeReceived(address,string,address,uint256,address,uint256)": TypedContractEvent<
-      FeeReceivedEvent.InputTuple,
-      FeeReceivedEvent.OutputTuple,
-      FeeReceivedEvent.OutputObject
+    "Cancelled(bytes32,address,address,tuple,bytes)": TypedContractEvent<
+      CancelledEvent.InputTuple,
+      CancelledEvent.OutputTuple,
+      CancelledEvent.OutputObject
     >;
-    FeeReceived: TypedContractEvent<
-      FeeReceivedEvent.InputTuple,
-      FeeReceivedEvent.OutputTuple,
-      FeeReceivedEvent.OutputObject
+    Cancelled: TypedContractEvent<
+      CancelledEvent.InputTuple,
+      CancelledEvent.OutputTuple,
+      CancelledEvent.OutputObject
     >;
 
-    "OrdersSettled(string,address,address,bytes32,bytes32,bytes32,address,uint160)": TypedContractEvent<
-      OrdersSettledEvent.InputTuple,
-      OrdersSettledEvent.OutputTuple,
-      OrdersSettledEvent.OutputObject
+    "Deposit(address,address,address,uint256,bytes)": TypedContractEvent<
+      DepositEvent.InputTuple,
+      DepositEvent.OutputTuple,
+      DepositEvent.OutputObject
     >;
-    OrdersSettled: TypedContractEvent<
-      OrdersSettledEvent.InputTuple,
-      OrdersSettledEvent.OutputTuple,
-      OrdersSettledEvent.OutputObject
+    Deposit: TypedContractEvent<
+      DepositEvent.InputTuple,
+      DepositEvent.OutputTuple,
+      DepositEvent.OutputObject
+    >;
+
+    "Settled(bytes32,address,address,tuple,bytes)": TypedContractEvent<
+      SettledEvent.InputTuple,
+      SettledEvent.OutputTuple,
+      SettledEvent.OutputObject
+    >;
+    Settled: TypedContractEvent<
+      SettledEvent.InputTuple,
+      SettledEvent.OutputTuple,
+      SettledEvent.OutputObject
+    >;
+
+    "Transfer(address,address,address,uint256,bytes)": TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
+    Transfer: TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
+
+    "Withdraw(address,address,address,uint256,bytes)": TypedContractEvent<
+      WithdrawEvent.InputTuple,
+      WithdrawEvent.OutputTuple,
+      WithdrawEvent.OutputObject
+    >;
+    Withdraw: TypedContractEvent<
+      WithdrawEvent.InputTuple,
+      WithdrawEvent.OutputTuple,
+      WithdrawEvent.OutputObject
     >;
   };
 }
