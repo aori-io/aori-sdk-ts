@@ -73,11 +73,18 @@ export const AORI_DATA_PROVIDER_APIS: string[] = [
     AORI_DATA_PROVIDER_API,
 ];
 
+// Data Server API 
+export const AORI_DATA_SERVER_API: string = "https://data.aori.io/";
+
+
 // Pricing Provider API
 export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 
 // Settlement Provider API
 export const AORI_SETTLEMENT_PROVIDER_API: string = "https://settlement.aori.io";
+
+// Quoter API
+export const AORI_QUOTER_API: string = 'https://quoter.aori.io/'
 
 /*//////////////////////////////////////////////////////////////
                                 FEE

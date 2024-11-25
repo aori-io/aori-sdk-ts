@@ -1,9 +1,21 @@
 import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
 import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
-import { AoriDataMethods } from "../utils/interfaces";
+import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
 import axios from "axios";
+
+interface AoriViewTradesParams {
+    tradeId?: string;
+    offerer?: string;
+    orderType: "rfq" | "limit";
+    eventType?: string[];
+    chains?: number[];
+    quote?: string;
+    base?: string;
+    page?: number;
+    limit?: number;
+}
 
 /*//////////////////////////////////////////////////////////////
                             HELPERS
@@ -77,12 +89,12 @@ export function getNativeBalance(chainIdOrProvider: number | JsonRpcProvider, ad
 
 export async function getTokenDetails(chainIdOrProvider: number | JsonRpcProvider, token: string, address?: string, spender?: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
-        const contract = ERC20__factory.connect(token, provider); 
+        const contract = ERC20__factory.connect(token, provider);
         return {
             name: await contract.name(),
             symbol: await contract.symbol(),
             decimals: await contract.decimals(),
-            ...(address ?  { balance: await contract.balanceOf(address) } : {}),
+            ...(address ? { balance: await contract.balanceOf(address) } : {}),
             ...((address && spender) ? { allowance: await contract.allowance(address, spender) } : {})
         }
     })
@@ -92,7 +104,7 @@ export async function isValidSignature(chainIdOrProvider: number | JsonRpcProvid
     return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
         const contract = AoriVault__factory.connect(address, provider);
         return await contract.isValidSignature(hash, signature) == "0x1626ba7e";
-    });   
+    });
 }
 
 export async function getSeatDetails(chainIdOrProvider: number | JsonRpcProvider, seatId: number): Promise<{ seatOwner: string, seatScore: number }> {
@@ -112,7 +124,7 @@ export async function getSeatDetails(chainIdOrProvider: number | JsonRpcProvider
             seatOwner: owner,
             seatScore: parseInt(seatScore) || 0
         }
-    });    
+    });
 }
 
 export function verifySignature(message: string, signature: string): string {
@@ -120,7 +132,7 @@ export function verifySignature(message: string, signature: string): string {
 }
 
 export function sendTransaction(signedTx: string): Promise<string> {
-    return rawCall(AORI_DATA_PROVIDER_API, AoriDataMethods.SendTransaction, [{ signedTx }]);
+    return rawCall(AORI_DATA_PROVIDER_API, AoriDataProviderMethods.SendTransaction, [{ signedTx }]);
 }
 
 export function simulateTransaction(tx: TransactionRequest & { chainId: number }): Promise<string> {
@@ -136,14 +148,22 @@ export async function isContract(chainIdOrProvider: number | JsonRpcProvider, ad
 }
 
 export async function getSettlementStatus(orderHashes: string[]): Promise<{ [orderHash: string]: { settled: true, transactionHash: string, maker: string, taker: string } | { settled: false } }> {
-    const { data }: { data: { [orderHash: string]: {
-        settled: true,
-        transactionHash: string,
-        maker: string,
-        taker: string
-    } | { settled: false } } } = await axios.post(AORI_SETTLEMENT_PROVIDER_API, {
+    const { data }: {
+        data: {
+            [orderHash: string]: {
+                settled: true,
+                transactionHash: string,
+                maker: string,
+                taker: string
+            } | { settled: false }
+        }
+    } = await axios.post(AORI_SETTLEMENT_PROVIDER_API, {
         orderHashes
     });
 
     return data;
+}
+
+export async function queryOrders(query: AoriViewTradesParams) {
+    return rawCall(AORI_DATA_SERVER_API, AoriDataServerMethods.ViewTrades, [query]);
 }

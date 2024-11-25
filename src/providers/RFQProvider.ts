@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { AORI_WS_API, AoriMethods, AoriOrder, AoriWebsocketEventData, SubscriptionEvents, TypedEventEmitter } from "../utils";
+import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriDataServerMethods, AoriMethods, AoriOrder, AoriQuoterMethods, AoriWebsocketEventData, rawCall, SubscriptionEvents, TypedEventEmitter } from "../utils";
 
 export interface AoriSubscribeParams {
     tradeId?: string;
@@ -49,10 +49,10 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
 
                 switch (event) {
                     case SubscriptionEvents.QuoteRequested:
-                        this.emit(SubscriptionEvents.QuoteRequested,  eventDetails);
+                        this.emit(SubscriptionEvents.QuoteRequested, eventDetails);
                         break;
                     case SubscriptionEvents.QuoteReceived:
-                        this.emit(SubscriptionEvents.QuoteReceived,  eventDetails);
+                        this.emit(SubscriptionEvents.QuoteReceived, eventDetails);
                         break;
                     case SubscriptionEvents.TradeMatched:
                         this.emit(SubscriptionEvents.TradeMatched, eventDetails);
@@ -101,4 +101,50 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
             params: [params]
         }));
     }
+}
+
+
+/*//////////////////////////////////////////////////////////////
+                            HELPERS
+//////////////////////////////////////////////////////////////*/
+
+// getPriceEstimate
+export async function getPriceEstimate(inputToken: string, outputToken: string, inputAmount: number, chainId: number) {
+    return rawCall(AORI_QUOTER_API, AoriQuoterMethods.PriceQuote, [{
+        inputToken,
+        outputToken,
+        inputAmount,
+        chainId
+    }]);
+}
+
+// requestPartialQuote TODO
+export async function requestPartialQuote() {
+
+}
+
+// requestQuote
+export async function requestQuote(order: AoriOrder, signature: string) {
+    return rawCall(AORI_HTTP_API, AoriMethods.Rfq, [{ order, signature }]);
+}
+
+// respondToQuote TODO 
+export async function respondToQuote() {
+
+}
+
+// makeOrder TODO
+export async function makeOrder(order: AoriOrder, signature: string) {
+    return rawCall(AORI_HTTP_API, AoriMethods.Make, [{ order, signature }]);
+}
+
+// takeOrder TODO 
+export async function takeOrder() {
+
+}
+
+// cancelOrder TODO
+export async function cancelOrder(orderHash: string, signature: string) {
+    return rawCall(AORI_HTTP_API, AoriMethods.Cancel, [{ orderHash, signature }]);
+
 }

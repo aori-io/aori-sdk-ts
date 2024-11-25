@@ -71,15 +71,23 @@ export enum AoriMethods {
     Fail = "aori_fail"
 }
 
-export enum AoriDataMethods {
+export enum AoriDataProviderMethods {
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
+}
+
+export enum AoriDataServerMethods {
+    ViewTrades = "aori_viewTrades"
 }
 
 export enum AoriPricingMethods {
     CurrentGasInToken = "aori_currentGasInToken",
     GetToken = "aori_getToken",
     CalculateGasInToken = "aori_calculateGasInToken",
+}
+
+export enum AoriQuoterMethods {
+    PriceQuote = "aori_priceQuote"
 }
 
 export enum SubscriptionEvents {
