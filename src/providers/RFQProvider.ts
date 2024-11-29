@@ -111,7 +111,7 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
 interface AoriGetPriceEstimateParams {
     inputToken: string;
     outputToken: string;
-    inputAmount: number;
+    inputAmount: string;
     chainId: number;
 }
 
@@ -129,7 +129,7 @@ export async function getPriceEstimate(params: AoriGetPriceEstimateParams) {
 interface AoriGetPartialQuoteParams {
     inputToken: string;
     outputToken: string;
-    inputAmount: number;
+    inputAmount: string;
     chainId: number;
 }
 
