@@ -1,5 +1,5 @@
 import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
+import { AORI_DATA_PROVIDER_API, AORI_DATA_SERVER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
 import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
 import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
@@ -30,11 +30,7 @@ export function retryIfFail<T>(provider: JsonRpcProvider, fn: (provider: JsonRpc
     const arr: Promise<any>[] = [];
     for (let i = 0; i < loadCount; i++) arr.push(new Promise(async (resolve, reject) => {
         try {
-            const requestId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const url = provider._getConnection().url;
-            console.time(`RPC Call ${requestId} - ${url}`);
             const response = await fn(provider);
-            console.timeEnd(`RPC Call ${requestId} - ${url}`);
             return resolve(response);
         } catch (e) {
             return reject(e);
