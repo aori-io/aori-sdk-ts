@@ -114,7 +114,7 @@ export interface DetailsToExecute {
 export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> & { outputAmount?: string };
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
-export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
+export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount, takerSignature: string, takerExtraData: string } | { orderType: "limit", makerOrder: AoriOrder, makerSignature: string, makerExtraData: string });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
 export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
 export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
