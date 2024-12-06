@@ -1,4 +1,4 @@
-import { solidityPackedKeccak256, Wallet } from "ethers";
+import { solidityPackedKeccak256, Wallet, ZeroAddress } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
 import { signOrderWithExtradata } from "./signature";
 import { AORI_V2_ADDRESS } from "./constants";
@@ -69,7 +69,7 @@ export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefin
         outputToken,
         outputAmount,
         recipient,
-        zone = AORI_V2_ADDRESS,
+        zone = ZeroAddress,
         startTime,
         endTime,
         chainId,
