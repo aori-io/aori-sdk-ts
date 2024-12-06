@@ -8,7 +8,6 @@ import type {
   FunctionFragment,
   Result,
   Interface,
-  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -18,7 +17,6 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
-  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "./common";
@@ -92,8 +90,6 @@ export interface PrincipalMatchInterface extends Interface {
       | "setNewManager"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "TradeSettled"): EventFragment;
-
   encodeFunctionData(functionFragment: "clearing", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "handleDeposit",
@@ -125,18 +121,6 @@ export interface PrincipalMatchInterface extends Interface {
     functionFragment: "setNewManager",
     data: BytesLike
   ): Result;
-}
-
-export namespace TradeSettledEvent {
-  export type InputTuple = [tradeId: string];
-  export type OutputTuple = [tradeId: string];
-  export interface OutputObject {
-    tradeId: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export interface PrincipalMatch extends BaseContract {
@@ -255,24 +239,5 @@ export interface PrincipalMatch extends BaseContract {
     nameOrSignature: "setNewManager"
   ): TypedContractMethod<[_newManager: AddressLike], [void], "nonpayable">;
 
-  getEvent(
-    key: "TradeSettled"
-  ): TypedContractEvent<
-    TradeSettledEvent.InputTuple,
-    TradeSettledEvent.OutputTuple,
-    TradeSettledEvent.OutputObject
-  >;
-
-  filters: {
-    "TradeSettled(string)": TypedContractEvent<
-      TradeSettledEvent.InputTuple,
-      TradeSettledEvent.OutputTuple,
-      TradeSettledEvent.OutputObject
-    >;
-    TradeSettled: TypedContractEvent<
-      TradeSettledEvent.InputTuple,
-      TradeSettledEvent.OutputTuple,
-      TradeSettledEvent.OutputObject
-    >;
-  };
+  filters: {};
 }

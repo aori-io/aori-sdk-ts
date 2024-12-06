@@ -60,7 +60,7 @@ export type CreateOrderParams = {
 
 export function createOrder(params: CreateOrderParams, wallet?: undefined): AoriOrder;
 export function createOrder(params: CreateOrderParams, wallet?: Wallet, extraData?: string): SignedOrder;
-export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefined, extraData: string = "0x") {
+export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefined, extraData?: string) {
 
     const {
         offerer,
