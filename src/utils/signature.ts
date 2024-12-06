@@ -1,6 +1,6 @@
 import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
-import { getOrderHash } from "../providers";
+import { getOrderHash } from "./order";
 
 /*//////////////////////////////////////////////////////////////
                         ORDER SIGNATURE
