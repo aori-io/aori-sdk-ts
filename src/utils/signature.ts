@@ -7,23 +7,26 @@ import { getOrderHash } from "./order";
 //////////////////////////////////////////////////////////////*/
 
 export function getOrderMessage({ order, extraData = "0x" }: { order: AoriOrder, extraData?: string }) {
-    return solidityPackedKeccak256(
-        ["bytes32", "bytes"],
-        [
-            getOrderHash(order),
-            extraData
-        ]
-    )
+    return {
+        hash: getOrderHash(order),
+        digest: solidityPackedKeccak256(
+            ["bytes32", "bytes"],
+            [
+                getOrderHash(order),
+                extraData
+            ]   
+        )
+    }
 }
 
 export function signOrderWithExtradata(wallet: Wallet, order: AoriOrder, extraData: string = "0x"): SignedOrder {
-    const signature = wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData })));
+    const signature = wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData }).digest));
     return { order, extraData, signature };
 }
 
 export function verifyOrderSignature(signedOrder: SignedOrder): boolean {
     return verifyMessage(
-        getBytes(getOrderMessage(signedOrder)),
+        getBytes(getOrderMessage(signedOrder).digest),
         signedOrder.signature
     ) == signedOrder.order.offerer;
 }
