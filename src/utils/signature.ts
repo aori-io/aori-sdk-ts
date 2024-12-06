@@ -8,7 +8,7 @@ import { getOrderHash } from "./order";
 
 export function getOrderMessage({ order, extraData = "0x" }: { order: AoriOrder, extraData?: string }) {
     return {
-        hash: getOrderHash(order),
+        orderHash: getOrderHash(order),
         digest: solidityPackedKeccak256(
             ["bytes32", "bytes"],
             [
