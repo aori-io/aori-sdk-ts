@@ -59,8 +59,8 @@ export type CreateOrderParams = {
 }
 
 export function createOrder(params: CreateOrderParams, wallet?: undefined): AoriOrder;
-export function createOrder(params: CreateOrderParams, wallet?: Wallet): SignedOrder;
-export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefined) {
+export function createOrder(params: CreateOrderParams, wallet?: Wallet, extraData?: string): SignedOrder;
+export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefined, extraData: string = "0x") {
 
     const {
         offerer,
@@ -90,5 +90,5 @@ export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefin
         toWithdraw: toWithdraw || true
     }
 
-    return wallet ? signOrderWithExtradata(wallet, order) : order;
+    return wallet ? signOrderWithExtradata(wallet, order, extraData) : order;
 }
