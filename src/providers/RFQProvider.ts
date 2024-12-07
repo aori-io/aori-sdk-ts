@@ -1,4 +1,4 @@
-import { WebSocket } from "ws";
+import { WebSocket } from "isomorphic-ws";
 import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriMethods, AoriOrder, AoriQuoterMethods, AoriWebsocketEventData, OrderCancelledDetails, QuoteRequestedDetails, rawCall, SubscriptionEvents, TradeMatchedDetails, TypedEventEmitter, WithEventDetails } from "../utils";
 
 export interface AoriSubscribeParams {

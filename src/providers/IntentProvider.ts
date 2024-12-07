@@ -1,4 +1,4 @@
-import { WebSocket } from "ws";
+import { WebSocket } from "isomorphic-ws";
 import axios from "axios";
 import { AORI_HTTP_API, AORI_WS_API, SignedOrder, TypedEventEmitter } from "../utils";
 import { IntentSubscriptionEvent, IntentSubscriptionEventData, IntentWebsocketEventData } from "../utils/intent";
