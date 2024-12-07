@@ -11,12 +11,14 @@ interface AoriPartialRequest {
 }
 
 // TODO: move to aori_priceQuote
+// TODO: deprecate
 export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API) {
     const { data } = await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
     if (data.orderType !== "rfq") throw new Error("Order type is not rfq");
     return data;
 }
 
+// TODO: deprecate
 export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }, apiUrl: string = AORI_HTTP_API) {
     const offerer = req.address || wallet.address;
     const { takerOrder } = await receivePriceQuote({ ...req, address: offerer }, apiUrl);
@@ -45,6 +47,11 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
         },
         takerOrder
     };
+}
+
+// TODO: deprecate; move to using sendIntent
+export async function sendRFQ(req: SignedOrder | { order: SignedOrder, signature: string }, apiUrl: string = AORI_HTTP_API) {
+    return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Rfq, [req]);
 }
 
 export async function sendIntent(req: SignedOrder, apiUrl: string = AORI_HTTP_API) {
