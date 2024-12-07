@@ -161,5 +161,5 @@ export async function getSettlementStatus(orderHashes: string[]): Promise<{ [ord
 }
 
 export async function queryOrders(query: AoriViewTradesParams) {
-    return rawCall(AORI_DATA_SERVER_API, AoriDataServerMethods.ViewTrades, [query]);
+    return await rawCall(AORI_DATA_SERVER_API, AoriDataServerMethods.ViewTrades, [query]);
 }
