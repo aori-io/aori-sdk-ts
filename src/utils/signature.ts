@@ -1,4 +1,4 @@
-import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
 import { getOrderHash } from "./order";
 
@@ -44,10 +44,4 @@ export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
             extraData
         ]
     )
-}
-
-export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string = "0x"): { orders: SignedOrder[], extraData: string, signature: string } {
-    const sequenceMessage = getSequenceMessage(orders, extraData);
-    const signature = wallet.signMessageSync(getBytes(sequenceMessage));
-    return { orders, extraData, signature };
 }
