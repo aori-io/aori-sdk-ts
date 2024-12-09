@@ -45,3 +45,8 @@ export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
         ]
     )
 }
+
+export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string) {
+    const signature = wallet.signMessageSync(getBytes(getSequenceMessage(orders, extraData)));
+    return { orders, extraData, signature };
+}
