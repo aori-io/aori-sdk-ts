@@ -1,7 +1,7 @@
 {
   "name": "@aori-io/sdk",
   "description": "The Aori TypeScript SDK for interacting with Aori's HTTP and Websocket-based API",
-  "version": "2.3.28",
+  "version": "2.3.29",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
