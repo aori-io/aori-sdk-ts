@@ -1,5 +1,4 @@
-import { AoriV2__factory, AoriVault__factory, ERC20__factory, WETH9__factory } from "../types";
-import { InstructionStruct } from "../types/AoriVault";
+import { AoriV2__factory, ERC20__factory, WETH9__factory } from "../types";
 import { AORI_V2_ADDRESS } from "./constants";
 import { SignedOrder } from "./interfaces";
 
@@ -23,16 +22,16 @@ export function settle(orders: SignedOrder[], extraData: string = "0x", witness:
     };
 }
 
-export function withdraw(to: string, token: string, amount: string, chainId?: undefined, extraData?: string, isVault?: true): { to: string, value: number, data: string };
-export function withdraw(to: string, token: string, amount: string, chainId?: number, extraData?: string, isVault?: false): { to: string, value: number, data: string, chainId: number };
-export function withdraw(to: string, token: string, amount: string, chainId?: number, extraData?: string, isVault?: boolean) {
+export function withdraw(to: string, token: string, amount: string, chainId?: undefined, extraData?: string, isTx?: true): { to: string, value: number, data: string };
+export function withdraw(to: string, token: string, amount: string, chainId?: number, extraData?: string, isTx?: false): { to: string, value: number, data: string, chainId: number };
+export function withdraw(to: string, token: string, amount: string, chainId?: number, extraData?: string, isTx?: boolean) {
     return {
         to: AORI_V2_ADDRESS,
         value: 0,
         data: AoriV2__factory
             .createInterface()
             .encodeFunctionData("withdraw", [to, token, amount, extraData ?? "0x"]),
-        ...(isVault ? {} : { chainId })
+        ...(isTx ? {} : { chainId })
     };
 }
 
@@ -48,28 +47,15 @@ export function deposit(to: string, token: string, amount: string, chainId?: num
 }
 
 
-export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isVault?: true): { to: string, value: number, data: string };
-export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isVault?: false): { to: string, value: number, data: string, chainId: number };
-export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isVault?: boolean) {
+export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isTx?: true): { to: string, value: number, data: string };
+export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isTx?: false): { to: string, value: number, data: string, chainId: number };
+export function move(to: string, token: string, amount: string, chainId: number, extraData?: string, isTx?: boolean) {
     return {
         to: AORI_V2_ADDRESS,
         value: 0,
         data: AoriV2__factory.createInterface().encodeFunctionData("move", [to, token, amount, extraData ?? "0x"]),
-        ...(isVault ? {} : { chainId })
+        ...(isTx ? {} : { chainId })
     };
-}
-
-/*//////////////////////////////////////////////////////////////
-                        VAULT ACTIONS
-//////////////////////////////////////////////////////////////*/
-
-export function execute(vault: string, instructions: InstructionStruct[], chainId: number) {
-    return {
-        to: vault,
-        value: 0,
-        data: AoriVault__factory.createInterface().encodeFunctionData("execute", [instructions]),
-        chainId
-    }
 }
 
 /*//////////////////////////////////////////////////////////////

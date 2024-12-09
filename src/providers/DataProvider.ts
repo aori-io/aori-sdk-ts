@@ -1,6 +1,6 @@
 import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
 import { AORI_DATA_PROVIDER_API, AORI_DATA_SERVER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
-import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
+import { AoriV2__factory, ERC20__factory } from "../types";
 import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
 import axios from "axios";
@@ -94,13 +94,6 @@ export async function getTokenDetails(chainIdOrProvider: number | JsonRpcProvide
             ...((address && spender) ? { allowance: await contract.allowance(address, spender) } : {})
         }
     })
-}
-
-export async function isValidSignature(chainIdOrProvider: number | JsonRpcProvider, address: string, hash: BytesLike, signature: string): Promise<boolean> {
-    return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
-        const contract = AoriVault__factory.connect(address, provider);
-        return await contract.isValidSignature(hash, signature) == "0x1626ba7e";
-    });
 }
 
 export async function getSeatDetails(chainIdOrProvider: number | JsonRpcProvider, seatId: number): Promise<{ seatOwner: string, seatScore: number }> {

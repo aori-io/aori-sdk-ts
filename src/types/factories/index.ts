@@ -2,8 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AoriV2__factory } from "./AoriV2__factory";
-export { AoriVault__factory } from "./AoriVault__factory";
-export { AoriVaultBlast__factory } from "./AoriVaultBlast__factory";
 export { ERC20__factory } from "./ERC20__factory";
 export { PrincipalMatch__factory } from "./PrincipalMatch__factory";
 export { WETH9__factory } from "./WETH9__factory";
