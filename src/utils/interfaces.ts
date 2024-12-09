@@ -96,7 +96,8 @@ export enum SubscriptionEvents {
     QuoteReceived = "QuoteReceived",
     TradeMatched = "TradeMatched",
     TradeSettled = "TradeSettled",
-    TradeFailed = "TradeFailed"
+    TradeFailed = "TradeFailed",
+    Sequenced = "Sequenced"
 }
 
 export interface DetailsToExecute {
@@ -143,6 +144,7 @@ export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
     extraData: string,
 };
 export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
+export type SequencedDetails = { orders: SignedOrder[]; extraData: string; witness: string; chainId: number; zone: string };
 
 export type AoriWebsocketEventData = {
     ["ready"]: [],
@@ -152,6 +154,7 @@ export type AoriWebsocketEventData = {
     [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>],
     [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
+    [SubscriptionEvents.Sequenced]: [WithEventDetails<SubscriptionEvents.Sequenced, SequencedDetails>],
 }
 export type AoriEventData<T extends SubscriptionEvents = SubscriptionEvents> = AoriWebsocketEventData[T][0];
 export type AoriEventDetails<T extends SubscriptionEvents = SubscriptionEvents> = AoriEventData<T>["data"];
