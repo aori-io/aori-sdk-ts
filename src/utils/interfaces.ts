@@ -114,7 +114,23 @@ export interface DetailsToExecute {
 export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> & { outputAmount?: string };
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
-export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount, takerSignature: string, takerExtraData: string } | { orderType: "limit", makerOrder: AoriOrder, makerSignature: string, makerExtraData: string });
+export type QuoteRequestedDetails = ({
+    orderType: "rfq",
+    takerOrder: AoriOrder,
+    takerSignature: string,
+    takerExtraData: string,
+
+    order?: AoriOrder,
+    extraData?: string,
+} | {
+    orderType: "limit",
+    makerOrder: AoriOrder,
+    makerSignature: string,
+    makerExtraData: string,
+
+    order?: AoriOrder,
+    extraData?: string,
+});
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
 export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
 export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
@@ -144,23 +160,23 @@ export type TradeRecord = {
     tradeId: string;
     data: {
         // After QuoteRequested
-        orderType?: "rfq" | "limit"; // TODO: to deprecate
-        takerOrder?: AoriOrderWithOptionalOutputAmount; // TODO: to deprecate
-        makerOrder?: AoriOrder; // TODO: to deprecate
+        orderHash: string;
+        order: AoriOrder;
+        extraData: string;
 
-        order?: AoriOrder;
-        extraData?: string;
+        inputUsdValue?: number;
+        outputUsdValue?: number;
 
         // After TradeMatched
-        matching?: AoriMatchingDetails;
-        matchingSignature?: string;
-        to?: string;
-        value?: number;
-        data?: string;
-        feeTag?: string;
-        feeRecipient?: string;
-        makerUsdValue?: number;
-        takerUsdValue?: number;
+        // matching?: AoriMatchingDetails;
+        // matchingSignature?: string;
+        // to?: string;
+        // value?: number;
+        // data?: string;
+        // feeTag?: string;
+        // feeRecipient?: string;
+        // makerUsdValue?: number;
+        // takerUsdValue?: number;
 
         // After TradeSettled
         transactionHash?: string;
