@@ -36,7 +36,7 @@ export function verifyOrderSignature(signedOrder: SignedOrder): boolean {
 //////////////////////////////////////////////////////////////*/
 
 export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
-    const messages = orders.map(order => getOrderMessage(order));
+    const messages = orders.map(order => getOrderMessage(order).digest);
     return solidityPackedKeccak256(
         ["bytes32[]", "bytes"],
         [
