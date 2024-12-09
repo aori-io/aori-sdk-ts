@@ -134,7 +134,7 @@ export type QuoteRequestedDetails = ({
 });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
 export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
-export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
+export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute; // TODO: to deprecate
 export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
     makerOrder?: AoriOrder, // TODO: to deprecate
     takerOrder?: AoriOrder, // TODO: to deprecate
