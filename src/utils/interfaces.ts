@@ -118,7 +118,14 @@ export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWi
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
 export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
 export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
-export type TradeSettledDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string };
+export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
+    makerOrder?: AoriOrder, // TODO: to deprecate
+    takerOrder?: AoriOrder, // TODO: to deprecate
+    orderHash: string,
+    order: AoriOrder,
+    transactionHash: string,
+    extraData: string,
+};
 export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
 
 export type AoriWebsocketEventData = {
@@ -137,9 +144,12 @@ export type TradeRecord = {
     tradeId: string;
     data: {
         // After QuoteRequested
-        orderType: "rfq" | "limit";
-        takerOrder?: AoriOrderWithOptionalOutputAmount;
-        makerOrder?: AoriOrder;
+        orderType?: "rfq" | "limit"; // TODO: to deprecate
+        takerOrder?: AoriOrderWithOptionalOutputAmount; // TODO: to deprecate
+        makerOrder?: AoriOrder; // TODO: to deprecate
+
+        order?: AoriOrder;
+        extraData?: string;
 
         // After TradeMatched
         matching?: AoriMatchingDetails;
