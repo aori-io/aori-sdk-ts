@@ -92,3 +92,6 @@ export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefin
 
     return wallet ? signOrderWithExtradata(wallet, order, extraData) : order;
 }
+
+export const createLimitOrder = createOrder;
+export const createIntent = createOrder;
