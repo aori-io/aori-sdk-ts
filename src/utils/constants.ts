@@ -57,8 +57,6 @@ export const AORI_V2_PRINCIPAL_MATCH_ZONE = "0xf9155B47f3F27eaB1374Bb13e48E66073
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
 
-export const CREATEX_ADDRESS = "0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed";
-
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
 //////////////////////////////////////////////////////////////*/

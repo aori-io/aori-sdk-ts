@@ -1,7 +1,7 @@
 import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { getFeeData, getNonce, getTokenDetails, sendTransaction, simulateTransaction } from "../providers";
 import { ERC20__factory } from "../types";
-import { AoriMatchingDetails } from "../utils";
+import { AoriMatchingDetails, approve } from "../utils";
 import { DetailsToExecute } from "./interfaces";
 import axios from "axios";
 
@@ -88,32 +88,6 @@ export function getMatchingSigner(matching: AoriMatchingDetails, signature: stri
                             WALLET
 //////////////////////////////////////////////////////////////*/
 
-export function approveTokenCall(
-    token: string,
-    spender: string,
-    amount: bigint
-) {
-    return {
-        to: token,
-        value: 0,
-        data: ERC20__factory.createInterface().encodeFunctionData("approve", [spender, amount]),
-    }
-}
-
-export async function approveToken(
-    wallet: Wallet,
-    chainId: number,
-    token: string,
-    spender: string,
-    amount: bigint
-) {
-    return sendOrRetryTransaction(wallet, {
-        ...approveTokenCall(token, spender, amount),
-        chainId,
-        gasLimit: 1_000_000,
-    });
-}
-
 export async function checkAndApproveToken(
     wallet: Wallet,
     chainId: number,
@@ -123,7 +97,10 @@ export async function checkAndApproveToken(
 ) {
     const { allowance } = await getTokenDetails(chainId, token, wallet.address, spender);
     if (allowance != undefined && allowance < amount) { 
-        await approveToken(wallet, chainId, token, spender, amount);
+        await sendOrRetryTransaction(wallet,
+            { ...approve(token, spender, amount.toString(), chainId), gasLimit: 1_000_000 },
+            { retries: 3 }
+        );
     }
 }
 

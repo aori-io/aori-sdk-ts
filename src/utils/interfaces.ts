@@ -37,23 +37,6 @@ export interface AoriMatchingDetails {
 }
 
 /*//////////////////////////////////////////////////////////////
-                         METHOD TYPES
-//////////////////////////////////////////////////////////////*/
-
-export interface CreateLimitOrderParams {
-    offerer: string;
-    startTime?: number;
-    endTime?: number;
-    inputToken: string;
-    inputAmount: bigint;
-    outputToken: string;
-    outputAmount: bigint;
-    chainId: number;
-    zone?: string;
-    toWithdraw?: boolean;
-}
-
-/*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
 
