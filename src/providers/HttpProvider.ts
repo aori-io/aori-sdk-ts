@@ -14,26 +14,25 @@ interface AoriPartialRequest {
 // TODO: deprecate
 export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API) {
     const { data } = await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
-    if (data.orderType !== "rfq") throw new Error("Order type is not rfq");
     return data;
 }
 
 // TODO: deprecate
 export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialRequest, "address"> & { address?: string }, apiUrl: string = AORI_HTTP_API) {
     const offerer = req.address || wallet.address;
-    const { takerOrder } = await receivePriceQuote({ ...req, address: offerer }, apiUrl);
-    if (!takerOrder.outputAmount) throw new Error("No output amount received");
+    const { order: { outputAmount} } = await receivePriceQuote({ ...req, address: offerer }, apiUrl);
     
     const { order, extraData, signature } = await createOrder({
         offerer,
         inputToken: req.inputToken,
         inputAmount: req.inputAmount,
         outputToken: req.outputToken,
-        outputAmount: takerOrder.outputAmount,
+        outputAmount: outputAmount,
         chainId: req.chainId,
         zone: req.zone,
         toWithdraw: true
     }, wallet);
+
     return {
         quote: {
             take: async () => {
@@ -45,7 +44,7 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
             },
             order
         },
-        takerOrder
+        order
     };
 }
 

@@ -77,19 +77,7 @@ export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
             }, 5_000);
         });
     }
-
-    async respond(tradeId: string, params: { order: AoriOrder, signature: string }) {
-        this.feed.send(JSON.stringify({
-            id: 1,
-            jsonrpc: "2.0",
-            method: AoriMethods.Respond,
-            params: [{
-                tradeId,
-                ...params
-            }]
-        }));
-    }
-
+    
     async subscribe(params: AoriSubscribeParams) {
         this.feed.send(JSON.stringify({
             id: 1,
@@ -152,42 +140,6 @@ export async function requestQuote(params: AoriRequestQuoteParams) {
         signature: params.signature
     }]);
 }
-
-interface AoriRespondToQuoteParams {
-    tradeId: string;
-    order: AoriOrder;
-    signature: string;
-}
-// respondToQuote  
-export async function respondToQuote(params: AoriRespondToQuoteParams) {
-    return await rawCall(AORI_HTTP_API, AoriMethods.Respond, [{
-        tradeId: params.tradeId,
-        order: params.order,
-        signature: params.signature
-    }]);
-}
-
-interface AoriMakeOrderParams {
-    order: AoriOrder;
-    signature: string;
-    feeTag?: string;
-    feeRecipient?: string;
-    feeInBips?: number;
-    isPrivate?: boolean
-}
-
-// makeOrder 
-export async function makeOrder(params: AoriMakeOrderParams) {
-    return await rawCall(AORI_HTTP_API, AoriMethods.Make, [{
-        order: params.order,
-        feeTag: params.feeTag,
-        feeRecipient: params.feeRecipient,
-        feeInBips: params.feeInBips,
-        isPrivate: params.isPrivate,
-        signature: params.signature
-    }]);
-}
-
 
 interface AoriCancelParams {
     tradeId: string;

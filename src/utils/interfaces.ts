@@ -35,11 +35,8 @@ export enum AoriMethods {
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     Rfq = "aori_rfq",
-    Respond = "aori_respond",
     Subscribe = "aori_subscribe",
     // =====
-    Make = "aori_make",
-    Take = "aori_take",
     Cancel = "aori_cancel",
     Fail = "aori_fail",
     // =====
@@ -74,41 +71,42 @@ export enum SubscriptionEvents {
     Sequenced = "Sequenced"
 }
 
-export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> & { outputAmount?: string };
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
-export type QuoteRequestedDetails = ({
-    orderType: "rfq", // TODO: to deprecate
-    takerOrder: AoriOrder, // TODO: to deprecate
-    takerSignature: string, // TODO: to deprecate
-    takerExtraData: string, // TODO: to deprecate
-
+export type QuoteRequestedDetails = {
+    // TODO: add in zone and chainId
     orderHash: string,
     order: AoriOrder,
     extraData: string,
     signature: string,
-} | {
-    orderType: "limit", // TODO: to deprecate
-    makerOrder: AoriOrder, // TODO: to deprecate
-    makerSignature: string, // TODO: to deprecate
-    makerExtraData: string, // TODO: to deprecate
-
-    orderHash: string,
-    order: AoriOrder,
-    extraData: string,
-    signature: string,
-});
-export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
-    makerOrder?: AoriOrder, // TODO: to deprecate
-    takerOrder?: AoriOrder, // TODO: to deprecate
-    orderHash: string,
-    order: AoriOrder,
-    transactionHash: string,
-    extraData: string,
 };
-export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
-export type SequencedDetails = { orders: SignedOrder[]; extraData: string; witness: string; chainId: number; zone: string };
+
+export type OrderCancelledDetails = {
+    orderHash: string,
+    order: AoriOrder,
+    extraData: string
+};
+
+export type TradeSettledDetails = {
+    orderHash: string,
+    order: AoriOrder,
+    extraData: string,
+    transactionHash: string,
+};
+
+export type TradeFailedDetails = {
+    orderHash: string,
+    order: AoriOrder,
+    extraData: string
+};
+
+export type SequencedDetails = {
+    orders: SignedOrder[];
+    extraData: string;
+    witness: string;
+    chainId: number;
+    zone: string;
+};
 
 export type AoriWebsocketEventData = {
     ["ready"]: [],
@@ -128,18 +126,10 @@ export type TradeRecord = {
         orderHash: string;
         order: AoriOrder;
         extraData: string;
+        signature: string;
 
         inputUsdValue?: number;
         outputUsdValue?: number;
-
-        // After TradeMatched
-        // to?: string;
-        // value?: number;
-        // data?: string;
-        // feeTag?: string;
-        // feeRecipient?: string;
-        // makerUsdValue?: number;
-        // takerUsdValue?: number;
 
         // After TradeSettled
         transactionHash?: string;
