@@ -138,7 +138,7 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
     return success;
 }
 
-
+// TODO: to deprecate
 export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, { gasLimit, gasPriceMultiplier }: { gasLimit?: bigint, gasPriceMultiplier?: number } = { gasLimit: 2_000_000n }) {
     return await sendOrRetryTransaction(wallet, {
         to: detailsToExecute.to,

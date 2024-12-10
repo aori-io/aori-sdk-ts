@@ -51,7 +51,10 @@ export enum AoriMethods {
     Make = "aori_make",
     Take = "aori_take",
     Cancel = "aori_cancel",
-    Fail = "aori_fail"
+    Fail = "aori_fail",
+    // =====
+    Intent = "aori_intent",
+    Sequence = "aori_sequence"
 }
 
 export enum AoriDataProviderMethods {
@@ -76,7 +79,6 @@ export enum AoriQuoterMethods {
 export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     OrderCancelled = "OrderCancelled",
-    QuoteReceived = "QuoteReceived",
     TradeMatched = "TradeMatched",
     TradeSettled = "TradeSettled",
     TradeFailed = "TradeFailed",
@@ -116,7 +118,6 @@ export type QuoteRequestedDetails = ({
     extraData?: string,
 });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
 export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute; // TODO: to deprecate
 export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
     makerOrder?: AoriOrder, // TODO: to deprecate
@@ -133,11 +134,10 @@ export type AoriWebsocketEventData = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
     [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
-    [SubscriptionEvents.QuoteReceived]: [WithEventDetails<SubscriptionEvents.QuoteReceived, QuoteReceivedDetails>],
-    [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>],
+    [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>], // TODO: to deprecate
+    [SubscriptionEvents.Sequenced]: [WithEventDetails<SubscriptionEvents.Sequenced, SequencedDetails>],
     [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
-    [SubscriptionEvents.Sequenced]: [WithEventDetails<SubscriptionEvents.Sequenced, SequencedDetails>],
 }
 export type AoriEventData<T extends SubscriptionEvents = SubscriptionEvents> = AoriWebsocketEventData[T][0];
 export type AoriEventDetails<T extends SubscriptionEvents = SubscriptionEvents> = AoriEventData<T>["data"];
