@@ -83,6 +83,7 @@ export type QuoteRequestedDetails = ({
     takerSignature: string, // TODO: to deprecate
     takerExtraData: string, // TODO: to deprecate
 
+    orderHash: string,
     order: AoriOrder,
     extraData: string,
     signature: string,
