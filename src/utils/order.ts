@@ -1,10 +1,10 @@
 import { solidityPackedKeccak256, Wallet, ZeroAddress } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
-import { signOrderWithExtradata } from "./signature";
-import { AORI_V2_ADDRESS } from "./constants";
+import { signOrderWithExtradata, verifyOrderSignature } from "./signature";
+import { AORI_V2_ADDRESS, SUPPORTED_AORI_CHAINS } from "./constants";
 
 /*//////////////////////////////////////////////////////////////
-                        ORDER SIGNATURE
+                        ORDER HASH
 //////////////////////////////////////////////////////////////*/
 
 export function getOrderHash({
@@ -95,3 +95,22 @@ export function createOrder(params: CreateOrderParams, wallet?: Wallet | undefin
 
 export const createLimitOrder = createOrder;
 export const createIntent = createOrder;
+
+/*//////////////////////////////////////////////////////////////
+                        VALIDATE ORDER
+//////////////////////////////////////////////////////////////*/
+
+export function validateOrder({ order, signature, extraData }: SignedOrder): string | null {
+    // Validate chain
+    if (!SUPPORTED_AORI_CHAINS.has(order.chainId)) return "Unsupported chain";
+
+    // Validate time
+    if (BigInt(order.startTime) > BigInt(Date.now() / 1000)) return "Start time is in the future";
+    if (BigInt(order.endTime) < BigInt(Date.now() / 1000)) return "End time is in the past";
+    if (BigInt(order.startTime) > BigInt(order.endTime)) return "Start time is after end time";
+
+    // Verify signature is valid
+    if (!verifyOrderSignature({ order, signature, extraData })) return "Invalid signature";
+
+    return null;
+}
