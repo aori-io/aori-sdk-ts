@@ -26,16 +26,6 @@ export interface SignedOrder {
     signature: string;
 }
 
-export interface AoriMatchingDetails {
-    tradeId: string;
-
-    makerSignature: string;
-    takerSignature: string;
-
-    feeTag: string;
-    feeRecipient: string;
-}
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -79,46 +69,34 @@ export enum AoriQuoterMethods {
 export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     OrderCancelled = "OrderCancelled",
-    TradeMatched = "TradeMatched",
     TradeSettled = "TradeSettled",
     TradeFailed = "TradeFailed",
     Sequenced = "Sequenced"
-}
-
-export interface DetailsToExecute {
-    matching: AoriMatchingDetails;
-    matchingSignature: string;
-
-    chainId: number;
-    zone: string;
-    to: string;
-    value: number;
-    data: string;
-    takerPermitSignature?: string;
 }
 
 export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> & { outputAmount?: string };
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
 export type QuoteRequestedDetails = ({
-    orderType: "rfq",
-    takerOrder: AoriOrder,
-    takerSignature: string,
-    takerExtraData: string,
+    orderType: "rfq", // TODO: to deprecate
+    takerOrder: AoriOrder, // TODO: to deprecate
+    takerSignature: string, // TODO: to deprecate
+    takerExtraData: string, // TODO: to deprecate
 
-    order?: AoriOrder,
-    extraData?: string,
+    order: AoriOrder,
+    extraData: string,
+    signature: string,
 } | {
-    orderType: "limit",
-    makerOrder: AoriOrder,
-    makerSignature: string,
-    makerExtraData: string,
+    orderType: "limit", // TODO: to deprecate
+    makerOrder: AoriOrder, // TODO: to deprecate
+    makerSignature: string, // TODO: to deprecate
+    makerExtraData: string, // TODO: to deprecate
 
-    order?: AoriOrder,
-    extraData?: string,
+    order: AoriOrder,
+    extraData: string,
+    signature: string,
 });
 export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute; // TODO: to deprecate
 export type TradeSettledDetails = { orderType: "rfq" | "limit" } & {
     makerOrder?: AoriOrder, // TODO: to deprecate
     takerOrder?: AoriOrder, // TODO: to deprecate
@@ -134,7 +112,6 @@ export type AoriWebsocketEventData = {
     ["ready"]: [],
     [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
     [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
-    [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>], // TODO: to deprecate
     [SubscriptionEvents.Sequenced]: [WithEventDetails<SubscriptionEvents.Sequenced, SequencedDetails>],
     [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
     [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
@@ -154,8 +131,6 @@ export type TradeRecord = {
         outputUsdValue?: number;
 
         // After TradeMatched
-        // matching?: AoriMatchingDetails;
-        // matchingSignature?: string;
         // to?: string;
         // value?: number;
         // data?: string;

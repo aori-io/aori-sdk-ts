@@ -51,9 +51,9 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
 
 // TODO: deprecate; move to using sendIntent
 export async function sendRFQ(req: SignedOrder | { order: AoriOrder, signature: string }, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, AoriMethods.Rfq, [req]);
+    return await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
 }
 
 export async function sendIntent(req: SignedOrder, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<AoriEventData<SubscriptionEvents.QuoteReceived>>(apiUrl, "aori_intent", [req]);
+    return await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, "aori_intent", [req]);
 }

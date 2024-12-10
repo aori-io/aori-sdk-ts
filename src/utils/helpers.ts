@@ -1,8 +1,7 @@
 import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
 import { getFeeData, getNonce, getTokenDetails, sendTransaction, simulateTransaction } from "../providers";
 import { ERC20__factory } from "../types";
-import { AoriMatchingDetails, approve } from "../utils";
-import { DetailsToExecute } from "./interfaces";
+import { approve } from "../utils";
 import axios from "axios";
 
 /*//////////////////////////////////////////////////////////////
@@ -48,42 +47,6 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
 export function signAddressSync(wallet: Wallet, address: string) {
     return wallet.signMessageSync(getBytes(address));
 }
-
-/*//////////////////////////////////////////////////////////////
-                    MATCHING HELPER FUNCTIONS
-//////////////////////////////////////////////////////////////*/
-
-export function getMatchingHash({
-    tradeId,
-    makerSignature,
-    takerSignature,
-    feeTag,
-    feeRecipient
-}: AoriMatchingDetails): string {
-    return solidityPackedKeccak256([
-        "string",
-        "bytes",
-        "bytes",
-        "string",
-        "address",
-    ], [
-        tradeId,
-        makerSignature,
-        takerSignature,
-        feeTag,
-        feeRecipient
-    ])
-}
-
-export function signMatchingSync(wallet: Wallet, matching: AoriMatchingDetails) {
-    const matchingHash = getMatchingHash(matching);
-    return wallet.signMessageSync(getBytes(matchingHash));
-}
-
-export function getMatchingSigner(matching: AoriMatchingDetails, signature: string) {
-    return verifyMessage(getMatchingHash(matching), signature);
-}
-
 /*//////////////////////////////////////////////////////////////
                             WALLET
 //////////////////////////////////////////////////////////////*/
@@ -136,17 +99,4 @@ export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequ
     }
 
     return success;
-}
-
-// TODO: to deprecate
-export async function settleOrders(wallet: Wallet, detailsToExecute: DetailsToExecute, { gasLimit, gasPriceMultiplier }: { gasLimit?: bigint, gasPriceMultiplier?: number } = { gasLimit: 2_000_000n }) {
-    return await sendOrRetryTransaction(wallet, {
-        to: detailsToExecute.to,
-        value: detailsToExecute.value,
-        data: detailsToExecute.data,
-        gasLimit: gasLimit,
-        chainId: detailsToExecute.chainId
-    }, {
-        gasPriceMultiplier
-    });
 }
