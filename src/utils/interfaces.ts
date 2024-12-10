@@ -92,6 +92,7 @@ export type QuoteRequestedDetails = ({
     makerSignature: string, // TODO: to deprecate
     makerExtraData: string, // TODO: to deprecate
 
+    orderHash: string,
     order: AoriOrder,
     extraData: string,
     signature: string,
