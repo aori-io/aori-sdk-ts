@@ -1,5 +1,5 @@
 import { WebSocket } from "isomorphic-ws";
-import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriMethods, AoriOrder, AoriQuoterMethods, AoriWebsocketEventData, rawCall, SubscriptionEvents, TypedEventEmitter } from "../utils";
+import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriMethods, AoriOrder, AoriQuoterMethods, rawCall, SubscriptionEvents, TypedEventEmitter, SubscriptionEventData } from "../utils";
 
 export interface AoriSubscribeParams {
     tradeId?: string;
@@ -9,7 +9,16 @@ export interface AoriSubscribeParams {
     chainId?: number;
 }
 
-export class RFQProvider extends TypedEventEmitter<AoriWebsocketEventData> {
+type AoriEventData = {
+    ["ready"]: [],
+    [SubscriptionEvents.QuoteRequested]: [SubscriptionEventData<SubscriptionEvents.QuoteRequested>],
+    [SubscriptionEvents.OrderCancelled]: [SubscriptionEventData<SubscriptionEvents.OrderCancelled>],
+    [SubscriptionEvents.Sequenced]: [SubscriptionEventData<SubscriptionEvents.Sequenced>],
+    [SubscriptionEvents.TradeSettled]: [SubscriptionEventData<SubscriptionEvents.TradeSettled>],
+    [SubscriptionEvents.TradeFailed]: [SubscriptionEventData<SubscriptionEvents.TradeFailed>],
+}
+
+export class RFQProvider extends TypedEventEmitter<AoriEventData> {
 
     feedUrl: string;
     feed: WebSocket;

@@ -73,51 +73,85 @@ export enum SubscriptionEvents {
 
 export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
 
-export type QuoteRequestedDetails = {
-    // TODO: add in zone and chainId
-    orderHash: string,
-    order: AoriOrder,
-    extraData: string,
-    signature: string,
-};
+export type SubscriptionEvent = {
+    tradeId: string,
+    timestamp: number
+} & ({
+    event: SubscriptionEvents.QuoteRequested,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+        signature: string
+    }
+} | {
+    event: SubscriptionEvents.OrderCancelled,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+    }
+} | {
+    event: SubscriptionEvents.TradeSettled,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+        transactionHash: string
+    }
+} | {
+    event: SubscriptionEvents.TradeFailed,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string
+    }
+} | {
+    event: SubscriptionEvents.Sequenced,
+    data: {
+        orders: SignedOrder[],
+        extraData: string,
+        witness: string,
+        chainId: number,
+        zone: string
+    }
+});
+export type SubscriptionEventData<T extends SubscriptionEvents = SubscriptionEvents> = SubscriptionEvent & { event: T };
 
-export type OrderCancelledDetails = {
-    orderHash: string,
-    order: AoriOrder,
-    extraData: string
-};
+// export type QuoteRequestedDetails = {
+//     // TODO: add in zone and chainId
+//     orderHash: string,
+//     order: AoriOrder,
+//     extraData: string,
+//     signature: string,
+// };
 
-export type TradeSettledDetails = {
-    orderHash: string,
-    order: AoriOrder,
-    extraData: string,
-    transactionHash: string,
-};
+// export type OrderCancelledDetails = {
+//     orderHash: string,
+//     order: AoriOrder,
+//     extraData: string
+// };
 
-export type TradeFailedDetails = {
-    orderHash: string,
-    order: AoriOrder,
-    extraData: string
-};
+// export type TradeSettledDetails = {
+//     orderHash: string,
+//     order: AoriOrder,
+//     extraData: string,
+//     transactionHash: string,
+// };
 
-export type SequencedDetails = {
-    orders: SignedOrder[];
-    extraData: string;
-    witness: string;
-    chainId: number;
-    zone: string;
-};
+// export type TradeFailedDetails = {
+//     orderHash: string,
+//     order: AoriOrder,
+//     extraData: string
+// };
 
-export type AoriWebsocketEventData = {
-    ["ready"]: [],
-    [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
-    [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
-    [SubscriptionEvents.Sequenced]: [WithEventDetails<SubscriptionEvents.Sequenced, SequencedDetails>],
-    [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
-    [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
-}
-export type AoriEventData<T extends SubscriptionEvents = SubscriptionEvents> = AoriWebsocketEventData[T][0];
-export type AoriEventDetails<T extends SubscriptionEvents = SubscriptionEvents> = AoriEventData<T>["data"];
+// export type SequencedDetails = {
+//     orders: SignedOrder[];
+//     extraData: string;
+//     witness: string;
+//     chainId: number;
+//     zone: string;
+// };
 
 export type TradeRecord = {
     tradeId: string;

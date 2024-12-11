@@ -1,4 +1,4 @@
-import { AORI_HTTP_API, AoriEventData, AoriMethods, AoriOrder, createOrder, rawCall, SignedOrder, SubscriptionEvents, Wallet } from "../utils"
+import { AORI_HTTP_API, AoriMethods, AoriOrder, createOrder, rawCall, SignedOrder, SubscriptionEventData, SubscriptionEvents, Wallet } from "../utils"
 
 interface AoriPartialRequest {
     address: string,
@@ -13,7 +13,7 @@ interface AoriPartialRequest {
 // TODO: move to aori_priceQuote
 // TODO: deprecate
 export async function receivePriceQuote(req: AoriPartialRequest, apiUrl: string = AORI_HTTP_API) {
-    const { data } = await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
+    const { data } = await rawCall<SubscriptionEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
     return data;
 }
 
@@ -50,9 +50,9 @@ export async function requestForQuote(wallet: Wallet, req: Omit<AoriPartialReque
 
 // TODO: deprecate; move to using sendIntent
 export async function sendRFQ(req: SignedOrder | { order: AoriOrder, signature: string }, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
+    return await rawCall<SubscriptionEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
 }
 
 export async function sendIntent(req: SignedOrder, apiUrl: string = AORI_HTTP_API) {
-    return await rawCall<AoriEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, "aori_intent", [req]);
+    return await rawCall<SubscriptionEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, "aori_intent", [req]);
 }
