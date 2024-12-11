@@ -13,16 +13,13 @@ type SettlementData = {
 export class SettlementProvider {
     url?: string;
     session?: EventSourceClient;
-    _onSettlement?: (data: SettlementData) => void;
+    onSettlement?: (data: SettlementData) => void;
 
-    initialise(url: string) {
+    initialise(url: string, settlementHandler: (data: SettlementData) => void) {
         this.url = url;
         this.session = undefined;
+        this.onSettlement = settlementHandler;
         this.reconnect();
-    }
-
-    async onSettlement(settlementHandler: (data: SettlementData) => void) {
-        this._onSettlement = settlementHandler;
     }
 
     async reconnect() {
@@ -47,8 +44,8 @@ export class SettlementProvider {
                         return;
                     }
 
-                    if (!this._onSettlement) return;
-                    this._onSettlement(data);
+                    if (!this.onSettlement) return;
+                    this.onSettlement(data);
                 } catch (e: any) {
                     console.error(e);
                 }
