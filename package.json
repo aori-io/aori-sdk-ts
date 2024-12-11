@@ -22,7 +22,6 @@
   "devDependencies": {
     "@typechain/ethers-v6": "^0.5.0",
     "@types/ws": "^8.5.8",
-    "ts-node": "^10.9.1",
     "typechain": "^8.3.1",
     "typescript": "^5.2.2"
   }
