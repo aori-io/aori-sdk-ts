@@ -24,7 +24,12 @@ export class SettlementProvider {
 
     async reconnect() {
         if (!this.url) return;
-        if (this.session) this.session.close();
+        if (this.session) {
+            this.session.close();
+            // Wait 10 seconds before reconnecting.
+            console.log(`Waiting 10 seconds before reconnecting SettlementProvider...`);
+            await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+        }
 
         this.session = createEventSource({
             url: this.url,
