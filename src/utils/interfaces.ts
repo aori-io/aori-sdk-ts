@@ -111,9 +111,7 @@ export type SubscriptionEvent = {
     data: {
         orders: SignedOrder[],
         extraData: string,
-        witness: string,
-        chainId: number,
-        zone: string
+        witness: string
     }
 });
 export type SubscriptionEventData<T extends SubscriptionEvents = SubscriptionEvents> = SubscriptionEvent & { event: T };
