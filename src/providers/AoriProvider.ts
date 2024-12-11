@@ -1,13 +1,6 @@
 import { WebSocket } from "isomorphic-ws";
-import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriMethods, AoriOrder, AoriQuoterMethods, rawCall, SubscriptionEvents, TypedEventEmitter, SubscriptionEventData } from "../utils";
-
-export interface AoriSubscribeParams {
-    tradeId?: string;
-    address?: string;
-    token?: string;
-    orderType?: "rfq" | "limit";
-    chainId?: number;
-}
+import { AORI_HTTP_API, AORI_QUOTER_API, AORI_WS_API, AoriMethods, AoriOrder, AoriQuoterMethods, rawCall, SubscriptionEvents, TypedEventEmitter, SubscriptionEventData, SignedOrder, SubscriptionEvent } from "../utils";
+import axios from "axios";
 
 type AoriEventData = {
     ["ready"]: [],
@@ -18,7 +11,7 @@ type AoriEventData = {
     [SubscriptionEvents.TradeFailed]: [SubscriptionEventData<SubscriptionEvents.TradeFailed>],
 }
 
-export class RFQProvider extends TypedEventEmitter<AoriEventData> {
+export class AoriProvider extends TypedEventEmitter<AoriEventData> {
 
     feedUrl: string;
     feed: WebSocket;
@@ -33,8 +26,8 @@ export class RFQProvider extends TypedEventEmitter<AoriEventData> {
         this.connect();
     }
 
-    static default(): RFQProvider {
-        return new RFQProvider(AORI_WS_API);
+    static default(): AoriProvider {
+        return new AoriProvider(AORI_WS_API);
     }
 
     async connect() {
@@ -86,14 +79,69 @@ export class RFQProvider extends TypedEventEmitter<AoriEventData> {
             }, 5_000);
         });
     }
+
+    async intent(signedOrder: SignedOrder) {
+        this.feed.send(JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            method: AoriMethods.Intent,
+            params: [signedOrder]
+        }));
+    }
+
+    async sequence(orders: SignedOrder[], extraData: string, witness: string) {
+        this.feed.send(JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            method: AoriMethods.Sequence,
+            params: [{
+                orders,
+                extraData,
+                witness
+            }]
+        }));
+    }
     
-    async subscribe(params: AoriSubscribeParams) {
+    // TODO: Add params
+    async subscribe(params: {}) {
         this.feed.send(JSON.stringify({
             id: 1,
             jsonrpc: "2.0",
             method: AoriMethods.Subscribe,
             params: [params]
         }));
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                             STATIC METHODS
+    //////////////////////////////////////////////////////////////*/
+
+    static async sendIntent(
+        signedOrder: SignedOrder,
+        url: string = AORI_HTTP_API
+    ): Promise<{ id: number } & ({ result: SubscriptionEventData<SubscriptionEvents.QuoteRequested> } | { error: { code: number, message: string } })> {
+        const { data } = await axios.post(url, {
+            id: 1,
+            jsonrpc: "2.0",
+            method: AoriMethods.Intent,
+            params: [signedOrder]
+        });
+        return data;
+    }
+
+    static async sequenceIntents(
+        orders: SignedOrder[],
+        extraData: string = "0x",
+        witness: string = "0x",
+        url: string = AORI_HTTP_API
+    ): Promise<{ id: number } & ({ result: SubscriptionEventData<SubscriptionEvents.Sequenced> } | { error: { code: number, message: string } })> {
+        const { data } = await axios.post(url, {
+            id: 1,
+            jsonrpc: "2.0",
+            method: AoriMethods.Sequence,
+            params: [{ orders, extraData, witness }]
+        });
+        return data;
     }
 }
 
@@ -161,4 +209,12 @@ export async function cancelOrder(params: AoriCancelParams) {
         tradeId: params.tradeId,
         signature: params.signature
     }]);
+}
+
+export async function sendRFQ(req: SignedOrder | { order: AoriOrder, signature: string }, apiUrl: string = AORI_HTTP_API) {
+    return await rawCall<SubscriptionEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Rfq, [req]);
+}
+
+export async function sendIntent(req: SignedOrder, apiUrl: string = AORI_HTTP_API) {
+    return await rawCall<SubscriptionEventData<SubscriptionEvents.QuoteRequested>>(apiUrl, AoriMethods.Intent, [req]);
 }

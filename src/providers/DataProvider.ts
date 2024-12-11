@@ -8,7 +8,6 @@ import axios from "axios";
 interface AoriViewTradesParams {
     tradeId?: string;
     offerer?: string;
-    orderType: "rfq" | "limit";
     eventType?: string[];
     chains?: number[];
     quote?: string;
