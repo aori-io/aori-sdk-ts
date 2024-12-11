@@ -1,6 +1,5 @@
-import { getBytes, JsonRpcError, JsonRpcResult, solidityPackedKeccak256, TransactionRequest, verifyMessage, Wallet } from "ethers";
+import { JsonRpcError, JsonRpcResult, TransactionRequest, Wallet } from "ethers";
 import { getFeeData, getNonce, getTokenDetails, sendTransaction, simulateTransaction } from "../providers";
-import { ERC20__factory } from "../types";
 import { approve } from "../utils";
 import axios from "axios";
 
@@ -44,6 +43,7 @@ export async function rawCall<T>(url: string, method: string, params: [any] | []
                             WALLET
 //////////////////////////////////////////////////////////////*/
 
+// TODO: cleanup and move into actions
 export async function checkAndApproveToken(
     wallet: Wallet,
     chainId: number,
@@ -60,6 +60,7 @@ export async function checkAndApproveToken(
     }
 }
 
+// TODO: cleanup and move into actions
 export async function sendOrRetryTransaction(wallet: Wallet, tx: TransactionRequest & { chainId: number }, { retries, gasPriceMultiplier }: { retries?: number, gasPriceMultiplier?: number } = { retries: 3 }) {  
     const _retries = retries || 3;
     const _gasPriceMultiplier = gasPriceMultiplier || 1.1;

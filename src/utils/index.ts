@@ -2,7 +2,6 @@ export * from "./actions";
 export * from "./constants";
 export * from "./helpers";
 export * from "./instructions";
-export * from "./intent";
 export * from "./interfaces";
 export * from "./order";
 export * from "./providers";
