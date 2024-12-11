@@ -53,8 +53,8 @@ export class RFQProvider extends TypedEventEmitter<AoriEventData> {
 
         this.feed.on("message", (msg) => {
             try {
-                const { tradeId, event, data, timestamp } = JSON.parse(msg.toString());
-                const eventDetails = { tradeId, event, data, timestamp };
+                const { tradeId, event, data, timestamp, zone, chainId } = JSON.parse(msg.toString());
+                const eventDetails = { tradeId, event, data, timestamp, zone, chainId };
 
                 switch (event) {
                     case SubscriptionEvents.QuoteRequested:

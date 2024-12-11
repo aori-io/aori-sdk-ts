@@ -71,11 +71,11 @@ export enum SubscriptionEvents {
     Sequenced = "Sequenced"
 }
 
-export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
-
 export type SubscriptionEvent = {
     tradeId: string,
-    timestamp: number
+    zone: string,
+    chainId: number,
+    timestamp: number,
 } & ({
     event: SubscriptionEvents.QuoteRequested,
     data: {
@@ -117,41 +117,6 @@ export type SubscriptionEvent = {
     }
 });
 export type SubscriptionEventData<T extends SubscriptionEvents = SubscriptionEvents> = SubscriptionEvent & { event: T };
-
-// export type QuoteRequestedDetails = {
-//     // TODO: add in zone and chainId
-//     orderHash: string,
-//     order: AoriOrder,
-//     extraData: string,
-//     signature: string,
-// };
-
-// export type OrderCancelledDetails = {
-//     orderHash: string,
-//     order: AoriOrder,
-//     extraData: string
-// };
-
-// export type TradeSettledDetails = {
-//     orderHash: string,
-//     order: AoriOrder,
-//     extraData: string,
-//     transactionHash: string,
-// };
-
-// export type TradeFailedDetails = {
-//     orderHash: string,
-//     order: AoriOrder,
-//     extraData: string
-// };
-
-// export type SequencedDetails = {
-//     orders: SignedOrder[];
-//     extraData: string;
-//     witness: string;
-//     chainId: number;
-//     zone: string;
-// };
 
 export type TradeRecord = {
     tradeId: string;
