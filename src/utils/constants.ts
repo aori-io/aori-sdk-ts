@@ -41,23 +41,21 @@ export const AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES = new Map<number, string>([
                                 MAINNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.BASE_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
+    [ChainId.BASE_MAINNET, "0x2910011b916A62e260d38DfAA4F357AFFb190dd0"],
 
-    [ChainId.ARBITRUM_MAINNET, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
+    [ChainId.ARBITRUM_MAINNET, "0x2910011b916A62e260d38DfAA4F357AFFb190dd0"],
 
     /*//////////////////////////////////////////////////////////////
                                 TESTNETS
     //////////////////////////////////////////////////////////////*/
 
-    [ChainId.SEPOLIA, "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f"],
+    [ChainId.SEPOLIA, "0x2910011b916A62e260d38DfAA4F357AFFb190dd0"],
 ]);
 
-export const AORI_V2_ADDRESS = "0x82F75ffFC29D9b439EF2b4C80537608D9f52732f";
-export const AORI_V2_PRINCIPAL_MATCH_ZONE = "0x06EDDbe3e5C87AD84360684dCAE6121bd603dfA6";
+export const AORI_V2_ADDRESS = "0x2910011b916A62e260d38DfAA4F357AFFb190dd0";
+export const AORI_V2_PRINCIPAL_MATCH_ZONE = "0xf9155B47f3F27eaB1374Bb13e48E66073B55C8A8";
 
 export const SUPPORTED_AORI_CHAINS = new Set(AORI_V2_SINGLE_CHAIN_ZONE_ADDRESSES.keys());
-
-export const CREATEX_ADDRESS = "0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed";
 
 /*//////////////////////////////////////////////////////////////
                         WEBSOCKET URLS
@@ -73,29 +71,18 @@ export const AORI_DATA_PROVIDER_APIS: string[] = [
     AORI_DATA_PROVIDER_API,
 ];
 
+// Data Server API 
+export const AORI_DATA_SERVER_API: string = "https://data.aori.io/";
+
+
 // Pricing Provider API
 export const AORI_PRICING_PROVIDER_API: string = "https://pricing.aori.io";
 
 // Settlement Provider API
 export const AORI_SETTLEMENT_PROVIDER_API: string = "https://settlement.aori.io";
 
-/*//////////////////////////////////////////////////////////////
-                                FEE
-//////////////////////////////////////////////////////////////*/
-
-// Used to calculate the amount that an incoming taker must pay to take a limit order
-export function getAmountPlusFee(amount: string, feeInBips: number) {
-    return (BigInt(amount) * (10000n + BigInt(feeInBips)) / 10000n);
-}
-
-// Used to calculate the amount in the outputAmount that the taker gets less of
-export function getAmountMinusFee(amount: string, feeInBips: number) {
-    return (BigInt(amount) * 10000n / (10000n + BigInt(feeInBips)));
-}
-
-export const AORI_DEFAULT_FEE_TAG = "aori";
-export const AORI_DEFAULT_FEE_IN_BIPS = 3;
-export const AORI_DEFAULT_FEE_RECIPIENT = "0xB1a2f2A4c79C7C7Ba1Ac161ad0BDeCf11350dAa7";
+// Quoter API
+export const AORI_QUOTER_API: string = 'https://quoter.aori.io/'
 
 // Seats
 export const SEATS_NFT_ADDRESS = "0xD539e71371414F027Af025fd1EfFb6e11b5C902A";

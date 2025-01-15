@@ -1,29 +1,32 @@
-import { getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
+import { AbiCoder, getBytes, solidityPackedKeccak256, verifyMessage, Wallet } from "ethers";
 import { AoriOrder, SignedOrder } from "./interfaces";
-import { getOrderHash } from "../providers";
+import { getOrderHash } from "./order";
 
 /*//////////////////////////////////////////////////////////////
                         ORDER SIGNATURE
 //////////////////////////////////////////////////////////////*/
 
-export function getOrderMessage(order: SignedOrder) {
-    return solidityPackedKeccak256(
-        ["bytes32", "bytes"],
-        [
-            getOrderHash(order.order),
-            order.extraData
-        ]
-    )
+export function getOrderMessage({ order, extraData = "0x" }: { order: AoriOrder, extraData?: string }) {
+    return {
+        orderHash: getOrderHash(order),
+        digest: solidityPackedKeccak256(
+            ["bytes32", "bytes"],
+            [
+                getOrderHash(order),
+                extraData
+            ]   
+        )
+    }
 }
 
 export function signOrderWithExtradata(wallet: Wallet, order: AoriOrder, extraData: string = "0x"): SignedOrder {
-    const signature = wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData, signature: "" })));
+    const signature = wallet.signMessageSync(getBytes(getOrderMessage({ order, extraData }).digest));
     return { order, extraData, signature };
 }
 
 export function verifyOrderSignature(signedOrder: SignedOrder): boolean {
     return verifyMessage(
-        getBytes(getOrderMessage(signedOrder)),
+        getBytes(getOrderMessage(signedOrder).digest),
         signedOrder.signature
     ) == signedOrder.order.offerer;
 }
@@ -33,7 +36,7 @@ export function verifyOrderSignature(signedOrder: SignedOrder): boolean {
 //////////////////////////////////////////////////////////////*/
 
 export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
-    const messages = orders.map(order => getOrderMessage(order));
+    const messages = orders.map(order => getOrderMessage(order).digest);
     return solidityPackedKeccak256(
         ["bytes32[]", "bytes"],
         [
@@ -43,8 +46,7 @@ export function getSequenceMessage(orders: SignedOrder[], extraData: string) {
     )
 }
 
-export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string = "0x"): { orders: SignedOrder[], extraData: string, signature: string } {
-    const sequenceMessage = getSequenceMessage(orders, extraData);
-    const signature = wallet.signMessageSync(getBytes(sequenceMessage));
+export function signSequence(wallet: Wallet, orders: SignedOrder[], extraData: string = "0x") {
+    const signature = wallet.signMessageSync(getBytes(getSequenceMessage(orders, extraData)));
     return { orders, extraData, signature };
 }

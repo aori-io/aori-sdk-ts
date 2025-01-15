@@ -26,33 +26,6 @@ export interface SignedOrder {
     signature: string;
 }
 
-export interface AoriMatchingDetails {
-    tradeId: string;
-
-    makerSignature: string;
-    takerSignature: string;
-
-    feeTag: string;
-    feeRecipient: string;
-}
-
-/*//////////////////////////////////////////////////////////////
-                         METHOD TYPES
-//////////////////////////////////////////////////////////////*/
-
-export interface CreateLimitOrderParams {
-    offerer: string;
-    startTime?: number;
-    endTime?: number;
-    inputToken: string;
-    inputAmount: bigint;
-    outputToken: string;
-    outputAmount: bigint;
-    chainId: number;
-    zone?: string;
-    toWithdraw?: boolean;
-}
-
 /*//////////////////////////////////////////////////////////////
                             ENUMS
 //////////////////////////////////////////////////////////////*/
@@ -62,18 +35,22 @@ export enum AoriMethods {
     Version = "aori_version",
     SupportedChains = "aori_supportedChains",
     Rfq = "aori_rfq",
-    Respond = "aori_respond",
     Subscribe = "aori_subscribe",
     // =====
-    Make = "aori_make",
-    Take = "aori_take",
     Cancel = "aori_cancel",
-    Fail = "aori_fail"
+    Fail = "aori_fail",
+    // =====
+    Intent = "aori_intent",
+    Sequence = "aori_sequence"
 }
 
-export enum AoriDataMethods {
+export enum AoriDataProviderMethods {
     SendTransaction = "aori_sendTransaction",
     SimulateTransaction = "aori_simulateTransaction",
+}
+
+export enum AoriDataServerMethods {
+    ViewTrades = "aori_viewTrades"
 }
 
 export enum AoriPricingMethods {
@@ -82,67 +59,74 @@ export enum AoriPricingMethods {
     CalculateGasInToken = "aori_calculateGasInToken",
 }
 
+export enum AoriQuoterMethods {
+    PriceQuote = "aori_priceQuote"
+}
+
 export enum SubscriptionEvents {
     QuoteRequested = "QuoteRequested",
     OrderCancelled = "OrderCancelled",
-    QuoteReceived = "QuoteReceived",
-    TradeMatched = "TradeMatched",
     TradeSettled = "TradeSettled",
-    TradeFailed = "TradeFailed"
+    TradeFailed = "TradeFailed",
+    Sequenced = "Sequenced"
 }
 
-export interface DetailsToExecute {
-    matching: AoriMatchingDetails;
-    matchingSignature: string;
-
-    chainId: number;
-    zone: string;
-    to: string;
-    value: number;
-    data: string;
-    takerPermitSignature?: string;
-}
-
-export type AoriOrderWithOptionalOutputAmount = Omit<AoriOrder, "outputAmount"> & { outputAmount?: string };
-export type WithEventDetails<TEvent, TDetails> = { tradeId: string, event: TEvent, data: TDetails, timestamp: number };
-
-export type QuoteRequestedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type OrderCancelledDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", makerOrder: AoriOrder });
-export type QuoteReceivedDetails = ({ orderType: "rfq", takerOrder: AoriOrderWithOptionalOutputAmount } | { orderType: "limit", takerOrder: AoriOrder }) & ({ makerOrder: AoriOrder });
-export type TradeMatchedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder } & DetailsToExecute;
-export type TradeSettledDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder, transactionHash: string };
-export type TradeFailedDetails = { orderType: "rfq" | "limit" } & { makerOrder: AoriOrder, takerOrder: AoriOrder };
-
-export type AoriWebsocketEventData = {
-    ["ready"]: [],
-    [SubscriptionEvents.QuoteRequested]: [WithEventDetails<SubscriptionEvents.QuoteRequested, QuoteRequestedDetails>],
-    [SubscriptionEvents.OrderCancelled]: [WithEventDetails<SubscriptionEvents.OrderCancelled, OrderCancelledDetails>],
-    [SubscriptionEvents.QuoteReceived]: [WithEventDetails<SubscriptionEvents.QuoteReceived, QuoteReceivedDetails>],
-    [SubscriptionEvents.TradeMatched]: [WithEventDetails<SubscriptionEvents.TradeMatched, TradeMatchedDetails>],
-    [SubscriptionEvents.TradeSettled]: [WithEventDetails<SubscriptionEvents.TradeSettled, TradeSettledDetails>],
-    [SubscriptionEvents.TradeFailed]: [WithEventDetails<SubscriptionEvents.TradeFailed, TradeFailedDetails>],
-}
-export type AoriEventData<T extends SubscriptionEvents = SubscriptionEvents> = AoriWebsocketEventData[T][0];
-export type AoriEventDetails<T extends SubscriptionEvents = SubscriptionEvents> = AoriEventData<T>["data"];
+export type SubscriptionEvent = {
+    tradeId: string,
+    zone: string,
+    chainId: number,
+    timestamp: number,
+} & ({
+    event: SubscriptionEvents.QuoteRequested,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+        signature: string
+    }
+} | {
+    event: SubscriptionEvents.OrderCancelled,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+    }
+} | {
+    event: SubscriptionEvents.TradeSettled,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string,
+        transactionHash: string
+    }
+} | {
+    event: SubscriptionEvents.TradeFailed,
+    data: {
+        orderHash: string,
+        order: AoriOrder,
+        extraData: string
+    }
+} | {
+    event: SubscriptionEvents.Sequenced,
+    data: {
+        orders: SignedOrder[],
+        extraData: string,
+        witness: string
+    }
+});
+export type SubscriptionEventData<T extends SubscriptionEvents = SubscriptionEvents> = SubscriptionEvent & { event: T };
 
 export type TradeRecord = {
     tradeId: string;
     data: {
         // After QuoteRequested
-        orderType: "rfq" | "limit";
-        takerOrder?: AoriOrderWithOptionalOutputAmount;
-        makerOrder?: AoriOrder;
+        orderHash: string;
+        order: AoriOrder;
+        extraData: string;
+        signature: string;
 
-        // After TradeMatched
-        matching?: AoriMatchingDetails;
-        matchingSignature?: string;
-        to?: string;
-        value?: number;
-        data?: string;
-        feeTag?: string;
-        feeRecipient?: string;
-        makerUsdValue?: number;
-        takerUsdValue?: number;
+        inputUsdValue?: number;
+        outputUsdValue?: number;
 
         // After TradeSettled
         transactionHash?: string;

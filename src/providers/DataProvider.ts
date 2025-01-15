@@ -1,9 +1,19 @@
 import { BytesLike, Interface, JsonRpcProvider, Transaction, TransactionRequest, verifyMessage, ZeroAddress } from "ethers";
-import { AORI_DATA_PROVIDER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
-import { AoriV2__factory, AoriVault__factory, ERC20__factory } from "../types";
-import { AoriDataMethods } from "../utils/interfaces";
+import { AORI_DATA_PROVIDER_API, AORI_DATA_SERVER_API, AORI_SETTLEMENT_PROVIDER_API, rawCall, SEATS_NFT_ADDRESS } from "../utils";
+import { ERC20__factory } from "../types";
+import { AoriDataProviderMethods, AoriDataServerMethods } from "../utils/interfaces";
 import { getChainProvider } from "../utils/providers";
-import axios from "axios";
+
+interface AoriViewTradesParams {
+    tradeId?: string;
+    offerer?: string;
+    eventType?: string[];
+    chains?: number[];
+    quote?: string;
+    base?: string;
+    page?: number;
+    limit?: number;
+}
 
 /*//////////////////////////////////////////////////////////////
                             HELPERS
@@ -18,11 +28,7 @@ export function retryIfFail<T>(provider: JsonRpcProvider, fn: (provider: JsonRpc
     const arr: Promise<any>[] = [];
     for (let i = 0; i < loadCount; i++) arr.push(new Promise(async (resolve, reject) => {
         try {
-            const requestId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const url = provider._getConnection().url;
-            console.time(`RPC Call ${requestId} - ${url}`);
             const response = await fn(provider);
-            console.timeEnd(`RPC Call ${requestId} - ${url}`);
             return resolve(response);
         } catch (e) {
             return reject(e);
@@ -64,35 +70,21 @@ export function estimateGas(chainIdOrProvider: number | JsonRpcProvider, tx: Tra
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.estimateGas(tx));
 }
 
-export function hasOrderSettled(chainIdOrProvider: number | JsonRpcProvider, offerer: string, orderHash: string, instance: string) {
-    return retryIfFail(resolveProvider(chainIdOrProvider), provider => {
-        const contract = AoriV2__factory.connect(instance, provider);
-        return contract.hasSettled(offerer, orderHash);
-    });
-}
-
 export function getNativeBalance(chainIdOrProvider: number | JsonRpcProvider, address: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.getBalance(address));
 }
 
 export async function getTokenDetails(chainIdOrProvider: number | JsonRpcProvider, token: string, address?: string, spender?: string) {
     return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
-        const contract = ERC20__factory.connect(token, provider); 
+        const contract = ERC20__factory.connect(token, provider);
         return {
             name: await contract.name(),
             symbol: await contract.symbol(),
             decimals: await contract.decimals(),
-            ...(address ?  { balance: await contract.balanceOf(address) } : {}),
+            ...(address ? { balance: await contract.balanceOf(address) } : {}),
             ...((address && spender) ? { allowance: await contract.allowance(address, spender) } : {})
         }
     })
-}
-
-export async function isValidSignature(chainIdOrProvider: number | JsonRpcProvider, address: string, hash: BytesLike, signature: string): Promise<boolean> {
-    return retryIfFail(resolveProvider(chainIdOrProvider), async (provider) => {
-        const contract = AoriVault__factory.connect(address, provider);
-        return await contract.isValidSignature(hash, signature) == "0x1626ba7e";
-    });   
 }
 
 export async function getSeatDetails(chainIdOrProvider: number | JsonRpcProvider, seatId: number): Promise<{ seatOwner: string, seatScore: number }> {
@@ -112,15 +104,11 @@ export async function getSeatDetails(chainIdOrProvider: number | JsonRpcProvider
             seatOwner: owner,
             seatScore: parseInt(seatScore) || 0
         }
-    });    
-}
-
-export function verifySignature(message: string, signature: string): string {
-    return verifyMessage(message, signature);
+    });
 }
 
 export function sendTransaction(signedTx: string): Promise<string> {
-    return rawCall(AORI_DATA_PROVIDER_API, AoriDataMethods.SendTransaction, [{ signedTx }]);
+    return rawCall(AORI_DATA_PROVIDER_API, AoriDataProviderMethods.SendTransaction, [{ signedTx }]);
 }
 
 export function simulateTransaction(tx: TransactionRequest & { chainId: number }): Promise<string> {
@@ -131,19 +119,6 @@ export function staticCall(chainIdOrProvider: number | JsonRpcProvider, tx: Tran
     return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.call(tx));
 }
 
-export async function isContract(chainIdOrProvider: number | JsonRpcProvider, address: string) {
-    return retryIfFail(resolveProvider(chainIdOrProvider), provider => provider.getCode(address).then(code => code != "0x"))
-}
-
-export async function getSettlementStatus(orderHashes: string[]): Promise<{ [orderHash: string]: { settled: true, transactionHash: string, maker: string, taker: string } | { settled: false } }> {
-    const { data }: { data: { [orderHash: string]: {
-        settled: true,
-        transactionHash: string,
-        maker: string,
-        taker: string
-    } | { settled: false } } } = await axios.post(AORI_SETTLEMENT_PROVIDER_API, {
-        orderHashes
-    });
-
-    return data;
+export async function queryOrders(query: AoriViewTradesParams, url: string = AORI_DATA_SERVER_API) {
+    return await rawCall(url, AoriDataServerMethods.ViewTrades, [query]);
 }
